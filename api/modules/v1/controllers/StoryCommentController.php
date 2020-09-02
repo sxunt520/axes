@@ -6,67 +6,56 @@ use Yii;
 use api\components\BaseController;
 use api\models\Story;
 use api\models\StoryTag;
-use api\models\StoryImg;
-use api\models\StoryLikeLog;
+use api\models\StoryComment;
+use api\models\StoryCommentImg;
 
-use yii\web\NotFoundHttpException;
-use api\components\library\UserException;
-
-class StoryController extends BaseController
+class StoryCommentController extends BaseController
 {
     public function init(){
         parent::init();
     }
     
-    public $modelClass = 'api\models\Story';
+    public $modelClass = 'api\models\StoryComment';
 
     /**
-     * 故事首页推荐内容
+     * 评论热度Top首页
      */
     public function actionHome(){
-    	//throw new NotFoundHttpException('标签不存在');
-    	//throw new UserException(['code'=>400,'message'=>'xxxxx','errorCode'=>2000]);
-    	//Yii::$app->response->statusCode = 300;
-    	//throw new \yii\web\HttpException(400, 'xxxxxxxxxxxxxxxxxxxx',4000);
-    	
-    	//     	$redis = Yii::$app->redis;
-    	//     	$key = 'username';
-    	//     	if($val = $redis->get($key)){
-    	// 			var_dump($val);exit;
-    	// 		} else {
-    	// 			$redis->set($key, 'marko');
-    	// 			$redis->expire($key, 5);
-    	// 		}
-    	
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+        if(!Yii::$app->request->POST("page")||!Yii::$app->request->POST("pagenum")){
+            return parent::__response('参数错误!',(int)-2);
+        }
     	$page = (int)Yii::$app->request->post('page');//当前页
     	$pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少
     	if ($page < 1) $page = 1;
-    	if ($pagenum < 1) $pagenum = 1;
+    	if ($pagenum < 1) $pagenum = 5;
     	
-         $Story_rows=Story::find()
-	        ->select(['id','title','intro','type','cover_url','video_url','created_at','likes'])
-	        ->andWhere(['=', 'is_show', 1])
-	        ->andWhere(['=', 'type', 1])
-	        ->orderBy(['id' => SORT_DESC])
-	        ->offset($pagenum * ($page - 1))
-	        ->limit($pagenum)
-	        ->asArray()
-	        ->all();
+         $StoryComment_rows=StoryComment::find()
+            ->select(['id','story_id','title','content','from_uid','created_at','comment_img_id','heart_val','is_plot','likes'])
+            ->andWhere(['=', 'is_show', 1])
+            ->orderBy(['heart_val' => SORT_DESC,'id'=>SORT_DESC])
+            ->offset($pagenum * ($page - 1))
+            ->limit($pagenum)
+            ->asArray()
+            ->all();
          
-      //标签、多图
-        foreach ($Story_rows as $k=>$v){
-            $StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $v['id']])->asArray()->all();
-            $StoryImg_rows=StoryImg::find()->select(['id','img_url','img_text'])->where(['story_id' => $v['id']])->asArray()->all();
-            if($StoryTag_rows) $Story_rows[$k]['tags']=$StoryTag_rows;
-            //if($StoryImg_rows) $Article_model[$k]['iamges']=$StoryImg_rows;
+      //标签、图片
+        foreach ($StoryComment_rows as $k=>$v){
+            $StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $v['story_id']])->asArray()->all();
+            if($StoryTag_rows) $StoryComment_rows[$k]['tags']=$StoryTag_rows;
+            $StoryCommentImg=StoryCommentImg::find()->select(['id','img_url','img_text'])->where(['id' => $v['comment_img_id']])->asArray()->one();
+            if($StoryCommentImg)$StoryComment_rows[$k]['comment_img']=$StoryCommentImg;
         }
 
-        return parent::__response('ok',0,$Story_rows);
+        return parent::__response('ok',0,$StoryComment_rows);
         
     }
 
     /**
-     * 故事详情页内容
+     * 评论详情页内容
      */
     public function actionDetails(){
 
@@ -78,19 +67,22 @@ class StoryController extends BaseController
         }
         $id = (int)Yii::$app->request->post('id');
 
-        $Story_row=Story::find()
-            ->select(['id','title','intro','type','cover_url','video_url','created_at','updated_at','next_updated_at','current_chapters','total_chapters','likes'])
+        $StoryComment_row=StoryComment::find()
             ->andWhere(['=', 'id', $id])
             ->asArray()
             ->one();
 
-        //标签、多图
-        $StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $id])->asArray()->all();
-        $StoryImg_rows=StoryImg::find()->select(['id','img_url','img_text'])->where(['story_id' => $id])->asArray()->all();
-        if($StoryTag_rows) $Story_row['tags']=$StoryTag_rows;
-        if($StoryImg_rows) $Story_row['iamges']=$StoryImg_rows;
+          //标签
+        //$StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $id])->asArray()->all();
+        //if($StoryTag_rows) $StoryComment_row['tags']=$StoryTag_rows;
 
-        return parent::__response('ok',0,$Article_row);
+        //评论图
+        if($StoryComment_row['comment_img_id']>0){
+            $StoryCommentImg_rows=StoryCommentImg::find()->select(['id','img_url','img_text'])->where(['id' => $StoryComment_row['comment_img_id']])->asArray()->all();
+            if($StoryCommentImg_rows) $StoryComment_row['comment_img']=$StoryCommentImg_rows;
+        }
+
+        return parent::__response('ok',0,$StoryComment_row);
 
     }
 

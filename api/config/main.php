@@ -55,10 +55,12 @@ return [
                             'POST members' => 'member/user-profile',
                             'POST members' => 'member/test',
                             'POST articles' => 'article/list',
-                            'POST storys' => 'story/list',
+                            'POST storys' => 'story/home',
                             'POST storys' => 'story/like',
                             'POST storys' => 'story/get-likes',
                             'POST storys' => 'story/details',
+                            'POST story-comments' => 'story-comment/home',
+                            'POST story-comments' => 'story-comment/details',
                      ],
           ],
 //            'response' => [

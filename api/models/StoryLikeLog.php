@@ -14,17 +14,9 @@ use Yii;
  * @property integer $create_at
  * @property integer $status
  */
-class StoryLikeLog extends \yii\db\ActiveRecord
+class StoryLikeLog extends \common\models\StoryLikeLog
 {
     public $error;
-
-    /**
-     * @inheritdoc
-     */
-    public static function tableName()
-    {
-        return '{{%story_like_log}}';
-    }
 
     /**
      * @inheritdoc
