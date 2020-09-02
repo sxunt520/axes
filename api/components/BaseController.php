@@ -27,6 +27,15 @@ class BaseController extends ActiveController
                 ],
             ]
         ] );
-    }    
+    }
+
+    //自定义返回数据封装
+    public static function __response($message='ok',$code=0,$data=[]){
+        return [
+            'message'=>$message,
+            'code'=>$code,
+            'data'=>$data,
+        ];
+    }
 
 }

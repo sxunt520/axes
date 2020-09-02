@@ -44,10 +44,19 @@ class LoginForm extends Model
         if (!$this->hasErrors()) {
             $this->_user = $this->getUser();
             if (!$this->_user || !$this->_user->validatePassword($this->password)) {
-                $this->addError($attribute, '用户名或密码错误.');
+                //$this->addError($attribute, '用户名或密码错误.');
+                $this->addErrors(['message'=>'用户名或密码错误.','code'=>-1]);
+                //$this->addError('code', -1);
             }
         }
     }
+
+//    public function ___addError($attribute, $error = '')
+//    {
+//        $this->_errors['message'] = '用户名或密码错误';
+//        $this->_errors['code'] =-1;
+//    }
+
     /**
      * @inheritdoc
      */

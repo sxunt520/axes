@@ -34,12 +34,15 @@ class MemberController extends BaseController
 	    $model->setAttributes(Yii::$app->request->post());
 	    if ($user = $model->login()) {
 	        if ($user instanceof IdentityInterface) {
-	            return $user->api_token;
+	            //return $user->api_token;
+                return parent::__response('ok',0,['Token'=>$user->api_token]);
 	        } else {
 	            return $user->errors;
 	        }
 	    } else {
 	        return $model->errors;
+            //var_dump($user->errors);
+            //return parent::__response($user->errors,-1);
 	    }
 	}
 	

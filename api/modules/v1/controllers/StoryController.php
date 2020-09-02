@@ -7,6 +7,7 @@ use api\components\BaseController;
 use api\models\Story;
 use api\models\StoryTag;
 use api\models\StoryImg;
+use api\models\StoryLikeLog;
 
 use yii\web\NotFoundHttpException;
 use api\components\library\UserException;
@@ -43,7 +44,7 @@ class StoryController extends BaseController
     	if ($pagenum < 1) $pagenum = 1;
     	
          $Article_model=Story::find()
-	        ->select(['id','title','intro','type','cover_url','video_url','created_at','updated_at','next_updated_at','current_chapters','total_chapters'])
+	        ->select(['id','title','intro','type','cover_url','video_url','created_at','likes'])
 	        ->andWhere(['=', 'is_show', 1])
 	        ->andWhere(['=', 'type', 1])
 	        ->orderBy(['id' => SORT_DESC])
@@ -52,16 +53,120 @@ class StoryController extends BaseController
 	        ->asArray()
 	        ->all();
          
-         //标签、多图    
+      //标签、多图
         foreach ($Article_model as $k=>$v){
-        	$StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $v['id']])->asArray()->all();
-        	$StoryImg_rows=StoryImg::find()->select(['id','img_url','img_text'])->where(['story_id' => $v['id']])->asArray()->all();
-        	if($StoryTag_rows) $Article_model[$k]['tags']=$StoryTag_rows;
-        	if($StoryImg_rows) $Article_model[$k]['iamges']=$StoryImg_rows;
+            $StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $v['id']])->asArray()->all();
+            $StoryImg_rows=StoryImg::find()->select(['id','img_url','img_text'])->where(['story_id' => $v['id']])->asArray()->all();
+            if($StoryTag_rows) $Article_model[$k]['tags']=$StoryTag_rows;
+            //if($StoryImg_rows) $Article_model[$k]['iamges']=$StoryImg_rows;
         }
-         
-        return $Article_model;
+
+        return parent::__response('ok',0,$Article_model);
         
+    }
+
+    /**
+     * 故事详情页内容
+     */
+    public function actionDetails(){
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+        if(!Yii::$app->request->POST("id")){
+            return parent::__response('参数错误!',(int)-2);
+        }
+        $id = (int)Yii::$app->request->post('id');
+
+        $Article_row=Story::find()
+            ->select(['id','title','intro','type','cover_url','video_url','created_at','updated_at','next_updated_at','current_chapters','total_chapters','likes'])
+            ->andWhere(['=', 'id', $id])
+            ->asArray()
+            ->one();
+
+        //标签、多图
+        $StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $id])->asArray()->all();
+        $StoryImg_rows=StoryImg::find()->select(['id','img_url','img_text'])->where(['story_id' => $id])->asArray()->all();
+        if($StoryTag_rows) $Article_row['tags']=$StoryTag_rows;
+        if($StoryImg_rows) $Article_row['iamges']=$StoryImg_rows;
+
+        return parent::__response('ok',0,$Article_row);
+
+    }
+
+    /**
+     *点赞
+     */
+    public function actionLike(){
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+
+        $story_id=Yii::$app->request->POST("story_id");
+        $user_id=Yii::$app->request->POST("user_id");
+        if(!isset($story_id)||!isset($user_id)){
+            return parent::__response('参数错误!',(int)-2);
+        }
+        $StoryLikeLog_model = new StoryLikeLog();
+
+        $result=$StoryLikeLog_model->apiLike($story_id,$user_id);//数据库里去更新点赞数，存入缓存
+
+        if ($result && Yii::$app->cache->exists($story_id)){
+//             $_response['message']='ok';
+//             $_response['code']=(int)0;
+//             $_response['data']['likes']=(int)Yii::$app->cache->get($story_id);
+//             return $_response;
+            return parent::__response('ok',0,['likes'=>Yii::$app->cache->get($story_id)]);
+        }else{//缓存中都没有，初次访问然后去库中取
+            $_response=array();
+            $_response=self::__likes($story_id);
+            if (!empty($StoryLikeLog_model->error)){
+                $_response['message']=$StoryLikeLog_model->error;
+            }
+            return $_response;
+        }
+
+    }
+
+    /**
+     *获取点赞条数
+     */
+    public function actionGetLikes(){
+        $story_id=Yii::$app->request->post('story_id');
+        if(!isset($story_id)){
+            return parent::__response('参数错误!',(int)-2);
+        }
+        if (Yii::$app->cache->exists($story_id)){
+            $likes=Yii::$app->cache->get($story_id);
+//            return [
+//                'message'=>'ok',
+//                'code'=>(int)0,
+//                'data'=>['likes'=>(int)$likes],
+//            ];
+            return parent::__response('ok',0,['story_id'=>$story_id,'likes'=>(int)$likes]);
+        }else{
+            return self::__likes($story_id);
+        }
+    }
+
+
+    //点赞数据库里提取，存入缓存中返回
+    private static function __likes($story_id){
+        $content=Story::find()->where(['id'=>$story_id])->select(['id','likes'])->asArray()->one();
+        if (!$content){
+            return [
+                'message'=>'故事不存在',
+                'code'=>(int)-1,
+            ];
+        }
+        Yii::$app->cache->set($story_id,(int)$content['likes']);
+//        return [
+//            'message'=>'ok',
+//            'code'=>(int)0,
+//            'data'=>['likes'=>(int)$content['likes']],
+//        ];
+        return parent::__response('ok',0,['likes'=>(int)$content['likes']]);
     }
 
     
