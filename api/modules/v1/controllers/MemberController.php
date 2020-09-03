@@ -18,8 +18,8 @@ class MemberController extends BaseController
 	public function actionSignup ()
 	{
 	    $user = new Member();
-	    $user->username = 'xiaowen';
-	    $user->setPassword('xiaowen');
+	    $user->username = 'Locking';
+	    $user->setPassword('Locking');
 	    $user->generateAuthKey();
 	    $user->save(false);
 	    return [ 'code' => 200 ];

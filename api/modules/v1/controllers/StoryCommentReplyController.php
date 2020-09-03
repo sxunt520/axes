@@ -20,9 +20,9 @@ class StoryCommentReplyController extends BaseController
     public $modelClass = 'api\models\StoryCommentReply';
 
     /**
-     * 评论热度Top首页
+     * 回复评论列表
      */
-    public function actionHome(){
+    public function actionReplyList(){
 
         if(!Yii::$app->request->isPost){//如果不是post请求
             return parent::__response('Request Error!',(int)-1);
@@ -62,7 +62,7 @@ class StoryCommentReplyController extends BaseController
     /**
      * 评论详情页内容
      */
-    public function actionDetails(){
+    public function actionReplyDetails(){
 
         if(!Yii::$app->request->isPost){//如果不是post请求
             return parent::__response('Request Error!',(int)-1);
@@ -95,85 +95,63 @@ class StoryCommentReplyController extends BaseController
     }
 
     /**
-     * 发布评论
+     * reply_type=1对评论发布回复 or reply_type=2对回复发布回复
      */
     public function actionAdd(){
 
-        if(!Yii::$app->request->isPost){//如果不是post请求
+        if(!Yii::$app->request->isPost){
             return parent::__response('Request Error!',(int)-1);
         }
-        if(!Yii::$app->request->POST("story_id")||!Yii::$app->request->POST("comment_img_id")||!Yii::$app->request->POST("title")||!Yii::$app->request->POST("content")||!Yii::$app->request->POST("from_uid")){
+        if(!Yii::$app->request->POST("comment_id")||!Yii::$app->request->POST("reply_type")||!Yii::$app->request->POST("reply_content")||!Yii::$app->request->POST("reply_from_uid")||!Yii::$app->request->POST("reply_to_uid")){
             return parent::__response('参数错误!',(int)-2);
         }
-        $story_id = (int)Yii::$app->request->post('story_id');//故事id
-        $comment_img_id = (int)Yii::$app->request->post('comment_img_id');//评论图id
+        $comment_id = (int)Yii::$app->request->post('comment_id');//评论id或者回复id  reply_type=1时是评论id，reply_type=2时是回复id
+        $reply_type = (int)Yii::$app->request->post('reply_type');//1对评论发布回复 2对回复发布回复
+        $reply_from_uid = (int)Yii::$app->request->post('reply_from_uid');//回复用户id
+        $reply_to_uid = (int)Yii::$app->request->post('reply_to_uid');//回复目标用户id
+        $reply_content = Yii::$app->request->post('reply_content');//回复内容
 
-        //先看故事是否存在
-        $Story_Model=Story::findOne($story_id);
-        if(!$Story_Model){
-            return parent::__response('故事不存在!',(int)-1);
-        }
-        //看选择的图片comment_img_id是否故事下面的图片
-        $StoryCommentImg=StoryCommentImg::findOne($comment_img_id);
-        if(!$StoryCommentImg||(int)$StoryCommentImg->story_id!=$story_id){
-            return parent::__response('所传入的图片参数图片不存在，或者参数不是故事所属图片组!',(int)-1);
+        if($reply_type==1){//对评论发布回复
+            //先看评论是否存在
+            $StoryCommen_Model=StoryComment::findOne($comment_id);
+            if(!$StoryCommen_Model){
+                return parent::__response('评论不存在!',(int)-1);
+            }
+        }elseif($reply_type==2){//对回复发布回复
+            //先看回复的评论是否存在
+            $StoryCommenReply_Model=StoryCommentReply::findOne($comment_id);
+            if(!$StoryCommenReply_Model){
+                return parent::__response('回复的评论不存在!',(int)-1);
+            }
+        }else{
+            return parent::__response('reply_type参数值错误!',(int)-2);
         }
 
-        $story_comment_model=new StoryComment();
-        $story_comment_model->story_id = $story_id;//故事id
-        $story_comment_model->comment_img_id = $comment_img_id;//评论图id
-        $story_comment_model->title = Yii::$app->request->post('title');//标题
-        $story_comment_model->content = Yii::$app->request->post('content');//内容
-        $story_comment_model->is_plot = Yii::$app->request->post('is_plot');//是否包含剧透 1是 0否
-        $story_comment_model->from_uid = Yii::$app->request->post('from_uid');//评论用户id
-        //$story_comment_model->created_at=time();
+        if($reply_from_uid==$reply_to_uid){
+            return parent::__response('不能对自己发表评论回复!',(int)-1);
+        }
+
+        $StoryCommentReply_model=new StoryCommentReply();
+        $StoryCommentReply_model->comment_id = $comment_id;
+        $StoryCommentReply_model->reply_type = $reply_type;
+        $StoryCommentReply_model->reply_from_uid = $reply_from_uid;
+        $StoryCommentReply_model->reply_to_uid = $reply_to_uid;
+        $StoryCommentReply_model->reply_content = $reply_content;
+        //$StoryCommentReply_model->status = 0;// 状态 0未读 1已读 2已回
+        //$StoryCommentReply_model->reply_at=time();
 
         //验证保存
-        $isValid = $story_comment_model->validate();
+        $isValid = $StoryCommentReply_model->validate();
         if ($isValid) {
-            $r=$story_comment_model->save();
+            $r=$StoryCommentReply_model->save();
             if($r){
-                $comment_id=$story_comment_model->id;
-                return parent::__response('评论成功',(int)0,['comment_id'=>$comment_id]);
+                $reply_id=$StoryCommentReply_model->id;
+                return parent::__response('回复评论成功',(int)0,['reply_id'=>$reply_id]);
             }else{
-                return parent::__response('评论失败!',(int)-1);
+                return parent::__response('回复评论失败!',(int)-1);
             }
         }else{
             return parent::__response('参数错误!',(int)-2);
-        }
-
-
-    }
-
-    /**
-     * 获取评论图片组
-     */
-    public function actionGetCommentImg(){
-
-        if(!Yii::$app->request->isPost){//如果不是post请求
-            return parent::__response('Request Error!',(int)-1);
-        }
-        if(!Yii::$app->request->POST("story_id")||!Yii::$app->request->POST("page")||!Yii::$app->request->POST("pagenum")){
-            return parent::__response('参数错误!',(int)-2);
-        }
-        $page = (int)Yii::$app->request->post('page');//当前页
-        $pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少
-        $story_id = (int)Yii::$app->request->post('story_id');//故事id
-
-        if ($page < 1) $page = 1;
-        if ($pagenum < 1) $pagenum = 8;
-
-        $StoryCommentImg_rows=StoryCommentImg::find()
-            ->andWhere(['=', 'story_id', $story_id])
-            ->orderBy(['id' => SORT_DESC])
-            ->offset($pagenum * ($page - 1))
-            ->limit($pagenum)
-            ->asArray()
-            ->all();
-        if($StoryCommentImg_rows){
-            return parent::__response('ok', 0, $StoryCommentImg_rows);
-        }else{
-            return parent::__response('获取失败',(int)-1);
         }
 
     }
