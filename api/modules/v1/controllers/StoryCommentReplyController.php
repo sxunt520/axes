@@ -8,15 +8,16 @@ use api\models\Story;
 use api\models\StoryTag;
 use api\models\StoryComment;
 use api\models\StoryCommentImg;
-use api\models\StoryCommentLikeLog;
+use api\models\StoryCommentReply;
+use api\models\StoryCommentReplyLikeLog;
 
-class StoryCommentController extends BaseController
+class StoryCommentReplyController extends BaseController
 {
     public function init(){
         parent::init();
     }
 
-    public $modelClass = 'api\models\StoryComment';
+    public $modelClass = 'api\models\StoryCommentReply';
 
     /**
      * 评论热度Top首页
@@ -178,7 +179,7 @@ class StoryCommentController extends BaseController
     }
 
     /**
-     *评论点赞
+     *回复评论点赞
      */
     public function actionLike(){
 
@@ -186,22 +187,22 @@ class StoryCommentController extends BaseController
             return parent::__response('Request Error!',(int)-1);
         }
 
-        $comment_id=Yii::$app->request->POST("comment_id");
+        $reply_id=Yii::$app->request->POST("reply_id");
         $user_id=Yii::$app->request->POST("user_id");
-        if(!isset($comment_id)||!isset($user_id)){
+        if(!isset($reply_id)||!isset($user_id)){
             return parent::__response('参数错误!',(int)-2);
         }
-        $StoryCommentLikeLog_model = new StoryCommentLikeLog();
+        $StoryCommentReplyLikeLog_model = new StoryCommentReplyLikeLog();
 
-        $result=$StoryCommentLikeLog_model->apiLike($comment_id,$user_id);//数据库里去更新点赞数，存入缓存
+        $result=$StoryCommentReplyLikeLog_model->apiLike($reply_id,$user_id);//数据库里去更新点赞数，存入缓存
 
-        if ($result && Yii::$app->cache->exists('comment_id:'.$comment_id)){
-            return parent::__response('ok',0,['likes'=>Yii::$app->cache->get('comment_id:'.$comment_id)]);
+        if ($result && Yii::$app->cache->exists('reply_id:'.$reply_id)){
+            return parent::__response('ok',0,['likes'=>Yii::$app->cache->get('reply_id:'.$reply_id)]);
         }else{//缓存中都没有，初次访问然后去库中取
             $_response=array();
-            $_response=self::__likes($comment_id);
-            if (!empty($StoryCommentLikeLog_model->error)){
-                $_response['message']=$StoryCommentLikeLog_model->error;
+            $_response=self::__likes($reply_id);
+            if (!empty($StoryCommentReplyLikeLog_model->error)){
+                $_response['message']=$StoryCommentReplyLikeLog_model->error;
             }
             return $_response;
         }
@@ -212,29 +213,29 @@ class StoryCommentController extends BaseController
      *获取点赞评论条数
      */
     public function actionGetLikes(){
-        $comment_id=Yii::$app->request->post('comment_id');
-        if(!isset($comment_id)){
+        $reply_id=Yii::$app->request->post('reply_id');
+        if(!isset($reply_id)){
             return parent::__response('参数错误!',(int)-2);
         }
-        if (Yii::$app->cache->exists('comment_id:'.$comment_id)){
-            $likes=Yii::$app->cache->get('comment_id:'.$comment_id);
-            return parent::__response('ok',0,['comment_id'=>$comment_id,'likes'=>(int)$likes]);
+        if (Yii::$app->cache->exists('reply_id:'.$reply_id)){
+            $likes=Yii::$app->cache->get('reply_id:'.$reply_id);
+            return parent::__response('ok',0,['reply_id'=>$reply_id,'likes'=>(int)$likes]);
         }else{
-            return self::__likes($comment_id);
+            return self::__likes($reply_id);
         }
     }
 
 
     //点赞数据库里提取，存入缓存中返回
-    private static function __likes($comment_id){
-        $content=StoryComment::find()->where(['id'=>$comment_id])->select(['id','likes'])->asArray()->one();
+    private static function __likes($reply_id){
+        $content=StoryCommentReply::find()->where(['id'=>$reply_id])->select(['id','likes'])->asArray()->one();
         if (!$content){
             return [
                 'message'=>'评论不存在',
                 'code'=>(int)-1,
             ];
         }
-        Yii::$app->cache->set('comment_id:'.$comment_id,(int)$content['likes']);
+        Yii::$app->cache->set('reply_id:'.$reply_id,(int)$content['likes']);
         return parent::__response('ok',0,['likes'=>(int)$content['likes']]);
     }
 

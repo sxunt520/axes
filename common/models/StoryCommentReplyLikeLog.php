@@ -14,7 +14,7 @@ use Yii;
  * @property string $create_at
  * @property integer $status
  */
-class StoryCommentLikeReplyLog extends \yii\db\ActiveRecord
+class StoryCommentReplyLikeLog extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc

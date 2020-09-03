@@ -65,6 +65,8 @@ return [
                             'POST story-comments' => 'story-comment/get-comment-img',
                             'POST story-comments' => 'story-comment/like',
                             'POST story-comments' => 'story-comment/get-likes',
+                            'POST story-comment-replys' => 'story-comment-reply/like',
+                            'POST story-comment-replys' => 'story-comment-reply/get-likes',
                      ],
           ],
 //            'response' => [
