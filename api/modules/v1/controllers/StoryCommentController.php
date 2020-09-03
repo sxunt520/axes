@@ -14,7 +14,7 @@ class StoryCommentController extends BaseController
     public function init(){
         parent::init();
     }
-    
+
     public $modelClass = 'api\models\StoryComment';
 
     /**
@@ -41,6 +41,9 @@ class StoryCommentController extends BaseController
             ->limit($pagenum)
             ->asArray()
             ->all();
+        if(!$StoryComment_rows){
+            return parent::__response('获取失败',(int)-1);
+        }
          
       //标签、图片
         foreach ($StoryComment_rows as $k=>$v){
@@ -72,7 +75,7 @@ class StoryCommentController extends BaseController
             ->asArray()
             ->one();
 
-          //标签
+        //标签
         //$StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $id])->asArray()->all();
         //if($StoryTag_rows) $StoryComment_row['tags']=$StoryTag_rows;
 
@@ -82,12 +85,99 @@ class StoryCommentController extends BaseController
             if($StoryCommentImg_rows) $StoryComment_row['comment_img']=$StoryCommentImg_rows;
         }
 
+        //多少人赞过
+        //回复的评论
+
         return parent::__response('ok',0,$StoryComment_row);
 
     }
 
     /**
-     *点赞
+     * 发布评论
+     */
+    public function actionAdd(){
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+        if(!Yii::$app->request->POST("story_id")||!Yii::$app->request->POST("comment_img_id")||!Yii::$app->request->POST("title")||!Yii::$app->request->POST("content")||!Yii::$app->request->POST("from_uid")){
+            return parent::__response('参数错误!',(int)-2);
+        }
+        $story_id = (int)Yii::$app->request->post('story_id');//故事id
+        $comment_img_id = (int)Yii::$app->request->post('comment_img_id');//评论图id
+
+        //先看故事是否存在
+        $Story_Model=Story::findOne($story_id);
+        if(!$Story_Model){
+            return parent::__response('故事不存在!',(int)-1);
+        }
+        //看选择的图片comment_img_id是否故事下面的图片
+        $StoryCommentImg=StoryCommentImg::findOne($comment_img_id);
+        if(!$StoryCommentImg||(int)$StoryCommentImg->story_id!=$story_id){
+            return parent::__response('所传入的图片参数图片不存在，或者参数不是故事所属图片组!',(int)-1);
+        }
+
+        $story_comment_model=new StoryComment();
+        $story_comment_model->story_id = $story_id;//故事id
+        $story_comment_model->comment_img_id = $comment_img_id;//评论图id
+        $story_comment_model->title = Yii::$app->request->post('title');//标题
+        $story_comment_model->content = Yii::$app->request->post('content');//内容
+        $story_comment_model->is_plot = Yii::$app->request->post('is_plot');//是否包含剧透 1是 0否
+        $story_comment_model->from_uid = Yii::$app->request->post('from_uid');//评论用户id
+        //$story_comment_model->created_at=time();
+
+        //验证保存
+        $isValid = $story_comment_model->validate();
+        if ($isValid) {
+            $r=$story_comment_model->save();
+            if($r){
+                $comment_id=$story_comment_model->id;
+                return parent::__response('评论成功',(int)0,['comment_id'=>$comment_id]);
+            }else{
+                return parent::__response('评论失败!',(int)-1);
+            }
+        }else{
+            return parent::__response('参数错误!',(int)-2);
+        }
+
+
+    }
+
+    /**
+     * 获取评论图片组
+     */
+    public function actionGetCommentImg(){
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+        if(!Yii::$app->request->POST("story_id")||!Yii::$app->request->POST("page")||!Yii::$app->request->POST("pagenum")){
+            return parent::__response('参数错误!',(int)-2);
+        }
+        $page = (int)Yii::$app->request->post('page');//当前页
+        $pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少
+        $story_id = (int)Yii::$app->request->post('story_id');//故事id
+
+        if ($page < 1) $page = 1;
+        if ($pagenum < 1) $pagenum = 8;
+
+        $StoryCommentImg_rows=StoryCommentImg::find()
+            ->andWhere(['=', 'story_id', $story_id])
+            ->orderBy(['id' => SORT_DESC])
+            ->offset($pagenum * ($page - 1))
+            ->limit($pagenum)
+            ->asArray()
+            ->all();
+        if($StoryCommentImg_rows){
+            return parent::__response('ok', 0, $StoryCommentImg_rows);
+        }else{
+            return parent::__response('获取失败',(int)-1);
+        }
+
+    }
+
+    /**
+     *评论点赞
      */
     public function actionLike(){
 

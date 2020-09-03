@@ -61,6 +61,8 @@ return [
                             'POST storys' => 'story/details',
                             'POST story-comments' => 'story-comment/home',
                             'POST story-comments' => 'story-comment/details',
+                            'POST story-comments' => 'story-comment/add',
+                            'POST story-comments' => 'story-comment/get-comment-img',
                      ],
           ],
 //            'response' => [

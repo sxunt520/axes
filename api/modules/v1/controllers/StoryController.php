@@ -66,8 +66,8 @@ class StoryController extends BaseController
     }
 
     /**
-     * 故事详情页内容
-     */
+ * 故事详情页内容
+ */
     public function actionDetails(){
 
         if(!Yii::$app->request->isPost){//如果不是post请求
@@ -84,13 +84,19 @@ class StoryController extends BaseController
             ->asArray()
             ->one();
 
-        //标签、多图
+        //标签
         $StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $id])->asArray()->all();
-        $StoryImg_rows=StoryImg::find()->select(['id','img_url','img_text'])->where(['story_id' => $id])->asArray()->all();
         if($StoryTag_rows) $Story_row['tags']=$StoryTag_rows;
+        //多图
+        $StoryImg_rows=StoryImg::find()->select(['id','img_url','img_text'])->where(['story_id' => $id])->asArray()->all();
         if($StoryImg_rows) $Story_row['iamges']=$StoryImg_rows;
 
-        return parent::__response('ok',0,$Article_row);
+        //人气值计算规则：人气值外显代表游戏观看数+评论+转发的虚拟数值总和，计算规则，1次观看=10点人气，一条评论=50点人气，一次转发=100点人气
+        //公告标签处
+        //最热评论处
+        //宣传视频组
+
+        return parent::__response('ok',0,$Story_row);
 
     }
 
