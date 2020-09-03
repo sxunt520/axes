@@ -68,6 +68,9 @@ return [
                             'POST story-comment-replys' => 'story-comment-reply/like',
                             'POST story-comment-replys' => 'story-comment-reply/get-likes',
                             'POST story-comment-replys' => 'story-comment-reply/add',
+                            'POST story-comment-replys' => 'story-comment-reply/reply-list',
+                            'POST story-comment-replys' => 'story-comment-reply/reply-details',
+                            'POST story-comment-replys' => 'story-comment-reply/reply-details-list',
                      ],
           ],
 //            'response' => [

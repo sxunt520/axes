@@ -32,6 +32,7 @@ class StoryCommentReply extends \common\models\StoryCommentReply
             [['reply_content'], 'string'],
             ['reply_at', 'default','value' => time()],
             ['status', 'default','value' =>0],//;// 状态 0未读 1已读 2已回
+            ['is_show', 'default','value' =>1],//是否显示
         ];
     }
 
