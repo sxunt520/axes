@@ -129,6 +129,7 @@ class StoryController extends BaseController
             $_response=self::__likes($story_id);
             if (!empty($StoryLikeLog_model->error)){
                 $_response['message']=$StoryLikeLog_model->error;
+                $_response['code']=(int)-1;
             }
             return $_response;
         }

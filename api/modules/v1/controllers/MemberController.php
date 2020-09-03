@@ -56,10 +56,11 @@ class MemberController extends BaseController
 	    $headers = Yii::$app->getRequest()->getHeaders();
 	    $token = $headers->get('token');
 	    $user = Member::findIdentityByAccessToken($token);
-	    return [
-	        'id' => $user->id,
-	        'username' => $user->username,
-	    ];
+//	    return [
+//	        'id' => $user->id,
+//	        'username' => $user->username,
+//	    ];
+        return parent::__response('ok',0,['id'=>$user->id,'username' => $user->username]);
 	}
 	
 	/**
