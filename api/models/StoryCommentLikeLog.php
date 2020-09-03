@@ -50,17 +50,13 @@ class StoryCommentLikeLog extends \common\models\StoryCommentLikeLog
 //    }
 
     //数据库里更新点赞数，事务控制 成功点赞数存入缓存 Like_log
-    public function apiLike($story_id,$user_id){
-        $content=Story::find()->where(['id'=>$story_id])->select(['id','likes'])->asArray()->one();
+    public function apiLike($comment_id,$user_id){
+        $content=StoryComment::find()->where(['id'=>$comment_id])->select(['id','likes'])->asArray()->one();
         if (empty($content)){
-            $this->error='故事不存在！';
+            $this->error='评论内容不存在！';
             return false;
         }
-        //$r = $this->findOne(['story_id'=>$story_id,'ip'=>ip2long(Yii::$app->request->getUserIP())],'create_at desc');
-        $r=self::find()->where(['story_id' => $story_id,'ip'=>ip2long(Yii::$app->request->getUserIP())])->orderBy(['create_at' => SORT_DESC])->one();
-        //var_dump($r->create_at) ;exit;
-        //$_time=time()-($r->create_at);
-        //var_dump($v);exit;
+        $r=self::find()->where(['comment_id' => $comment_id,'ip'=>ip2long(Yii::$app->request->getUserIP())])->orderBy(['create_at' => SORT_DESC])->one();
 
         if ($r && time()-($r->create_at) < 10){
             $this->error='两次点赞间隔不能低于10秒';
@@ -68,20 +64,20 @@ class StoryCommentLikeLog extends \common\models\StoryCommentLikeLog
         }else{
             $transaction=Yii::$app->db->beginTransaction();
             try{
-                $this->story_id = $story_id;
+                $this->comment_id = $comment_id;
                 $this->ip =ip2long(Yii::$app->request->getUserIP());
                 $this->user_id = $user_id;
                 $this->status = 1;
                 $this->create_at = time();
-                $r=$this->save();//保存日志 过滤器还保存了一个ip
-                //var_dump($this);exit;
+                $r=$this->save();//保存日志
+
                 //锁定行
-                $sql="select likes from {{%story}} where id='$story_id' for update";
+                $sql="select likes from {{%story_comment}} where id={$comment_id} for update";
                 $data=Yii::$app->db->createCommand($sql)->query()->read();
-                $sql="update {{%story}} set likes=likes+1 where id='$story_id'";
+                $sql="update {{%story_comment}} set likes=likes+1 where id={$comment_id}";
                 Yii::$app->db->createCommand($sql)->execute();
                 $transaction->commit();
-                Yii::$app->cache->set($story_id,$data['likes']+1);
+                Yii::$app->cache->set('comment_id:'.$comment_id,$data['likes']+1);
             }catch (Exception $e){
                 Yii::error($e->getMessage());
                 $this->error=json_encode($e->getMessage());

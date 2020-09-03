@@ -76,9 +76,9 @@ class StoryLikeLog extends \common\models\StoryLikeLog
                 $r=$this->save();//保存日志 过滤器还保存了一个ip
                 //var_dump($this);exit;
                 //锁定行
-                $sql="select likes from {{%story}} where id='$story_id' for update";
+                $sql="select likes from {{%story}} where id={$story_id} for update";
                 $data=Yii::$app->db->createCommand($sql)->query()->read();
-                $sql="update {{%story}} set likes=likes+1 where id='$story_id'";
+                $sql="update {{%story}} set likes=likes+1 where id={$story_id}";
                 Yii::$app->db->createCommand($sql)->execute();
                 $transaction->commit();
                 Yii::$app->cache->set($story_id,$data['likes']+1);
