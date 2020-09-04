@@ -238,6 +238,7 @@ class StoryCommentReplyController extends BaseController
             $_response=self::__likes($reply_id);
             if (!empty($StoryCommentReplyLikeLog_model->error)){
                 $_response['message']=$StoryCommentReplyLikeLog_model->error;
+                $_response['status']=(int)-1;
             }
             return $_response;
         }
@@ -267,7 +268,7 @@ class StoryCommentReplyController extends BaseController
         if (!$content){
             return [
                 'message'=>'评论不存在',
-                'code'=>(int)-1,
+                'status'=>(int)-1,
             ];
         }
         Yii::$app->cache->set('reply_id:'.$reply_id,(int)$content['likes']);

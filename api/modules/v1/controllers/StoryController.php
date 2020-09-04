@@ -119,17 +119,13 @@ class StoryController extends BaseController
         $result=$StoryLikeLog_model->apiLike($story_id,$user_id);//数据库里去更新点赞数，存入缓存
 
         if ($result && Yii::$app->cache->exists($story_id)){
-//             $_response['message']='ok';
-//             $_response['code']=(int)0;
-//             $_response['data']['likes']=(int)Yii::$app->cache->get($story_id);
-//             return $_response;
             return parent::__response('ok',0,['likes'=>Yii::$app->cache->get($story_id)]);
         }else{//缓存中都没有，初次访问然后去库中取
             $_response=array();
             $_response=self::__likes($story_id);
             if (!empty($StoryLikeLog_model->error)){
                 $_response['message']=$StoryLikeLog_model->error;
-                $_response['code']=(int)-1;
+                $_response['status']=(int)-1;
             }
             return $_response;
         }
@@ -164,7 +160,7 @@ class StoryController extends BaseController
         if (!$content){
             return [
                 'message'=>'故事不存在',
-                'code'=>(int)-1,
+                'status'=>(int)-1,
             ];
         }
         Yii::$app->cache->set($story_id,(int)$content['likes']);

@@ -91,11 +91,11 @@ return [
                 $response = $event->sender;
                 //if ($response->data !== null && !empty(Yii::$app->request->get('suppress_response_code'))) {//当 suppress_response_code 作为 GET 参数传递时，上面的代码 将重新按照自己定义的格式响应（无论失败还是成功
                 if ($response->data !== null) {
-                $response->data = [
-                        'success' => $response->isSuccessful,
-                        'response' => $response->data,
-                    ];
-                    $response->statusCode = 200;
+//                $response->data = [
+//                        'success' => $response->isSuccessful,
+//                        'response' => $response->data,
+//                    ];
+//                    $response->statusCode = 200;
                     $response->format = yii\web\Response::FORMAT_JSON;
                 }
             },

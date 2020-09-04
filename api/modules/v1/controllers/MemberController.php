@@ -17,12 +17,13 @@ class MemberController extends BaseController
 	 */
 	public function actionSignup ()
 	{
-	    $user = new Member();
-	    $user->username = 'Locking';
-	    $user->setPassword('Locking');
-	    $user->generateAuthKey();
-	    $user->save(false);
-	    return [ 'code' => 200 ];
+//	    $user = new Member();
+//	    $user->username = 'Locking';
+//	    $user->setPassword('Locking');
+//	    $user->generateAuthKey();
+//	    $user->save(false);
+//	    return [ 'code' => 200 ];
+        return parent::__response('待续开发',-1);
 	 }
 
 	 /**

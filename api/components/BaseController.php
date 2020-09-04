@@ -20,9 +20,14 @@ class BaseController extends ActiveController
             'authenticator' => [
                 'class' => QueryParamAuth::className() ,
                 'tokenParam' => 'token',
-                'optional' => [//过滤不需要验证的action
+                'optional' => [//过滤不需要验证Token的action
                     'login',
                     'signup',
+                     'home',
+                     'details',
+                     'reply-list',
+                     'reply-details',
+                     'reply-details-list',
                     //'signup-test'
                 ],
             ]
@@ -30,10 +35,10 @@ class BaseController extends ActiveController
     }
 
     //自定义返回数据封装
-    public static function __response($message='ok',$code=0,$data=[]){
+    public static function __response($message='ok',$status=0,$data=[]){
         return [
             'message'=>$message,
-            'code'=>$code,
+            'status'=>$status,
             'data'=>$data,
         ];
     }
