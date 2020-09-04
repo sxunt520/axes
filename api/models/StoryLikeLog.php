@@ -81,7 +81,7 @@ class StoryLikeLog extends \common\models\StoryLikeLog
                 $sql="update {{%story}} set likes=likes+1 where id={$story_id}";
                 Yii::$app->db->createCommand($sql)->execute();
                 $transaction->commit();
-                Yii::$app->cache->set($story_id,$data['likes']+1);
+                Yii::$app->cache->set('story_id:'.$story_id,$data['likes']+1);
             }catch (Exception $e){
                 Yii::error($e->getMessage());
                 $this->error=json_encode($e->getMessage());

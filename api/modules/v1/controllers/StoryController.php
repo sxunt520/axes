@@ -118,8 +118,8 @@ class StoryController extends BaseController
 
         $result=$StoryLikeLog_model->apiLike($story_id,$user_id);//数据库里去更新点赞数，存入缓存
 
-        if ($result && Yii::$app->cache->exists($story_id)){
-            return parent::__response('ok',0,['likes'=>Yii::$app->cache->get($story_id)]);
+        if ($result && Yii::$app->cache->exists('story_id:'.$story_id)){
+            return parent::__response('ok',0,['likes'=>Yii::$app->cache->get('story_id:'.$story_id)]);
         }else{//缓存中都没有，初次访问然后去库中取
             $_response=array();
             $_response=self::__likes($story_id);
@@ -140,8 +140,8 @@ class StoryController extends BaseController
         if(!isset($story_id)){
             return parent::__response('参数错误!',(int)-2);
         }
-        if (Yii::$app->cache->exists($story_id)){
-            $likes=Yii::$app->cache->get($story_id);
+        if (Yii::$app->cache->exists('story_id:'.$story_id)){
+            $likes=Yii::$app->cache->get('story_id:'.$story_id);
 //            return [
 //                'message'=>'ok',
 //                'code'=>(int)0,
@@ -163,7 +163,7 @@ class StoryController extends BaseController
                 'status'=>(int)-1,
             ];
         }
-        Yii::$app->cache->set($story_id,(int)$content['likes']);
+        Yii::$app->cache->set('story_id:'.$story_id,(int)$content['likes']);
 //        return [
 //            'message'=>'ok',
 //            'code'=>(int)0,
