@@ -2,16 +2,19 @@
 
 namespace api\modules\v1\controllers;
 
-use api\models\Member;
-use api\models\StoryCommentImg;
 use Yii;
 use api\components\BaseController;
+use api\models\Member;
+use api\models\StoryCommentImg;
 use api\models\Story;
 use api\models\StoryTag;
 use api\models\StoryImg;
 use api\models\StoryLikeLog;
 use api\models\StoryComment;
 use api\models\StoryCollect;
+use api\models\StoryVideo;
+use api\models\StoryAnnounce;
+use api\models\StoryAnnounceTag;
 
 //use yii\web\NotFoundHttpException;
 //use api\components\library\UserException;
@@ -91,9 +94,16 @@ class StoryController extends BaseController
 
         $data['story_details']=Story::find()
             ->select(['id','title','intro','type','cover_url','video_url','created_at','updated_at','next_updated_at','current_chapters','total_chapters','likes','views','share_num'])
-            ->andWhere(['=', 'id', $id])
-            ->asArray()
-            ->one();
+            ->asArray()->where(['=', 'id', $id])->one();
+
+        //先看故事是否存在
+        if(!$data['story_details']){
+            return parent::__response('故事不存在!',(int)-1);
+        }
+
+        // 浏览量变化
+        Story::addView($id);//缓存添加操作
+        $data['story_details']['views']=$data['story_details']['views'] + \Yii::$app->cache->get('story:views:' . $id);//获取真实的浏览量 Story::getTrueViews($id)
 
         ////////*********故事评论数 story_details***********************
         $story_comment_num=StoryComment::find()->where(['story_id'=>$id])->count();
@@ -108,8 +118,27 @@ class StoryController extends BaseController
         $StoryImg_rows=StoryImg::find()->select(['id','img_url','img_text'])->where(['story_id' => $id])->asArray()->all();
         if($StoryImg_rows) $data['story_details']['iamges']=$StoryImg_rows;
 
-        ///////////公告标签处announcement_rows
+        ///////////公告标签处
+        $announce_model = StoryAnnounce::find()
+            ->select('{{%story_announce.title}},{{%story_announce_tag}}.announce_id,{{%story_announce_tag}}.tag_name')
+            ->leftJoin('{{%story_announce_tag}}','{{%story_announce}}.id = {{%story_announce_tag}}.announce_id')
+            ->where(['{{%story_announce}}.story_id' => $id])
+            ->asArray()
+            ->limit(2)
+            ->all();
+        if($announce_model){
+            $data['announce_list']=$announce_model;
+        }else{
+            $data['announce_list']=$announce_model;
+        }
+
         ///////////宣传视频组video_rows
+        $StoryVideo_rows=StoryVideo::find()->select(['id','video_url','video_cover','title'])->where(['story_id' => $id])->asArray()->all();
+        if($StoryVideo_rows){
+            $data['video_list']=$StoryVideo_rows;
+        }else{
+            $data['video_list']=[];
+        }
 
         ///////////最热评论处 story_comment_lists***********************
         $StoryComment_rows=StoryComment::find()
@@ -291,6 +320,114 @@ class StoryController extends BaseController
          }
 
      }
+
+    /**
+     * 故事页宣传视频列表
+     * @param story_id page pagenum
+     */
+    public function actionVideoList(){
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+        if(!Yii::$app->request->POST("story_id")||!Yii::$app->request->POST("page")||!Yii::$app->request->POST("pagenum")){
+            return parent::__response('参数错误!',(int)-2);
+        }
+        $story_id = (int)Yii::$app->request->post('story_id');//故事id
+        $page = (int)Yii::$app->request->post('page');//当前页
+        $pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少
+        if ($page < 1) $page = 1;
+        if ($pagenum < 1) $pagenum = 5;
+
+        //先看故事是否存在
+        $Story_Model=Story::findOne($story_id);
+        if(!$Story_Model){
+            return parent::__response('故事不存在!',(int)-1);
+        }
+
+        $StoryVideo_rows=StoryVideo::find()
+            ->select(['id','story_id','title','video_url','video_cover','views','created_at'])
+            ->andWhere(['=', 'story_id', $story_id])
+            ->andWhere(['=', 'is_show', 1])
+            ->orderBy(['id'=>SORT_DESC])
+            ->offset($pagenum * ($page - 1))
+            ->limit($pagenum)
+            ->asArray()
+            ->all();
+        if(!$StoryVideo_rows){
+            return parent::__response('获取失败',(int)-1);
+        }
+
+        return parent::__response('ok',0,$StoryVideo_rows);
+
+    }
+
+
+    /**
+     * 公告详情页内容
+     * @params announce_id
+     */
+    public function actionAnnounceDetails(){
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+        if(!Yii::$app->request->POST("announce_id")){
+            return parent::__response('参数错误!',(int)-2);
+        }
+        $announce_id = (int)Yii::$app->request->post('announce_id');
+
+        $StoryAnnounce_row=StoryAnnounce::find()
+            ->andWhere(['=', 'id', $announce_id])
+            ->asArray()
+            ->one();
+
+        //先看公告是否存在
+        if(!$StoryAnnounce_row){
+            return parent::__response('公告不存在!',(int)-1);
+        }
+
+        // 浏览量变化
+        StoryAnnounce::addView($announce_id);//缓存添加操作
+        $StoryAnnounce_row['views']=$StoryAnnounce_row['views']+\Yii::$app->cache->get('story_announce:views:' . $announce_id);//获取真实的浏览量 StoryComment::getTrueViews($id);
+
+        //公告标签
+        $StoryAnnounceTag_rows=StoryAnnounceTag::find()->select(['id','tag_name'])->where(['announce_id' => $announce_id])->asArray()->all();
+        if($StoryAnnounceTag_rows) $StoryAnnounce_row['tags']=$StoryAnnounceTag_rows;
+
+        $member_arr=Member::find()->select(['username','picture_url'])->where(['id' => $StoryAnnounce_row['user_id']])->asArray()->one();
+        if($member_arr){
+            $StoryAnnounce_row['user_name']=$member_arr['username'];
+            $StoryAnnounce_row['user_picture']=$member_arr['picture_url'];
+        }else{
+            $StoryAnnounce_row['user_name']='';
+            $StoryAnnounce_row['user_picture']='';
+        }
+
+        //多少人赞过 仅显示最开始点赞的6位用户
+        $sql_num="select count(*) from (select * from {{%story_announce_like_log}} where announce_id={$announce_id} group by user_id) as like_log_num;";
+        $likes_num=(int)Yii::$app->db->createCommand($sql_num)->queryScalar();
+        if($likes_num){//多少人赞
+            $StoryAnnounce_row['likes_num']=$likes_num;
+        }else{
+            $StoryAnnounce_row['likes_num']=0;
+        }
+        //赞的人信息
+        $sql_arr="select like_log.announce_id,like_log.user_id,like_log.create_at,s_member.username,s_member.picture_url from (select * from {{%story_announce_like_log}} where announce_id={$announce_id} group by user_id) as like_log INNER JOIN {{%member}} on like_log.user_id=s_member.id ORDER BY like_log.create_at ASC limit 6";
+        $likes_arr=Yii::$app->db->createCommand($sql_arr)->queryAll();
+        if($likes_arr){
+            $StoryAnnounce_row['likes_user_arr']=$likes_arr;
+        }else{
+            $StoryAnnounce_row['likes_user_arr']=[];
+        }
+
+
+        //回复的评论
+
+        return parent::__response('ok',0,$StoryAnnounce_row);
+
+    }
+
 
 
 }

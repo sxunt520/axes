@@ -71,7 +71,7 @@ class StoryCommentController extends BaseController
     }
 
     /**
-     * 故事评论列表页   order_by 排序选择 最新、最热
+     * 故事评论列表页 首页点进去看的评论列表页   order_by 排序选择 最新、最热
      * @param story_id page pagenum  order_by
      */
     public function actionList(){
@@ -165,7 +165,7 @@ class StoryCommentController extends BaseController
     }
 
     /**
-     * 评论详情页内容
+     * 评论详情页内容 下面回复列表见回复控制器
      */
     public function actionDetails(){
 
@@ -181,6 +181,15 @@ class StoryCommentController extends BaseController
             ->andWhere(['=', 'id', $id])
             ->asArray()
             ->one();
+
+        //先看评论是否存在
+        if(!$StoryComment_row){
+            return parent::__response('评论不存在!',(int)-1);
+        }
+
+        // 浏览量变化
+        StoryComment::addView($id);//缓存添加操作
+        $StoryComment_row['views']=$StoryComment_row['views']+\Yii::$app->cache->get('story_comment:views:' . $id);//获取真实的浏览量 StoryComment::getTrueViews($id);
 
         $member_arr=Member::find()->select(['username','picture_url'])->where(['id' => $StoryComment_row['from_uid']])->asArray()->one();
         if($member_arr){
@@ -219,7 +228,7 @@ class StoryCommentController extends BaseController
         }
 
 
-        //回复的评论
+        //回复的评论 这里见回回复控制器接口
 
         return parent::__response('ok',0,$StoryComment_row);
 

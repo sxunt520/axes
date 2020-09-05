@@ -60,6 +60,8 @@ return [
                             'POST storys' => 'story/get-likes',
                             'POST storys' => 'story/details',
                             'POST storys' => 'story/collect',
+                            'POST storys' => 'story/video-list',
+                            'POST storys' => 'story/announce-details',
                             'POST story-comments' => 'story-comment/home',
                             'POST story-comments' => 'story-comment/list',
                             'POST story-comments' => 'story-comment/details',
