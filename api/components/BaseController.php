@@ -28,6 +28,7 @@ class BaseController extends ActiveController
                      'reply-list',
                      'reply-details',
                      'reply-details-list',
+                     'list',
                     //'signup-test'
                 ],
             ]

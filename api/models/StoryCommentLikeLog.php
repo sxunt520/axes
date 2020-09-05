@@ -74,8 +74,10 @@ class StoryCommentLikeLog extends \common\models\StoryCommentLikeLog
                 //锁定行
                 $sql="select likes from {{%story_comment}} where id={$comment_id} for update";
                 $data=Yii::$app->db->createCommand($sql)->query()->read();
-                $sql="update {{%story_comment}} set likes=likes+1 where id={$comment_id}";
+                //更新一个赞，+10热度
+                $sql="update {{%story_comment}} set likes=likes+1,heart_val=heart_val+10 where id={$comment_id}";
                 Yii::$app->db->createCommand($sql)->execute();
+
                 $transaction->commit();
                 Yii::$app->cache->set('comment_id:'.$comment_id,$data['likes']+1);
             }catch (Exception $e){

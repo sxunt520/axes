@@ -40,7 +40,7 @@ class Member extends \common\models\Member
         return [
             [['username', 'auth_key', 'password_hash', 'email', 'created_at', 'updated_at'], 'required'],
             [['role', 'status', 'created_at', 'updated_at', 'allowance', 'allowance_updated_at'], 'integer'],
-            [['username', 'password_hash', 'password_reset_token', 'email', 'access-token', 'api_token'], 'string', 'max' => 255],
+            [['username', 'password_hash', 'password_reset_token', 'email', 'access-token', 'api_token','mobile','picture_url'], 'string', 'max' => 255],
             [['auth_key'], 'string', 'max' => 32],
         ];
     }

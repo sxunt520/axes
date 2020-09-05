@@ -43,10 +43,11 @@ class StoryCommentReplyController extends BaseController
     	if ($pagenum < 1) $pagenum = 5;
     	
          $StoryCommentReply_rows=StoryCommentReply::find()
-            ->select(['id','comment_id','reply_type','reply_content','reply_from_uid','reply_to_uid','reply_at','status','is_show','likes'])
-             ->andWhere(['=', 'comment_id', $comment_id])
-             ->andWhere(['=', 'reply_type', 1])//reply_type=1时是，reply_type=2时是回复id
-             ->andWhere(['=', 'is_show', 1])
+            ->select(['{{%story_comment_reply}}.*','{{%member}}.username','{{%member}}.picture_url'])
+             ->leftJoin('{{%member}}','{{%story_comment_reply}}.reply_from_uid={{%member}}.id')
+             ->andWhere(['=', '{{%story_comment_reply}}.comment_id', $comment_id])
+             ->andWhere(['=', '{{%story_comment_reply}}.reply_type', 1])//1对评论发布回复 2对回复发布回复 3@人+对回复发布回复
+             ->andWhere(['=', '{{%story_comment_reply}}.is_show', 1])
             ->orderBy(['likes' => SORT_DESC,'id'=>SORT_DESC])
             ->offset($pagenum * ($page - 1))
             ->limit($pagenum)
@@ -121,16 +122,29 @@ class StoryCommentReplyController extends BaseController
         if ($page < 1) $page = 1;
         if ($pagenum < 1) $pagenum = 5;
 
+//        $StoryCommentReply_rows=StoryCommentReply::find()
+//            ->select(['id','comment_id','reply_type','reply_content','reply_from_uid','reply_to_uid','reply_at','status','is_show','likes'])
+//            ->andWhere(['=','comment_id',$reply_id])
+//            ->andWhere(['or','reply_type = 2','reply_type = 3'])//1对评论发布回复 2对回复发布回复 3@人+对回复发布回复
+//            ->andWhere(['=', 'is_show', 1])
+//            ->orderBy($order_by_arr)
+//            ->offset($pagenum * ($page - 1))
+//            ->limit($pagenum)
+//            ->asArray()
+//            ->all();
+
         $StoryCommentReply_rows=StoryCommentReply::find()
-            ->select(['id','comment_id','reply_type','reply_content','reply_from_uid','reply_to_uid','reply_at','status','is_show','likes'])
-            ->andWhere(['=','comment_id',$reply_id])
-            ->andWhere(['or','reply_type = 2','reply_type = 3'])//1对评论发布回复 2对回复发布回复 3@人+对回复发布回复 =2，3
-            ->andWhere(['=', 'is_show', 1])
+            ->select(['{{%story_comment_reply}}.*','{{%member}}.username','{{%member}}.picture_url'])
+            ->leftJoin('{{%member}}','{{%story_comment_reply}}.reply_from_uid={{%member}}.id')
+            ->andWhere(['=', '{{%story_comment_reply}}.comment_id', $reply_id])
+            ->andWhere(['or','{{%story_comment_reply}}.reply_type = 2','{{%story_comment_reply}}.reply_type = 3'])//1对评论发布回复 2对回复发布回复 3@人+对回复发布回复
+            ->andWhere(['=', '{{%story_comment_reply}}.is_show', 1])
             ->orderBy($order_by_arr)
             ->offset($pagenum * ($page - 1))
             ->limit($pagenum)
             ->asArray()
             ->all();
+
         if(!$StoryCommentReply_rows){
             return parent::__response('获取失败',(int)-1);
         }
@@ -150,7 +164,7 @@ class StoryCommentReplyController extends BaseController
         if(!Yii::$app->request->POST("comment_id")||!Yii::$app->request->POST("reply_type")||!Yii::$app->request->POST("reply_content")||!Yii::$app->request->POST("reply_from_uid")||!Yii::$app->request->POST("reply_to_uid")){
             return parent::__response('参数错误!',(int)-2);
         }
-        $comment_id = (int)Yii::$app->request->post('comment_id');//评论id或者回复id  reply_type=1时是目标评论id，reply_type=2时是目标回复id
+        $comment_id = (int)Yii::$app->request->post('comment_id');//评论comment_id
         $reply_type = (int)Yii::$app->request->post('reply_type');//1对评论发布回复 2对回复发布回复 3@人+对回复发布回复
         $reply_from_uid = (int)Yii::$app->request->post('reply_from_uid');//回复用户id
         $reply_to_uid = (int)Yii::$app->request->post('reply_to_uid');//回复目标用户id @人就是@人的id，否则就是要回复的目标用户id
@@ -202,6 +216,13 @@ class StoryCommentReplyController extends BaseController
         if ($isValid) {
             $r=$StoryCommentReply_model->save();
             if($r){
+
+                ////锁定行 更新+100热度
+                $sql="select likes from {{%story_comment}} where id={$comment_id} for update";
+                $data=Yii::$app->db->createCommand($sql)->query()->read();////锁定行
+                $sql="update {{%story_comment}} set heart_val=heart_val+100 where id={$comment_id}";
+                Yii::$app->db->createCommand($sql)->execute();
+
                 $reply_id=$StoryCommentReply_model->id;
                 return parent::__response('回复评论成功',(int)0,['reply_id'=>$reply_id]);
             }else{
