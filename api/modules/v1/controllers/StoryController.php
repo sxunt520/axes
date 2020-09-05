@@ -11,9 +11,10 @@ use api\models\StoryTag;
 use api\models\StoryImg;
 use api\models\StoryLikeLog;
 use api\models\StoryComment;
+use api\models\StoryCollect;
 
-use yii\web\NotFoundHttpException;
-use api\components\library\UserException;
+//use yii\web\NotFoundHttpException;
+//use api\components\library\UserException;
 
 class StoryController extends BaseController
 {
@@ -218,5 +219,78 @@ class StoryController extends BaseController
         return parent::__response('ok',0,['likes'=>(int)$content['likes']]);
     }
 
-    
+     /*
+      *
+      * 收藏、取消收藏操作
+      * @params story_id user_id  type=1收藏操作|2取消收藏操作
+      */
+     public function actionCollect(){
+
+         if(!Yii::$app->request->isPost){//如果不是post请求
+             return parent::__response('Request Error!',(int)-1);
+         }
+         if(!Yii::$app->request->POST("story_id")||!Yii::$app->request->POST("user_id")||!Yii::$app->request->POST("type")){
+             return parent::__response('参数错误!',(int)-2);
+         }
+         $story_id=Yii::$app->request->POST("story_id");
+         $user_id=Yii::$app->request->POST("user_id");
+         $type=Yii::$app->request->POST("type");//type=1收藏 type=2取收藏
+
+         //先看故事是否存在
+         $Story_Model=Story::findOne($story_id);
+         if(!$Story_Model){
+             return parent::__response('故事不存在!',(int)-1);
+         }
+         $collect_model=StoryCollect::find()->where(['story_id'=>$story_id,'user_id'=>$user_id])->one();
+         if ($collect_model){//数据库里有数据记录了12 01     10 11 20 21
+             if($type==1&&$collect_model->status==0){//要收藏、状态是已取消收藏
+                 $collect_model->status=1;
+                 $r=$collect_model->save();
+                 if($r){
+                     return parent::__response('收藏成功',(int)0);
+                 }else{
+                     return parent::__response('收藏失败',(int)-1);
+                 }
+             }elseif($type==2&&$collect_model->status==1){//要取消收藏、状态是已收藏
+                 $collect_model->status=0;
+                 $r=$collect_model->save();
+                 if($r){
+                     return parent::__response('取消收藏成功',(int)0);
+                 }else{
+                     return parent::__response('取消收藏失败',(int)-1);
+                 }
+             }elseif($type==1&&$collect_model->status==1){//要收藏状态为已收藏
+                 return parent::__response('操作失败！故事已收藏',(int)-1);
+             }elseif($type==2&&$collect_model->status==0){//要取消收藏状态为已取消收藏
+                 return parent::__response('操作失败！已取消收藏',(int)-1);
+             }else{
+                 return parent::__response('操作失败',(int)-1);
+             }
+         }else{//数据库没记录
+             if($type==1){//收藏
+                 $cColect_Model=new StoryCollect();
+                 $cColect_Model->story_id=$story_id;
+                 $cColect_Model->user_id=$user_id;
+                 $cColect_Model->status=1;
+                 //$cColect_Model->created_at=time();
+                 $isValid = $cColect_Model->validate();
+                 if($isValid){
+                     $r=$cColect_Model->save();
+                     if($r){
+                         return parent::__response('收藏成功',(int)0);
+                     }else{
+                         return parent::__response('收藏失败',(int)-1);
+                     }
+                 }else{
+                     return parent::__response('参数错误收藏失败',(int)-1);
+                 }
+             }else{//有收藏记录，不能取消收藏
+                 return parent::__response('你没有收藏记录，不能取消收藏',(int)-1);
+             }
+
+         }
+
+     }
+
+
 }
