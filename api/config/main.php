@@ -50,6 +50,8 @@ return [
                             //     'GET user-profile' => 'user-profile',
                             //   //'GET signup-test' => 'signup-test',
                             // ],
+                            
+                            'POST loading' => 'loading/home',
                             'POST members' => 'member/signup',
                             'POST members' => 'member/login',
                             'POST members' => 'member/user-profile',
@@ -100,7 +102,7 @@ return [
 //                        'response' => $response->data,
 //                    ];
 //                    $response->statusCode = 200;
-                    //$response->format = yii\web\Response::FORMAT_JSON;
+                    $response->format = yii\web\Response::FORMAT_JSON;
                 }
             },
         ],
