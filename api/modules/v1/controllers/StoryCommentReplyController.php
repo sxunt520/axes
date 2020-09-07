@@ -161,12 +161,12 @@ class StoryCommentReplyController extends BaseController
         if(!Yii::$app->request->isPost){
             return parent::__response('Request Error!',(int)-1);
         }
-        if(!Yii::$app->request->POST("comment_id")||!Yii::$app->request->POST("reply_type")||!Yii::$app->request->POST("reply_content")||!Yii::$app->request->POST("reply_from_uid")||!Yii::$app->request->POST("reply_to_uid")){
+        if(!Yii::$app->request->POST("comment_id")||!Yii::$app->request->POST("reply_type")||!Yii::$app->request->POST("reply_content")||!Yii::$app->request->POST("reply_to_uid")){
             return parent::__response('参数错误!',(int)-2);
         }
         $comment_id = (int)Yii::$app->request->post('comment_id');//评论comment_id
         $reply_type = (int)Yii::$app->request->post('reply_type');//1对评论发布回复 2对回复发布回复 3@人+对回复发布回复
-        $reply_from_uid = (int)Yii::$app->request->post('reply_from_uid');//回复用户id
+        $reply_from_uid = Yii::$app->user->getId();//回复用户id
         $reply_to_uid = (int)Yii::$app->request->post('reply_to_uid');//回复目标用户id @人就是@人的id，否则就是要回复的目标用户id
         $reply_content = Yii::$app->request->post('reply_content');//回复内容
 
@@ -244,7 +244,7 @@ class StoryCommentReplyController extends BaseController
         }
 
         $reply_id=Yii::$app->request->POST("reply_id");
-        $user_id=Yii::$app->request->POST("user_id");
+        $user_id=Yii::$app->user->getId();
         if(!isset($reply_id)||!isset($user_id)){
             return parent::__response('参数错误!',(int)-2);
         }

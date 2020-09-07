@@ -61,6 +61,8 @@ class MemberController extends BaseController
 //	        'id' => $user->id,
 //	        'username' => $user->username,
 //	    ];
+
+       // var_dump(Yii::$app->user->getId());exit;// 获取用户id
         return parent::__response('ok',0,['id'=>$user->id,'username' => $user->username]);
 	}
 	

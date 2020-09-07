@@ -9,9 +9,11 @@ use api\components\QueryParamAuth;
 
 class BaseController extends ActiveController
 {
-    
+    public $userInfo;
+
     public function init(){
         parent::init();
+        //$this->userInfo = json_decode(json_encode(Yii::$app->user->identity), true);var_dump($this->userInfo);exit;
     }
 
     //token验证
@@ -23,14 +25,14 @@ class BaseController extends ActiveController
                 'optional' => [//过滤不需要验证Token的action
                     'login',
                     'signup',
-                     'home',
-                     'details',
-                     'reply-list',
-                     'reply-details',
-                     'reply-details-list',
-                     'list',
-                     'video-list',
-                     'announce-details',
+                    'home',
+                    'details',
+                    'reply-list',
+                    'reply-details',
+                    'reply-details-list',
+                    'list',
+                    'video-list',
+                    'announce-details',
                     //'signup-test'
                 ],
             ]
