@@ -10,9 +10,13 @@ use api\components\QueryParamAuth;
 class BaseController extends ActiveController
 {
     public $userInfo;
+    public $Token;
 
     public function init(){
         parent::init();
+        $headers = Yii::$app->getRequest()->getHeaders();
+        $Token = $headers->get('token');
+        if($Token){$this->Token=$Token;}
         //$this->userInfo = json_decode(json_encode(Yii::$app->user->identity), true);var_dump($this->userInfo);exit;
     }
 
@@ -33,6 +37,7 @@ class BaseController extends ActiveController
                     'list',
                     'video-list',
                     'announce-details',
+                    'my',
                     //'signup-test'
                 ],
             ]
