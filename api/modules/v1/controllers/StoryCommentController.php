@@ -323,25 +323,25 @@ class StoryCommentController extends BaseController
      */
     public function actionLike(){
 
-        if(!Yii::$app->request->isPost){//如果不是post请求
-            return parent::__response('Request Error!',(int)-1);
-        }
+                if(!Yii::$app->request->isPost){//如果不是post请求
+                    return parent::__response('Request Error!',(int)-1);
+                }
 
-        $comment_id=Yii::$app->request->POST("comment_id");
-        $user_id=Yii::$app->user->getId();
-        if(!isset($comment_id)||!isset($user_id)){
-            return parent::__response('参数错误!',(int)-2);
-        }
-        $StoryCommentLikeLog_model = new StoryCommentLikeLog();
+                $comment_id=Yii::$app->request->POST("comment_id");
+                $user_id=Yii::$app->user->getId();
+                if(!isset($comment_id)||!isset($user_id)){
+                    return parent::__response('参数错误!',(int)-2);
+                }
+                $StoryCommentLikeLog_model = new StoryCommentLikeLog();
 
-        $result=$StoryCommentLikeLog_model->apiLike($comment_id,$user_id);//数据库里去更新点赞数、加热度，存入缓存
+                $result=$StoryCommentLikeLog_model->apiLike($comment_id,$user_id);//数据库里去更新点赞数、加热度，存入缓存
 
-        if ($result && Yii::$app->cache->exists('comment_id:'.$comment_id)){
-            return parent::__response('ok',0,['likes'=>Yii::$app->cache->get('comment_id:'.$comment_id)]);
-        }else{//缓存中都没有，初次访问然后去库中取
-            $_response=array();
-            $_response=self::__likes($comment_id);
-            if (!empty($StoryCommentLikeLog_model->error)){
+                if ($result && Yii::$app->cache->exists('comment_id:'.$comment_id)){
+                    return parent::__response('ok',0,['likes'=>Yii::$app->cache->get('comment_id:'.$comment_id)]);
+                }else{//缓存中都没有，初次访问然后去库中取
+                    $_response=array();
+                    $_response=self::__likes($comment_id);
+                    if (!empty($StoryCommentLikeLog_model->error)){
                 $_response['message']=$StoryCommentLikeLog_model->error;
                 $_response['status']=(int)-1;
             }

@@ -18,6 +18,10 @@ class LoadingController extends BaseController
      * Loading 欢迎页几张图
      */
     public function actionHome(){
+        
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
 
         $page = (int)Yii::$app->request->post('page');//当前页
         $pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少

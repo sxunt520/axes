@@ -258,7 +258,7 @@ class StoryController extends BaseController
          if(!Yii::$app->request->isPost){//如果不是post请求
              return parent::__response('Request Error!',(int)-1);
          }
-         if(!Yii::$app->request->POST("story_id")||!Yii::$app->request->POST("user_id")||!Yii::$app->request->POST("type")){
+         if(!Yii::$app->request->POST("story_id")||!Yii::$app->request->POST("type")){
              return parent::__response('参数错误!',(int)-2);
          }
          $story_id=Yii::$app->request->POST("story_id");
