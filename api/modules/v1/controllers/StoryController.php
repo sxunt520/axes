@@ -186,7 +186,7 @@ class StoryController extends BaseController
         }
 
         $story_id=Yii::$app->request->POST("story_id");
-        $user_id=Yii::$app->request->POST("user_id");
+        $user_id=Yii::$app->user->getId();
         if(!isset($story_id)||!isset($user_id)){
             return parent::__response('参数错误!',(int)-2);
         }
@@ -262,7 +262,7 @@ class StoryController extends BaseController
              return parent::__response('参数错误!',(int)-2);
          }
          $story_id=Yii::$app->request->POST("story_id");
-         $user_id=Yii::$app->request->POST("user_id");
+         $user_id=Yii::$app->user->getId();
          $type=Yii::$app->request->POST("type");//type=1收藏 type=2取收藏
 
          //先看故事是否存在

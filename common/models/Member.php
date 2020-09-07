@@ -199,24 +199,24 @@ class Member extends ActiveRecord implements IdentityInterface, RateLimitInterfa
         $this->password_reset_token = null;
     }
 
-    public function getProfile()
-    {
-        return $this->hasOne(Profile::className(), ['id' => 'id']);
-    }
-    public function init()
-    {
-        $this->on(self::EVENT_AFTER_INSERT, [$this,'afterInsertInternal']);
-    }
-    public function afterInsertInternal($event)
-    {
-        $profile = new Profile();
-        $profile->id = $event->sender->id;
-        $profile->save(false);
-    }
-
-    public function getIsAdmin(){
-        return $this->is_admin ? true : false;
-    }
+//    public function getProfile()
+//    {
+//        return $this->hasOne(Profile::className(), ['id' => 'id']);
+//    }
+//    public function init()
+//    {
+//        $this->on(self::EVENT_AFTER_INSERT, [$this,'afterInsertInternal']);
+//    }
+//    public function afterInsertInternal($event)
+//    {
+//        $profile = new Profile();
+//        $profile->id = $event->sender->id;
+//        $profile->save(false);
+//    }
+//
+//    public function getIsAdmin(){
+//        return $this->is_admin ? true : false;
+//    }
 
       //--------------------------速率限制 速率限制 速率限制-----------------------
      // 返回某一时间允许请求的最大数量，比如设置10秒内最多5次请求（小数量方便我们模拟测试）

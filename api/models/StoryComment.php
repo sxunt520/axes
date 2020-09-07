@@ -25,7 +25,7 @@ class StoryComment extends \common\models\StoryComment
     {
         return [
             [['title','story_id','comment_img_id','content','from_uid'],'required'],
-            [['id','story_id', 'comment_type', 'from_uid', 'created_at','comment_img_id','heart_val','is_plot','likes','is_show','is_choiceness','is_top','views','share_num'], 'integer'],
+            [['id','story_id', 'comment_type', 'from_uid', 'created_at','comment_img_id','heart_val','is_plot','likes','is_show','is_choiceness','is_top','views','share_num','status'], 'integer'],
             [['title'], 'string', 'max' => 50],
             [['content'], 'string'],
             ['created_at', 'default','value' => time()],

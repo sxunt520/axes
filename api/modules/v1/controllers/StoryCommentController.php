@@ -242,7 +242,7 @@ class StoryCommentController extends BaseController
         if(!Yii::$app->request->isPost){//如果不是post请求
             return parent::__response('Request Error!',(int)-1);
         }
-        if(!Yii::$app->request->POST("story_id")||!Yii::$app->request->POST("comment_img_id")||!Yii::$app->request->POST("title")||!Yii::$app->request->POST("content")||!Yii::$app->request->POST("from_uid")){
+        if(!Yii::$app->request->POST("story_id")||!Yii::$app->request->POST("comment_img_id")||!Yii::$app->request->POST("title")||!Yii::$app->request->POST("content")){
             return parent::__response('参数错误!',(int)-2);
         }
         $story_id = (int)Yii::$app->request->post('story_id');//故事id
@@ -265,7 +265,7 @@ class StoryCommentController extends BaseController
         $story_comment_model->title = Yii::$app->request->post('title');//标题
         $story_comment_model->content = Yii::$app->request->post('content');//内容
         $story_comment_model->is_plot = Yii::$app->request->post('is_plot');//是否包含剧透 1是 0否
-        $story_comment_model->from_uid = Yii::$app->request->post('from_uid');//评论用户id
+        $story_comment_model->from_uid = Yii::$app->user->getId();//评论用户id
         //$story_comment_model->created_at=time();
 
         //验证保存
@@ -328,7 +328,7 @@ class StoryCommentController extends BaseController
         }
 
         $comment_id=Yii::$app->request->POST("comment_id");
-        $user_id=Yii::$app->request->POST("user_id");
+        $user_id=Yii::$app->user->getId();
         if(!isset($comment_id)||!isset($user_id)){
             return parent::__response('参数错误!',(int)-2);
         }

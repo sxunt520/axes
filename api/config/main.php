@@ -56,6 +56,7 @@ return [
                             'POST members' => 'member/login',
                             'POST members' => 'member/user-profile',
                             'POST members' => 'member/test',
+                            'POST members' => 'member/my',
                             'POST articles' => 'article/list',
                             'POST storys' => 'story/home',
                             'POST storys' => 'story/like',
