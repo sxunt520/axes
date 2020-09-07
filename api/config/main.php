@@ -61,6 +61,7 @@ return [
                             'POST members' => 'member/edit-signature',
                             'POST members' => 'member/follower-list',
                             'POST members' => 'member/fans-list',
+                            'POST members' => 'member/like-list',
                             'POST storys' => 'story/home',
                             'POST storys' => 'story/like',
                             'POST storys' => 'story/get-likes',

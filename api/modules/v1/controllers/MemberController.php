@@ -2,6 +2,7 @@
 
 namespace api\modules\v1\controllers;
 
+use api\models\StoryCommentLikeLog;
 use Yii;
 use api\components\BaseController;
 use yii\web\IdentityInterface;
@@ -370,6 +371,110 @@ class MemberController extends BaseController
         }
 
         return parent::__response('ok',0,$fans_rows);
+
+    }
+
+    /**
+     * 点赞列表
+     */
+    public function actionLikeList(){
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+
+        $from_user_id = (int)Yii::$app->request->post('from_user_id');//from_user_id 查看目标评论的人 被点赞列表
+        $user_id = (int)Yii::$app->user->getId();//已登录的用户，Token判断
+
+        if(!isset($from_user_id)){
+            return parent::__response('参数错误!',(int)-2);
+        }
+        if(!isset($user_id)) {
+            return parent::__response('请先登录!', (int)-1);
+        }
+        //先看用户是否存在
+        $Member_Model=Member::findOne($from_user_id);
+        if(!$Member_Model){
+            return parent::__response('用户不存在!',(int)-1);
+        }
+        $page = (int)Yii::$app->request->post('page');//当前页
+        $pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少
+        if ($page < 1) $page = 1;
+        if ($pagenum < 1) $pagenum = 5;
+
+        //story_comment story_comment_like_log member
+        //查看目标用户对故事发表过的评论id数组
+        $from_comment_id_arr=StoryComment::find()->select(['id'])->andWhere(['from_uid'=>$from_user_id])->asArray()->all();
+        $comment_id_arr=[];
+        foreach ($from_comment_id_arr as $k=>$v){
+            $comment_id_arr[]=(int)$v['id'];
+        }
+        //var_dump($usr_id_arr);exit;
+
+        //他发布的评论被点赞的列表
+        $like_rows=StoryCommentLikeLog::find()
+            ->select(['{{%story_comment_like_log}}.comment_id','{{%story_comment_like_log}}.create_at','{{%story_comment_like_log}}.user_id','{{%member}}.nickname','{{%member}}.signature','{{%member}}.picture_url'])
+            ->leftJoin('{{%member}}','{{%story_comment_like_log}}.user_id={{%member}}.id')
+            ->andWhere(['in', '{{%story_comment_like_log}}.comment_id', $comment_id_arr])
+            ->orderBy(['{{%story_comment_like_log}}.id' => SORT_DESC])
+            ->offset($pagenum * ($page - 1))
+            ->limit($pagenum)
+            ->asArray()
+            ->all();
+        var_dump($like_rows);exit;
+        if(!$like_rows){
+            return parent::__response('获取失败',(int)-1);
+        }
+
+
+
+
+
+
+
+
+        //我的关注
+        $me_Follower_rows=Follower::find()
+            ->select(['{{%member}}.id'])
+            ->leftJoin('{{%member}}','{{%follower}}.to_user_id={{%member}}.id')
+            ->andWhere(['=', '{{%follower}}.from_user_id', $user_id])
+            ->orderBy(['{{%follower}}.id' => SORT_DESC])
+            ->offset($pagenum * ($page - 1))
+            ->limit($pagenum)
+            ->asArray()
+            ->all();
+        if(!$me_Follower_rows){
+            return parent::__response('获取失败',(int)-1);
+        }
+
+        //我的关注数组id
+        $me_follower_arr=array();
+        foreach($me_Follower_rows as $k=>$v){
+            $me_follower_arr[]=(int)$v['id'];
+        }
+//        $me_Flollower_str=implode(',',$me_follower_arr);//把我关注的人拼起来
+
+        foreach ($Follower_rows as $kk=>$vv){
+            if(in_array((int)$vv['id'],$me_follower_arr)){//echo $vv['id'].'----'.$user_id;exit;
+                $r=Follower::find()
+                    ->andWhere(['=', 'from_user_id', (int)$vv['id']])
+                    ->andWhere(['=', 'to_user_id', (int)$user_id])
+                    ->andWhere(['=', 'follower_type', 1])->one();
+                //var_dump($r);exit;
+                if($r){
+                    $Follower_rows[$kk]['follower_status']=2;//已关注
+                    $Follower_rows[$kk]['follower_text']='互相关注';
+                }else{
+                    $Follower_rows[$kk]['follower_status']=1;//已关注
+                    $Follower_rows[$kk]['follower_text']='已关注';
+                }
+            }else{
+                $Follower_rows[$kk]['follower_status']=0;//未关注
+                $Follower_rows[$kk]['follower_text']='未关注';
+            }
+        }
+
+        return parent::__response('ok',0,$Follower_rows);
 
     }
 
