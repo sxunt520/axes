@@ -284,7 +284,95 @@ class MemberController extends BaseController
         return parent::__response('ok',0,$Follower_rows);
 
     }
-	
+
+
+    /**
+     * 粉丝列表 fans_list
+     */
+    public function actionFansList(){
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+
+        $to_user_id = (int)Yii::$app->request->post('to_user_id');//to_user_id 查看他的粉丝列表 关注他的列表
+        $user_id = (int)Yii::$app->user->getId();//已登录的用户，Token判断
+
+        if(!isset($to_user_id)){
+            return parent::__response('参数错误!',(int)-2);
+        }
+        if(!isset($user_id)) {
+            return parent::__response('请先登录!', (int)-1);
+        }
+        //先看用户是否存在
+        $Member_Model=Member::findOne($to_user_id);
+        if(!$Member_Model){
+            return parent::__response('用户不存在!',(int)-1);
+        }
+        $page = (int)Yii::$app->request->post('page');//当前页
+        $pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少
+        if ($page < 1) $page = 1;
+        if ($pagenum < 1) $pagenum = 5;
+
+        //他的粉丝，关注他的人
+        $fans_rows=Follower::find()
+            ->select(['{{%follower}}.from_user_id','{{%member}}.id','{{%member}}.nickname','{{%member}}.signature','{{%member}}.picture_url'])
+            ->leftJoin('{{%member}}','{{%follower}}.from_user_id={{%member}}.id')
+            ->andWhere(['=', '{{%follower}}.to_user_id', $to_user_id])
+            ->orderBy(['{{%follower}}.id' => SORT_DESC])
+            ->offset($pagenum * ($page - 1))
+            ->limit($pagenum)
+            ->asArray()
+            ->all();
+        if(!$fans_rows){
+            return parent::__response('获取失败',(int)-1);
+        }
+
+        //我的关注
+        $me_Follower_rows=Follower::find()
+            ->select(['{{%member}}.id'])
+            ->leftJoin('{{%member}}','{{%follower}}.to_user_id={{%member}}.id')
+            ->andWhere(['=', '{{%follower}}.from_user_id', $user_id])
+            ->orderBy(['{{%follower}}.id' => SORT_DESC])
+            ->offset($pagenum * ($page - 1))
+            ->limit($pagenum)
+            ->asArray()
+            ->all();
+        if(!$me_Follower_rows){
+            return parent::__response('获取失败',(int)-1);
+        }
+
+        //我的关注数组id
+        $me_follower_arr=array();
+        foreach($me_Follower_rows as $k=>$v){
+            $me_follower_arr[]=(int)$v['id'];
+        }
+//        $me_Flollower_str=implode(',',$me_follower_arr);//把我关注的人拼起来
+
+        foreach ($fans_rows as $kk=>$vv){
+            if(in_array((int)$vv['id'],$me_follower_arr)){//echo $vv['id'].'----'.$user_id;exit;
+                $r=Follower::find()
+                    ->andWhere(['=', 'from_user_id', (int)$vv['id']])
+                    ->andWhere(['=', 'to_user_id', (int)$user_id])
+                    ->andWhere(['=', 'follower_type', 1])->one();
+                //var_dump($r);exit;
+                if($r){
+                    $fans_rows[$kk]['follower_status']=2;//已关注
+                    $fans_rows[$kk]['follower_text']='互相关注';
+                }else{
+                    $fans_rows[$kk]['follower_status']=1;//已关注
+                    $fans_rows[$kk]['follower_text']='已关注';
+                }
+            }else{
+                $fans_rows[$kk]['follower_status']=0;//未关注
+                $fans_rows[$kk]['follower_text']='未关注';
+            }
+        }
+
+        return parent::__response('ok',0,$fans_rows);
+
+    }
+
 	/**
 	 * test
 	 */
