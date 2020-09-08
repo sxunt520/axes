@@ -16,6 +16,7 @@ use api\models\StoryAnnouncePushLog;
 use api\models\Follower;
 use api\models\UploadForm;
 use yii\web\UploadedFile;
+use api\models\TravelRecord;
 
 class MemberController extends BaseController
 {
@@ -118,7 +119,15 @@ class MemberController extends BaseController
                 ->asArray()
                 ->one();
 
-            //我的旅行记录
+            //我的旅行记录  travel_record story
+            $data['travel_record']=TravelRecord::find()
+                ->select(['{{%travel_record}}.story_id','{{%travel_record}}.history_chapters','{{%story}}.title','{{%story}}.record_pic'])
+                ->leftJoin('{{%story}}','{{%travel_record}}.story_id={{%story}}.id')
+                ->andWhere(['=', '{{%travel_record}}.user_id', $user->id])
+                ->orderBy(['{{%travel_record}}.id'=>SORT_DESC])
+                ->asArray()
+                ->limit(2)
+                ->all();
 
             //等待回复数
             $wait_comment_num=StoryComment::find()->where(['from_uid'=>$user->id,'status'=>0])->count();

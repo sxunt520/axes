@@ -15,6 +15,7 @@ use api\models\StoryCollect;
 use api\models\StoryVideo;
 use api\models\StoryAnnounce;
 use api\models\StoryAnnounceTag;
+use api\models\TravelRecord;
 
 //use yii\web\NotFoundHttpException;
 //use api\components\library\UserException;
@@ -104,6 +105,27 @@ class StoryController extends BaseController
         // 浏览量变化
         Story::addView($id);//缓存添加操作
         $data['story_details']['views']=$data['story_details']['views'] + \Yii::$app->cache->get('story:views:' . $id);//获取真实的浏览量 Story::getTrueViews($id)
+
+        //旅行记录，日志
+        $user_id = (int)Yii::$app->user->getId();//已登录的用户
+        if($user_id>0){
+            $_TravelRecord_model=TravelRecord::find()->andWhere(['story_id'=>$id,'user_id'=>$user_id])->one();
+            if($_TravelRecord_model){
+                $_TravelRecord_model->update_at=time();
+                $_TravelRecord_model->save(false);
+            }else{
+                $TravelRecord_model=new TravelRecord();
+                $TravelRecord_model->story_id=$id;
+                $TravelRecord_model->user_id=$user_id;
+                $TravelRecord_model->create_at=time();
+                $TravelRecord_model->update_at=time();
+                $TravelRecord_model->history_chapters=1;
+                $isValid = $TravelRecord_model->validate();
+                if ($isValid) {
+                    $TravelRecord_model->save(false);
+                }
+            }
+        }
 
         ////////*********故事评论数 story_details***********************
         $story_comment_num=StoryComment::find()->where(['story_id'=>$id])->count();
