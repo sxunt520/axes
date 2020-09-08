@@ -14,6 +14,8 @@ use api\models\StoryCommentImg;
 use api\models\StoryCommentReply;
 use api\models\StoryAnnouncePushLog;
 use api\models\Follower;
+use api\models\UploadForm;
+use yii\web\UploadedFile;
 
 class MemberController extends BaseController
 {
@@ -566,14 +568,53 @@ class MemberController extends BaseController
 
     }
 
+    /**
+     * 上传个人头像
+     * 'enctype' => 'multipart/form-data' 图片文件传参： UploadForm[picture_url]
+     */
+    public function actionUploadPhoto()
+    {
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+        $user_id = (int)Yii::$app->user->getId();//已登录的用户，Token判断
+        if(!isset($user_id)) {
+            return parent::__response('请先登录!', (int)-1);
+        }
+
+        $model = new UploadForm();
+        $model->imageFile = UploadedFile::getInstance($model, 'picture_url');
+        $r=$model->upload();
+        if($r){
+            return parent::__response('上传成功', (int)0);
+        }else{
+            return parent::__response('上传失败!', (int)-1);
+        }
+
+    }
+
 	/**
 	 * test
+     * UploadForm[imageFile]
 	 */
 	public function actionTest ()
 	{
-	    return [
-	        'xxxxxxxxxxxxx',
-	    ];
+//	    return [
+//	        'xxxxxxxxxxxxx',
+//	    ];
+        $model = new UploadForm();
+
+        if (Yii::$app->request->isPost) {
+            //return file_get_contents('php://input');exit;
+            $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
+            if ($model->upload()) {
+                // 文件上传成功
+                return 'ok';
+            }else{
+                return '0';
+            }
+        }
+
 	}
 
 }

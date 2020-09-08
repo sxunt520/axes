@@ -50,7 +50,7 @@ return [
                             //     'GET user-profile' => 'user-profile',
                             //   //'GET signup-test' => 'signup-test',
                             // ],
-                            
+                            'POST site' => 'site/test',
                             'POST loading' => 'loading/home',
                             'POST members' => 'member/signup',
                             'POST members' => 'member/login',
@@ -63,6 +63,7 @@ return [
                             'POST members' => 'member/fans-list',
                             'POST members' => 'member/like-list',
                             'POST members' => 'member/following',
+                            'POST members' => 'member/upload-photo',
                             'POST storys' => 'story/home',
                             'POST storys' => 'story/like',
                             'POST storys' => 'story/get-likes',
