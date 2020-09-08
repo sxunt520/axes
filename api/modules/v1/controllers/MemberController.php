@@ -3,6 +3,7 @@
 namespace api\modules\v1\controllers;
 
 use api\models\StoryCommentLikeLog;
+use api\models\StoryCommentReplyLikeLog;
 use Yii;
 use api\components\BaseController;
 use yii\web\IdentityInterface;
@@ -376,6 +377,14 @@ class MemberController extends BaseController
 
     /**
      * 点赞列表
+     * @params
+     *  from_user_id 查看目标评论的人 被点赞列表
+     * page 当前页，可选
+     * comment_pagenum 查看最新评论故事被点赞的，默认5条
+     * reply_pagenum  查看最新回复被点赞的，默认5条
+     *
+     * 返回有comment_id 你的评论被点赞
+     * 返回有reply_id  你的回复被点赞
      */
     public function actionLikeList(){
 
@@ -398,83 +407,162 @@ class MemberController extends BaseController
             return parent::__response('用户不存在!',(int)-1);
         }
         $page = (int)Yii::$app->request->post('page');//当前页
-        $pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少
+        $comment_pagenum = (int)Yii::$app->request->post('comment_pagenum');//一页显示多少
+        $reply_pagenum = (int)Yii::$app->request->post('reply_pagenum');//一页显示多少
         if ($page < 1) $page = 1;
-        if ($pagenum < 1) $pagenum = 5;
+        if ($comment_pagenum < 1) $comment_pagenum = 5;
+        if ($reply_pagenum < 1) $reply_pagenum = 5;
 
         //story_comment story_comment_like_log member
-        //查看目标用户对故事发表过的评论id数组
+        //////////////////查看目标用户对故事发表过的评论id数组///////////////////////
         $from_comment_id_arr=StoryComment::find()->select(['id'])->andWhere(['from_uid'=>$from_user_id])->asArray()->all();
         $comment_id_arr=[];
         foreach ($from_comment_id_arr as $k=>$v){
             $comment_id_arr[]=(int)$v['id'];
         }
         //var_dump($usr_id_arr);exit;
-
         //他发布的评论被点赞的列表
-        $like_rows=StoryCommentLikeLog::find()
+        $like_rows1=array();
+        $like_rows1=StoryCommentLikeLog::find()
             ->select(['{{%story_comment_like_log}}.comment_id','{{%story_comment_like_log}}.create_at','{{%story_comment_like_log}}.user_id','{{%member}}.nickname','{{%member}}.signature','{{%member}}.picture_url'])
             ->leftJoin('{{%member}}','{{%story_comment_like_log}}.user_id={{%member}}.id')
             ->andWhere(['in', '{{%story_comment_like_log}}.comment_id', $comment_id_arr])
             ->orderBy(['{{%story_comment_like_log}}.id' => SORT_DESC])
-            ->offset($pagenum * ($page - 1))
-            ->limit($pagenum)
+            ->offset($comment_pagenum * ($page - 1))
+            ->limit($comment_pagenum)
             ->asArray()
             ->all();
-        var_dump($like_rows);exit;
-        if(!$like_rows){
-            return parent::__response('获取失败',(int)-1);
+
+        //story_comment_reply story_comment_reply_like_log member
+        ///////////////////////////查看目标用户对评论发表过的回复评论id数组//////////////////
+        $from_reply_id_arr=StoryCommentReply::find()->select(['id'])->andWhere(['reply_from_uid'=>$from_user_id])->asArray()->all();
+        $reply_id_arr=[];
+        foreach ($from_reply_id_arr as $k=>$v){
+            $reply_id_arr[]=(int)$v['id'];
         }
-
-
-
-
-
-
-
-
-        //我的关注
-        $me_Follower_rows=Follower::find()
-            ->select(['{{%member}}.id'])
-            ->leftJoin('{{%member}}','{{%follower}}.to_user_id={{%member}}.id')
-            ->andWhere(['=', '{{%follower}}.from_user_id', $user_id])
-            ->orderBy(['{{%follower}}.id' => SORT_DESC])
-            ->offset($pagenum * ($page - 1))
-            ->limit($pagenum)
+        //var_dump($usr_id_arr);exit;
+        //他发布的评论被点赞的列表
+        $like_rows2=array();
+        $like_rows2=StoryCommentReplyLikeLog::find()
+            ->select(['{{%story_comment_reply_like_log}}.reply_id','{{%story_comment_reply_like_log}}.create_at','{{%story_comment_reply_like_log}}.user_id','{{%member}}.nickname','{{%member}}.signature','{{%member}}.picture_url'])
+            ->leftJoin('{{%member}}','{{%story_comment_reply_like_log}}.user_id={{%member}}.id')
+            ->andWhere(['in', '{{%story_comment_reply_like_log}}.reply_id', $reply_id_arr])
+            ->orderBy(['{{%story_comment_reply_like_log}}.id' => SORT_DESC])
+            ->offset($reply_pagenum * ($page - 1))
+            ->limit($reply_pagenum)
             ->asArray()
             ->all();
-        if(!$me_Follower_rows){
-            return parent::__response('获取失败',(int)-1);
+
+        //评论故事的和回复的合并
+        $like_rows=array_merge($like_rows1,$like_rows2);
+        //var_dump($like_rows);exit;
+        //在排时间回复排序
+        $a = array();
+        foreach($like_rows as $key=>$val){
+            $a[] = (int)$val['create_at'];//这里要注意$val['nums']不能为空，不然后面会出问题
+        }
+        //$a先排序
+        rsort($a);
+        $a = array_flip($a);
+        $result = array();
+        foreach($like_rows as $k=>$v){
+            $temp1 = $v['create_at'];
+            $temp2 = $a[$temp1];
+            $result[$temp2] = $v;
+        }
+        ksort($result);//这里还要把$result进行排序，健的位置不对
+
+        return parent::__response('ok',0,$result);
+
+    }
+
+    /*
+     * 关注&取消关注
+     *@params
+     * to_user_id 目标用户
+     * follower_type 操作类型  0取消关注 1关注 2拉黑
+     */
+    public function actionFollowing(){
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
         }
 
-        //我的关注数组id
-        $me_follower_arr=array();
-        foreach($me_Follower_rows as $k=>$v){
-            $me_follower_arr[]=(int)$v['id'];
-        }
-//        $me_Flollower_str=implode(',',$me_follower_arr);//把我关注的人拼起来
+        $to_user_id = (int)Yii::$app->request->post('to_user_id');//目标用户
+        $follower_type = (int)Yii::$app->request->post('follower_type');//操作类型
+        $user_id = (int)Yii::$app->user->getId();//已登录的用户，Token判断
 
-        foreach ($Follower_rows as $kk=>$vv){
-            if(in_array((int)$vv['id'],$me_follower_arr)){//echo $vv['id'].'----'.$user_id;exit;
-                $r=Follower::find()
-                    ->andWhere(['=', 'from_user_id', (int)$vv['id']])
-                    ->andWhere(['=', 'to_user_id', (int)$user_id])
-                    ->andWhere(['=', 'follower_type', 1])->one();
-                //var_dump($r);exit;
+        if(!isset($to_user_id)||!isset($follower_type)){
+            return parent::__response('参数错误!',(int)-2);
+        }
+        if(!isset($user_id)) {
+            return parent::__response('请先登录!', (int)-1);
+        }
+
+        //先看目标用户是否存在
+        $Member_Model=Member::findOne($to_user_id);
+        if(!$Member_Model){
+            return parent::__response('用户不存在!',(int)-1);
+        }
+        //看看目前关注的状态
+        $follower_model=Follower::find()->andWhere(['from_user_id'=>$user_id,'to_user_id'=>$to_user_id])->one();
+        $mes='操作';
+        if($follower_model){//如果有记录
+
+            //进行操作
+            if($follower_type==1){//关注
+                if($follower_model->follower_type==1){return parent::__response('已经关注，不能在关注了!',(int)-1);}
+                $follower_model->follower_type=1;
+                $mes='关注';
+            }elseif($follower_type==2){//拉黑
+                if($follower_model->follower_type==2){return parent::__response('已经拉黑，不能在拉黑了!',(int)-1);}
+                $follower_model->follower_type=2;
+                $mes='拉黑';
+            }elseif($follower_type==0){//取消关注
+                if($follower_model->follower_type==0){return parent::__response('已经取消关注，不能在取消了!',(int)-1);}
+                $follower_model->follower_type=0;
+                $mes='取消关注';
+            }else{
+                return parent::__response('参数错误!',(int)-2);
+            }
+            $r=$follower_model->save(false);
+            if($r){
+                return parent::__response($mes.'成功',(int)0);
+            }else{
+                return parent::__response($mes.'失败',(int)-1);
+            }
+
+        }else{//如果没记录
+
+            //进行操作
+            if($follower_type==1){//关注
+                $_follower_model=new Follower();
+                $_follower_model->to_user_id=$to_user_id;
+                $_follower_model->follower_type=1;
+                $mes='关注';
+            }elseif($follower_type==2){//拉黑
+                $_follower_model=new Follower();
+                $_follower_model->to_user_id=$to_user_id;
+                $_follower_model->follower_type=2;
+                $mes='拉黑';
+            }else{//取消关注
+                return parent::__response('你并没有关注，不能取消!',(int)-1);
+            }
+            $_follower_model->from_user_id=$user_id;
+            $_follower_model->created_at=time();
+            $isValid = $_follower_model->validate();
+            if($isValid){
+                $r=$_follower_model->save();
                 if($r){
-                    $Follower_rows[$kk]['follower_status']=2;//已关注
-                    $Follower_rows[$kk]['follower_text']='互相关注';
+                    return parent::__response($mes.'成功',(int)0);
                 }else{
-                    $Follower_rows[$kk]['follower_status']=1;//已关注
-                    $Follower_rows[$kk]['follower_text']='已关注';
+                    return parent::__response($mes.'失败',(int)-1);
                 }
             }else{
-                $Follower_rows[$kk]['follower_status']=0;//未关注
-                $Follower_rows[$kk]['follower_text']='未关注';
+                return parent::__response('参数错误',(int)-1);
             }
-        }
 
-        return parent::__response('ok',0,$Follower_rows);
+        }
 
     }
 
