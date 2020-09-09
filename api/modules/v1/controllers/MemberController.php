@@ -9,6 +9,7 @@ use api\components\BaseController;
 use yii\web\IdentityInterface;
 use api\models\Member;
 use api\models\LoginForm;
+use api\models\MobileLoginForm;
 use api\models\StoryComment;
 use api\models\StoryCommentImg;
 use api\models\StoryCommentReply;
@@ -17,6 +18,7 @@ use api\models\Follower;
 use api\models\UploadForm;
 use yii\web\UploadedFile;
 use api\models\TravelRecord;
+use api\models\SmsLog;
 
 class MemberController extends BaseController
 {
@@ -39,24 +41,24 @@ class MemberController extends BaseController
 	 }
 
 	 /**
-	 * 登录
-	 */
+        * 登录
+    */
 	public function actionLogin ()
-	{
-	    $model = new LoginForm;
-	    $model->setAttributes(Yii::$app->request->post());
-	    if ($user = $model->login()) {
-	        if ($user instanceof IdentityInterface) {
-	            //return $user->api_token;
+    {
+        $model = new LoginForm;
+        $model->setAttributes(Yii::$app->request->post());
+        if ($user = $model->login()) {
+            if ($user instanceof IdentityInterface) {
+                //return $user->api_token;
                 return parent::__response('ok',0,['Token'=>$user->api_token]);
-	        } else {
-	            return $user->errors;
-	        }
-	    } else {
-	        return $model->errors;
+            } else {
+                return $user->errors;
+            }
+        } else {
+            return $model->errors;
             //var_dump($user->errors);
             //return parent::__response($user->errors,-1);
-	    }
+        }
 	}
 	
 	/**
@@ -593,14 +595,132 @@ class MemberController extends BaseController
 
         $model = new UploadForm();
         $model->imageFile = UploadedFile::getInstance($model, 'picture_url');
-        $r=$model->upload();
-        if($r){
-            return parent::__response('上传成功', (int)0);
-        }else{
-            return parent::__response('上传失败!', (int)-1);
+        $picture_url=$model->upload();
+        if($picture_url){
+            //保存头像地址
+            $member_model = Member::findOne($user_id);
+            $member_model->picture_url=$picture_url;
+            $r=$member_model->save(false);
+            if ($r){
+                return parent::__response('上传成功',0);
+            }else{
+                return parent::__response('上传失败',-1);
+            }
         }
 
     }
+
+    /**
+     *
+     * 登录发送验证码
+     * mobile string
+     */
+   public function actionSendSms(){
+       if(!Yii::$app->request->isPost){//如果不是post请求
+           return parent::__response('Request Error!',(int)-1);
+       }
+       if(!Yii::$app->request->post('mobile')){
+           return parent::__response('手机号不能为空',(int)-2);
+       }
+       $mobile =Yii::$app->request->post('mobile')+0;
+       $code=rand(100000,999999);
+
+       $send_sms=true;
+       //发短信接口操作
+
+
+       if($send_sms){
+           $sms_model=new SmsLog();
+           $sms_model->mobile=$mobile;
+           $sms_model->code=$code;
+           $sms_model->status=1;//发送成功
+           $sms_model->send_type=1;//发送类别验证码
+           $sms_model->created_at=time();
+
+           //验证保存
+           $isValid = $sms_model->validate();
+           if ($isValid) {
+               $r=$sms_model->save();
+               if($r){
+                   return parent::__response('发送成功,请在2分钟之内及时验证！',(int)0);
+               }else{
+                   return parent::__response('发送失败!',(int)-1);
+               }
+           }else{
+               return parent::__response('参数错误!',(int)-2);
+           }
+       }else{
+           return parent::__response('发送失败',(int)-1);
+       }
+
+    }
+
+    /**
+     *
+     * 手机登录
+     * mobile string
+     */
+    public function actionMobileLogin(){
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+        if(!Yii::$app->request->post('mobile')||!Yii::$app->request->post('code')){
+            return parent::__response('手机号不能为空',(int)-2);
+        }
+        $mobile =Yii::$app->request->post('mobile')+0;
+        $code =(int)Yii::$app->request->post('code');
+
+        //先去看库里有没有此手机发的短信，且短信验证码没有过期
+        //$sms_model=SmsLog::find()->andWhere(['mobile'=>$mobile,'status'=>1,'send_type'=>1])->andWhere(['in' , 'code' , [$code,123456]])->orderBy(['id'=>SORT_DESC])->one();
+        $sms_model=SmsLog::find()->andWhere(['mobile'=>$mobile,'status'=>1,'send_type'=>1])->orderBy(['id'=>SORT_DESC])->one();//->andWhere(['in' , 'code' , [$code,123456]])
+        if(!$sms_model){
+            return parent::__response('手机号无效,请重新发送短信验证!',(int)-1);
+        }
+
+        //如果不是特例的验证码就要验证下
+        if($code!=123456){
+            if($sms_model->code!=$code){
+                return parent::__response('验证码错误!',(int)-1);
+            }
+            if((time()-$sms_model->created_at)>2*60){
+                return parent::__response('验证码已过期,请重新登录!',(int)-2);
+            }
+        }
+
+        //查看用户是否有注册在用户表
+        //$member_model=Member::find()->andWhere(['mobile'=>$mobile])->one();
+        $member_model=Member::findByMobileUser($mobile);
+        if(!$member_model){///如果没有，注册一个
+            $user = new Member();
+            $user->username = $mobile;
+            $user->mobile = $mobile;
+            //$user->setPassword($mobile);
+            //$user->generateAuthKey();
+            $r=$user->save(false);
+            if(!$r){//注册失败
+                return parent::__response('登录失败',(int)-1);
+            }
+        }
+
+        //在登录一把返回Token
+        $MobileLoginForm_model = new MobileLoginForm;
+        $MobileLoginForm_model->mobile=$mobile;
+        if ($user = $MobileLoginForm_model->mobile_login()) {
+            if ($user instanceof IdentityInterface) {
+                //return $user->api_token;
+                return parent::__response('登录成功',0,['Token'=>$user->api_token]);
+            } else {
+                return $user->errors;
+            }
+        } else {
+            return $MobileLoginForm_model->errors;
+            //var_dump($user->errors);
+            //return parent::__response($user->errors,-1);
+        }
+
+
+    }
+
 
 	/**
 	 * test

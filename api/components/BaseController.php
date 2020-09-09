@@ -38,6 +38,8 @@ class BaseController extends ActiveController
                     'video-list',
                     'announce-details',
                     'my',
+                    'send-sms',
+                    'mobile-login',
                     //'signup-test'
                 ],
             ]

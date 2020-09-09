@@ -25,8 +25,9 @@ use yii\filters\RateLimitInterface;
  */
 class Member extends ActiveRecord implements IdentityInterface, RateLimitInterface
 {
-    const STATUS_DELETED = 0;
-    const STATUS_ACTIVE = 10;
+    const STATUS_DELETED = 0;//删除
+    const STATUS_ACTIVE = 10;//激活
+    const STATUS_SETPASSWORD = 20;//已设置密码
 
     /**
      * {@inheritdoc}
@@ -89,6 +90,15 @@ class Member extends ActiveRecord implements IdentityInterface, RateLimitInterfa
     public static function findByUsername($username)
     {
         return static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
+    }
+
+    /**
+     * @param $mobile
+     * @return Member|null
+     */
+    public static function findByMobileUser($mobile)
+    {
+        return static::findOne(['mobile' => $mobile, 'status' => self::STATUS_ACTIVE]);
     }
 
     /**
