@@ -39,7 +39,7 @@ class Story extends \yii\db\ActiveRecord
         return [
             [['intro'], 'string'],
             [['type', 'created_at', 'updated_at', 'admin_id', 'next_updated_at', 'current_chapters', 'total_chapters', 'is_show'], 'integer'],
-            [['title'], 'string', 'max' => 50],
+            [['title','game_title'], 'string', 'max' => 50],
             [['cover_url', 'video_url','record_pic'], 'string', 'max' => 255]
         ];
     }

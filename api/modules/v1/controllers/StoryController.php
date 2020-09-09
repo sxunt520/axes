@@ -94,7 +94,7 @@ class StoryController extends BaseController
         $id = (int)Yii::$app->request->post('id');
 
         $data['story_details']=Story::find()
-            ->select(['id','title','intro','type','cover_url','video_url','created_at','updated_at','next_updated_at','current_chapters','total_chapters','likes','views','share_num'])
+            ->select(['id','title','intro','type','cover_url','video_url','created_at','updated_at','next_updated_at','current_chapters','total_chapters','likes','views','share_num','game_title'])
             ->asArray()->where(['=', 'id', $id])->one();
 
         //先看故事是否存在
