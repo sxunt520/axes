@@ -633,7 +633,7 @@ class MemberController extends BaseController
        //查看最后一次发短信的时间，限制一个手机发短信的时间频率
        $last_send_time=SmsLog::find()->select(['created_at'])->where(['mobile'=>$mobile])->orderBy(['id'=>SORT_DESC])->scalar();
        if($last_send_time){
-           if((time()-$last_send_time)<2*60){
+           if((time()-$last_send_time)<Yii::$app->params['sendsms_code_time']){
                return parent::__response('短信已发出，请稍后在试!',(int)-1);
            }
        }
@@ -656,7 +656,7 @@ class MemberController extends BaseController
            if ($isValid) {
                $r=$sms_model->save();
                if($r){
-                   return parent::__response('发送成功,请在2分钟之内及时验证！',(int)0);
+                   return parent::__response('发送成功,请在'.Yii::$app->params['sendsms_code_time'].'秒之内及时验证！',(int)0);
                }else{
                    return parent::__response('发送失败!',(int)-1);
                }
@@ -700,8 +700,8 @@ class MemberController extends BaseController
             if($sms_model->code!=$code){
                 return parent::__response('验证码错误!',(int)-1);
             }
-            if((time()-$sms_model->created_at)>2*60){//检验验证码是否过期
-                return parent::__response('验证码已过期,请重新登录!',(int)-2);
+            if((time()-$sms_model->created_at)>Yii::$app->params['sendsms_code_time']){//检验验证码是否过期
+                return parent::__response('验证码已过期,请重新发送短信验证!',(int)-2);
             }
         }
 

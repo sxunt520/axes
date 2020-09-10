@@ -58,8 +58,8 @@ class StoryCommentLikeLog extends \common\models\StoryCommentLikeLog
         }
         $r=self::find()->where(['comment_id' => $comment_id,'ip'=>ip2long(Yii::$app->request->getUserIP())])->orderBy(['create_at' => SORT_DESC])->one();
 
-        if ($r && time()-($r->create_at) < 10){
-            $this->error='两次点赞间隔不能低于10秒';
+        if ($r && time()-($r->create_at) < Yii::$app->params['user.liketime']){
+            $this->error='两次点赞间隔不能低于'.Yii::$app->params['user.liketime'].'秒';
             return false;
         }else{
             $transaction=Yii::$app->db->beginTransaction();

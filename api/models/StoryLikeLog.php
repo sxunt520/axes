@@ -62,8 +62,8 @@ class StoryLikeLog extends \common\models\StoryLikeLog
         //$_time=time()-($r->create_at);
         //var_dump($v);exit;
 
-        if ($r && time()-($r->create_at) < 10){
-            $this->error='两次点赞间隔不能低于10秒';
+        if ($r && time()-($r->create_at) < Yii::$app->params['user.liketime']){
+            $this->error='两次点赞间隔不能低于'.Yii::$app->params['user.liketime'].'秒';
             return false;
         }else{
             $transaction=Yii::$app->db->beginTransaction();
