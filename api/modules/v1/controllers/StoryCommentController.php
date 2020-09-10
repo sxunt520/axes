@@ -2,6 +2,7 @@
 
 namespace api\modules\v1\controllers;
 
+use api\models\Follower;
 use Yii;
 use api\components\BaseController;
 use api\models\Story;
@@ -208,6 +209,23 @@ class StoryCommentController extends BaseController
         }else{
             $StoryComment_row['user_name']='';
             $StoryComment_row['user_picture']='';
+        }
+
+        //如果用户登录的，显示关注相关的状态 关注类型 0无状态 1关注 2拉黑
+        if(!empty($this->Token)){
+            $user_id = (int)Yii::$app->user->getId();//登录用户id
+            //echo $user_id.'-----'.$StoryComment_row['from_uid'];exit;
+            $follower_model=Follower::find()->where(['from_user_id'=>$user_id,'to_user_id'=>$StoryComment_row['from_uid'],'follower_type'=>1])->one();//看一下登录用户有没有关注他
+            if($follower_model){
+                $StoryComment_row['follower_text']='已关注';
+                $StoryComment_row['follower_type']=1;
+            }else{
+                $StoryComment_row['follower_text']='未关注';
+                $StoryComment_row['follower_type']=0;
+            }
+        }else{
+            $StoryComment_row['follower_text']='未关注';
+            $StoryComment_row['follower_type']=0;
         }
 
         //标签

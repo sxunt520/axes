@@ -2,6 +2,7 @@
 
 namespace api\components;
 
+use api\models\Member;
 use Yii;
 use yii\rest\ActiveController;
 use yii\helpers\ArrayHelper;
@@ -10,13 +11,16 @@ use api\components\QueryParamAuth;
 class BaseController extends ActiveController
 {
     public $userInfo;
-    public $Token;
+    public $Token='';
 
     public function init(){
         parent::init();
         $headers = Yii::$app->getRequest()->getHeaders();
         $Token = $headers->get('token');
-        if($Token){$this->Token=$Token;}
+        $isValid=Member::apiTokenIsValid($Token);
+        if(!empty($Token)&&$isValid){//Token有值且没有过期
+            $this->Token=$Token;
+        }
         //$this->userInfo = json_decode(json_encode(Yii::$app->user->identity), true);var_dump($this->userInfo);exit;
     }
 

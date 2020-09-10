@@ -756,7 +756,7 @@ class MemberController extends BaseController
             return parent::__response('Request Error!',(int)-1);
         }
         if(!Yii::$app->request->post('third_key')||!Yii::$app->request->post('third_type')||!Yii::$app->request->post('nickname')||!Yii::$app->request->post('headimgurl')){
-            return parent::__response('手机号不能为空',(int)-2);
+            return parent::__response('参数错误',(int)-2);
         }
         $third_key =Yii::$app->request->post('third_key');
         $third_type =(int)Yii::$app->request->post('third_type');
@@ -768,12 +768,17 @@ class MemberController extends BaseController
         }
 
      //////////////判断一下是否是第一次授权登录，然后去自动注册一把/////////////
-        $MemberAuths_model=MemberAuths::find()->andWhere(['third_key'=>$third_key,'third_type'=>$third_type])->one();//->andWhere(['in' , 'code' , [$code,123456]])
+        $MemberAuths_model=MemberAuths::find()->andWhere(['third_key'=>$third_key])->one();//->andWhere(['in' , 'code' , [$code,123456]])
         if(!$MemberAuths_model){
+            //看一下有没有非法参数third_key注册过member表的username字段，而auths表没记录
+            $Member_model=Member::find()->select(['username'])->andWhere(['username'=>$third_key])->scalar();
+            if($Member_model){return parent::__response('非法参数错误，third_key已经有用户记录了！',(int)-2);}
+
+
             ///////首先没有记录是第一次登录，先去注册一个空账号
             $transaction=Yii::$app->db->beginTransaction();//开启事务
             $Member_model = new Member();
-            $Member_model->username = $third_key;
+            $Member_model->username = $third_key;//暂时用key作username接下来的登录
             //$Member_model->mobile = $mobile;
             //$Member_model->setPassword($mobile);
             //$Member_model->generateAuthKey();
@@ -807,9 +812,9 @@ class MemberController extends BaseController
             $username=Member::find()->select(['username'])->where(['id'=>$MemberAuths_model->user_id])->scalar();
         }
 
-
-
-
+        if(!$username){//如果不是post请求
+            return parent::__response('账号异常，登录失败！',(int)-1);
+        }
 
 
         //登录一把返回Token

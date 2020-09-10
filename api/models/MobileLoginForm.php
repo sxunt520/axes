@@ -93,7 +93,8 @@ class MobileLoginForm extends Model
             if (!$this->hasErrors()) {
                 $this->_user = $this->getMobileUser();
                 if (!$this->_user) {
-                    $this->addErrors(['message'=>'登录失败,请重新发验证码登录!','status'=>-1]);
+                    //$this->addErrors(['message'=>'登录失败,请重新发验证码登录!','status'=>-1]);
+                    $this->my_addError(['message'=>'登录失败,请重新授权登录!','status'=>-1]);
                 }
             }
             $this->trigger(self::GET_API_TOKEN);

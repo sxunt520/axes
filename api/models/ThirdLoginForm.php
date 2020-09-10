@@ -48,7 +48,7 @@ class ThirdLoginForm extends Model
             //['mobile', 'filter', 'filter' => 'trim'],
             [['username'], 'required'],
             //['mobile','match','pattern'=>'/^[1][358][0-9]{9}$/','message'=>$this->my_addError(['message'=>'手机号格式错误','status'=>-1])],
-            ['username','validateUsername'],//自定义验证手机号格式
+            //['username','validateUsername'],//自定义验证用户名格式
         ];
     }
 
@@ -94,7 +94,8 @@ class ThirdLoginForm extends Model
             if (!$this->hasErrors()) {
                 $this->_user = $this->getUsernameUser();
                 if (!$this->_user) {
-                    $this->addErrors(['message'=>'登录失败,请重新授权登录!','status'=>-1]);
+                    //$this->addErrors(['message'=>'登录失败,请重新授权登录!','status'=>-1]);
+                    $this->my_addError(['message'=>'登录失败,请重新授权登录!','status'=>-1]);
                 }
             }
             $this->trigger(self::GET_API_TOKEN);
@@ -106,7 +107,7 @@ class ThirdLoginForm extends Model
 
 
     /**
-     * 根据手机号获取用户的认证信息
+     * 根据username查用户的认证信息
      *
      * @return User|null
      */
