@@ -625,6 +625,18 @@ class MemberController extends BaseController
        $mobile =Yii::$app->request->post('mobile')+0;
        $code=rand(100000,999999);
 
+       if (!preg_match("/^[1][358][0-9]{9}$/", $mobile)) {
+           return parent::__response('手机号格式错误，请重新输入！',(int)-2);
+       }
+       //查看最后一次发短信的时间，限制一个手机发短信的时间频率
+       $last_send_time=SmsLog::find()->select(['created_at'])->where(['mobile'=>$mobile])->orderBy(['id'=>SORT_DESC])->scalar();
+       if($last_send_time){
+           if((time()-$last_send_time)<2*60){
+               return parent::__response('短信已发出，请稍后在试!',(int)-1);
+           }
+       }
+        //Yii::$app->request->getUserIP();exit;
+
        $send_sms=true;
        //发短信接口操作
 
@@ -670,6 +682,10 @@ class MemberController extends BaseController
         $mobile =Yii::$app->request->post('mobile')+0;
         $code =(int)Yii::$app->request->post('code');
 
+        if (!preg_match("/^[1][358][0-9]{9}$/", $mobile)) {
+            return parent::__response('手机号格式错误，请重新输入！',(int)-2);
+        }
+
         //先去看库里有没有此手机发的短信，且短信验证码没有过期
         //$sms_model=SmsLog::find()->andWhere(['mobile'=>$mobile,'status'=>1,'send_type'=>1])->andWhere(['in' , 'code' , [$code,123456]])->orderBy(['id'=>SORT_DESC])->one();
         $sms_model=SmsLog::find()->andWhere(['mobile'=>$mobile,'status'=>1,'send_type'=>1])->orderBy(['id'=>SORT_DESC])->one();//->andWhere(['in' , 'code' , [$code,123456]])
@@ -682,7 +698,7 @@ class MemberController extends BaseController
             if($sms_model->code!=$code){
                 return parent::__response('验证码错误!',(int)-1);
             }
-            if((time()-$sms_model->created_at)>2*60){
+            if((time()-$sms_model->created_at)>2*60){//检验验证码是否过期
                 return parent::__response('验证码已过期,请重新登录!',(int)-2);
             }
         }

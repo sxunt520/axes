@@ -13,6 +13,7 @@ class MobileLoginForm extends Model
     public $username;
     public $password;
     public $mobile;
+    public $errormsg;
 
     private $_user;
 
@@ -45,8 +46,18 @@ class MobileLoginForm extends Model
         return [
             //['mobile', 'filter', 'filter' => 'trim'],
             [['mobile'], 'required'],
-            //[['mobile'],'match','pattern'=>'/^[1][358][0-9]{9}$/'],
+            //['mobile','match','pattern'=>'/^[1][358][0-9]{9}$/','message'=>$this->my_addError(['message'=>'手机号格式错误','status'=>-1])],
+            ['mobile','validateMobile'],//自定义验证手机号格式
         ];
+    }
+
+    //自定义验证手机号格式
+    public function validateMobile($attribute, $params)
+    {
+        if (!preg_match("/^[1][358][0-9]{9}$/", $this->mobile)) {
+            //$this->addErrors(['message'=>'手机号格式错误','status'=>-1]);
+            $this->my_addError(['message'=>'手机号格式错误','status'=>-1]);
+        }
     }
 
     /**

@@ -606,6 +606,11 @@ class Model extends Component implements IteratorAggregate, ArrayAccess, Arrayab
         $this->_errors[$attribute][] = $error;
     }
 
+    public function my_addError($my_error_arr=['message'=>'ok','status'=>-1])
+    {
+        $this->_errors= $my_error_arr;
+    }
+
     /**
      * Adds a list of errors.
      * @param array $items a list of errors. The array keys must be attribute names.
