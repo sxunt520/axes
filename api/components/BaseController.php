@@ -40,6 +40,7 @@ class BaseController extends ActiveController
                     'my',
                     'send-sms',
                     'mobile-login',
+                    'third-login',
                     //'signup-test'
                 ],
             ]

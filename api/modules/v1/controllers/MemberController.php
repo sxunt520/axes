@@ -19,6 +19,8 @@ use api\models\UploadForm;
 use yii\web\UploadedFile;
 use api\models\TravelRecord;
 use api\models\SmsLog;
+use api\models\MemberAuths;
+use api\models\ThirdLoginForm;
 
 class MemberController extends BaseController
 {
@@ -710,6 +712,8 @@ class MemberController extends BaseController
             $user = new Member();
             $user->username = $mobile;
             $user->mobile = $mobile;
+            $user->nickname = $mobile;
+            $user->picture_url='/uploads/default/avatar.png';//头像
             //$user->setPassword($mobile);
             //$user->generateAuthKey();
             $r=$user->save(false);
@@ -734,6 +738,93 @@ class MemberController extends BaseController
             //return parent::__response($user->errors,-1);
         }
 
+
+    }
+
+    /**
+     *Time:2020/9/10 15:06
+     *Author:始渲
+     *Remark:第三方登录
+     * @params:
+     * third_key 第三方登录唯一标识id，什么openid client_id open_id 啥的!
+     * third_type 三方登陆类型 1微信 2QQ 3微博
+     * nickname 昵称 授权以后的名字
+     * headimgurl 头像 授权以后的头像地址
+     */
+    public function actionThirdLogin(){
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+        if(!Yii::$app->request->post('third_key')||!Yii::$app->request->post('third_type')||!Yii::$app->request->post('nickname')||!Yii::$app->request->post('headimgurl')){
+            return parent::__response('手机号不能为空',(int)-2);
+        }
+        $third_key =Yii::$app->request->post('third_key');
+        $third_type =(int)Yii::$app->request->post('third_type');
+        $nickname =Yii::$app->request->post('nickname');
+        $headimgurl =Yii::$app->request->post('headimgurl');
+
+        if(!in_array($third_type,[1,2,3])){//如果不是授权的范围内登录类型
+            return parent::__response('参数错误，不在授权范围内',(int)-2);
+        }
+
+     //////////////判断一下是否是第一次授权登录，然后去自动注册一把/////////////
+        $MemberAuths_model=MemberAuths::find()->andWhere(['third_key'=>$third_key,'third_type'=>$third_type])->one();//->andWhere(['in' , 'code' , [$code,123456]])
+        if(!$MemberAuths_model){
+            ///////首先没有记录是第一次登录，先去注册一个空账号
+            $transaction=Yii::$app->db->beginTransaction();//开启事务
+            $Member_model = new Member();
+            $Member_model->username = $third_key;
+            //$Member_model->mobile = $mobile;
+            //$Member_model->setPassword($mobile);
+            //$Member_model->generateAuthKey();
+            $Member_model->nickname=$nickname;//昵称
+            $Member_model->picture_url=$headimgurl;//头像
+            $r=$Member_model->save(false);
+            if(!$r){
+                return parent::__response('登录失败',(int)-1);
+            }
+            $newe_member_id=$Member_model->attributes['id'];//生成新的user_id
+            if(!$newe_member_id){//注册失败
+                return parent::__response('登录失败',(int)-1);
+            }
+
+            ///////然后在去注册一个第三方member_auths表，关联新注册的账号
+            $member_Auths_Model=new MemberAuths();
+            $member_Auths_Model->user_id=$newe_member_id;
+            $member_Auths_Model->third_key=$third_key;
+            $member_Auths_Model->third_type=$third_type;
+            $member_Auths_Model->created_at=time();
+            $auth_r=$member_Auths_Model->save(false);
+            if(!$auth_r){
+                $transaction->rollBack();//回滚事务
+                return parent::__response('登录失败',(int)-1);
+            }
+            $transaction->commit();//提交事务
+            $username=$Member_model->username;//拿到username去登录，这里的username就是第三方唯一id $third_key
+        }else{
+            //已经授权登录过了，去member表找到username去登录
+            $username='';
+            $username=Member::find()->select(['username'])->where(['id'=>$MemberAuths_model->user_id])->scalar();
+        }
+
+
+
+
+
+
+        //登录一把返回Token
+        $ThirdLoginForm_model = new ThirdLoginForm;
+        $ThirdLoginForm_model->username=$username;
+        if ($user = $ThirdLoginForm_model->username_login()) {
+            if ($user instanceof IdentityInterface) {
+                //return $user->api_token;
+                return parent::__response('登录成功',0,['Token'=>$user->api_token]);
+            } else {
+                return $user->errors;
+            }
+        } else {
+            return $ThirdLoginForm_model->errors;
+        }
 
     }
 

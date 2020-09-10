@@ -54,6 +54,7 @@ return [
                             'POST loading' => 'loading/home',
                             'POST members' => 'member/send-sms',
                             'POST members' => 'member/mobile-login',
+                            'POST members' => 'member/third-login',
                             'POST members' => 'member/signup',
                             'POST members' => 'member/login',
                             'POST members' => 'member/user-profile',

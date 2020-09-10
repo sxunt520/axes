@@ -52,7 +52,7 @@ class StoryController extends BaseController
     	if ($pagenum < 1) $pagenum = 1;
     	
          $Story_rows=Story::find()
-	        ->select(['id','title','intro','type','cover_url','video_url','created_at','likes'])
+	        ->select(['id','title','intro','type','cover_url','video_url','created_at','likes','game_title'])
 	        ->andWhere(['=', 'is_show', 1])
 	        ->andWhere(['=', 'type', 1])
 	        ->orderBy(['id' => SORT_DESC])
@@ -142,7 +142,7 @@ class StoryController extends BaseController
 
         ///////////公告标签处
         $announce_model = StoryAnnounce::find()
-            ->select('{{%story_announce.title}},{{%story_announce_tag}}.announce_id,{{%story_announce_tag}}.tag_name')
+            ->select('{{%story_announce}}.id,{{%story_announce}}.title,{{%story_announce_tag}}.tag_name')
             ->leftJoin('{{%story_announce_tag}}','{{%story_announce}}.id = {{%story_announce_tag}}.announce_id')
             ->where(['{{%story_announce}}.story_id' => $id])
             ->asArray()

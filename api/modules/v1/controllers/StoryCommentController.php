@@ -49,6 +49,7 @@ class StoryCommentController extends BaseController
          
       //图片、用户头像名字、标签
         foreach ($StoryComment_rows as $k=>$v){
+
             $StoryCommentImg=StoryCommentImg::find()->select(['id','img_url','img_text'])->where(['id' => $v['comment_img_id']])->asArray()->one();
             if($StoryCommentImg)$StoryComment_rows[$k]['comment_img']=$StoryCommentImg['img_url'];
 
@@ -59,6 +60,14 @@ class StoryCommentController extends BaseController
             }else{
                 $StoryComment_rows[$k]['user_name']='';
                 $StoryComment_rows[$k]['user_picture']='';
+            }
+
+            //游戏名
+            $game_title=Story::find()->select(['game_title'])->where(['id'=>$v['story_id']])->scalar();
+            if($game_title){
+                $StoryComment_rows[$k]['game_title']=$game_title;
+            }else{
+                $StoryComment_rows[$k]['game_title']='';
             }
 
             $StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $v['story_id']])->asArray()->all();
@@ -97,7 +106,7 @@ class StoryCommentController extends BaseController
         $data=array();
         ///////////获取故事详细内容及标签人气值////////
         $Story_row=Story::find()
-            ->select(['title','next_updated_at','likes','views','share_num'])
+            ->select(['title','next_updated_at','likes','views','share_num','game_title'])
             ->andWhere(['=', 'id', $story_id])
             ->asArray()
             ->one();
@@ -107,6 +116,7 @@ class StoryCommentController extends BaseController
         //故事人气值	计算规则：人气值外显代表 游戏观看数+评论+转发的虚拟数值总和  1次观看=10点人气，一条评论=50点人气，一次转发=100点人气
         //$data['story_details']
         $data['story_details']['title']=$Story_row['title'];
+        $data['story_details']['game_title']=$Story_row['game_title'];
         $data['story_details']['next_updated_at']=$Story_row['next_updated_at'];
         $data['story_details']['popular_val']=$Story_row['views']*10+$story_comment_num*50+$Story_row['share_num']*100;//人气值
         //标签
@@ -204,10 +214,18 @@ class StoryCommentController extends BaseController
         //$StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $id])->asArray()->all();
         //if($StoryTag_rows) $StoryComment_row['tags']=$StoryTag_rows;
 
+        //游戏名
+        $game_title=Story::find()->select(['game_title'])->where(['id'=>$StoryComment_row['story_id']])->scalar();
+        if($game_title){
+            $StoryComment_row['game_title']=$game_title;
+        }else{
+            $StoryComment_row['game_title']='';
+        }
+
         //评论图
         if($StoryComment_row['comment_img_id']>0){
-            $StoryCommentImg_rows=StoryCommentImg::find()->select(['id','img_url','img_text'])->where(['id' => $StoryComment_row['comment_img_id']])->asArray()->all();
-            if($StoryCommentImg_rows) $StoryComment_row['comment_img']=$StoryCommentImg_rows;
+            $StoryCommentImg_rows=StoryCommentImg::find()->select(['id','img_url','img_text'])->where(['id' => $StoryComment_row['comment_img_id']])->asArray()->one();
+            if($StoryCommentImg_rows)$StoryComment_row['comment_img']=$StoryCommentImg_rows['img_url'];
         }
 
         //多少人赞过 仅显示最开始点赞的6位用户
@@ -227,7 +245,6 @@ class StoryCommentController extends BaseController
             $StoryComment_row['likes_user_arr']=[];
         }
 
-
         //回复的评论 这里见回回复控制器接口
 
         return parent::__response('ok',0,$StoryComment_row);
@@ -242,7 +259,7 @@ class StoryCommentController extends BaseController
         if(!Yii::$app->request->isPost){//如果不是post请求
             return parent::__response('Request Error!',(int)-1);
         }
-        if(!Yii::$app->request->POST("story_id")||!Yii::$app->request->POST("comment_img_id")||!Yii::$app->request->POST("title")||!Yii::$app->request->POST("content")){
+        if(!Yii::$app->request->POST("story_id")||!Yii::$app->request->POST("comment_img_id")||!Yii::$app->request->POST("title")){
             return parent::__response('参数错误!',(int)-2);
         }
         $story_id = (int)Yii::$app->request->post('story_id');//故事id
