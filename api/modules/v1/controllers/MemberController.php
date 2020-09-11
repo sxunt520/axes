@@ -2,6 +2,7 @@
 
 namespace api\modules\v1\controllers;
 
+use api\models\Story;
 use api\models\StoryCommentLikeLog;
 use api\models\StoryCommentReplyLikeLog;
 use Yii;
@@ -929,6 +930,98 @@ class MemberController extends BaseController
         } else {
             return $ThirdLoginForm_model->errors;
         }
+
+    }
+
+    /**
+     *Time:2020/9/11 17:30
+     *Author:始渲
+     *Remark:评论的回复列表
+     * @params: Token $page $pagenum
+     *
+     */
+    public function actionMyReplyList(){
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+
+        $user_id = (int)Yii::$app->user->getId();//已登录的用户，Token判断
+
+        if(!isset($user_id)) {
+            throw new \yii\web\UnauthorizedHttpException("Token无效.请重新登录!");
+        }
+
+        //先看目标用户是否存在
+        $Member_Model=Member::findOne($user_id);
+        if(!$Member_Model){
+            return parent::__response('用户不存在!',(int)-1);
+        }
+
+        $page = (int)Yii::$app->request->post('page');//当前页
+        $pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少
+        if ($page < 1) $page = 1;
+        if ($pagenum < 1) $pagenum = 10;
+
+        $StoryCommentReply_rows=StoryCommentReply::find()
+            ->select(['{{%story_comment_reply}}.*','{{%member}}.username','{{%member}}.picture_url'])
+            ->leftJoin('{{%member}}','{{%story_comment_reply}}.reply_from_uid={{%member}}.id')
+            ->andWhere(['=', '{{%story_comment_reply}}.reply_to_uid', $user_id])
+            //->andWhere(['=', '{{%story_comment_reply}}.reply_type', 1])//1对评论发布回复 2对回复发布回复 3@人+对回复发布回复
+            ->andWhere(['=', '{{%story_comment_reply}}.is_show', 1])
+            ->orderBy(['id'=>SORT_DESC])
+            ->offset($pagenum * ($page - 1))
+            ->limit($pagenum)
+            ->asArray()
+            ->all();
+        if(!$StoryCommentReply_rows){
+            return parent::__response('暂无回复评论',(int)0,[]);
+        }
+
+        return parent::__response('ok',0,$StoryCommentReply_rows);
+
+    }
+
+    /**
+     *Time:2020/9/11 18:07
+     *Author:始渲
+     *Remark:个人中心我的评论回复详情
+     * @params: reply_id
+     */
+    public function actionMyReplyDetails(){
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+        if(!Yii::$app->request->POST("reply_id")){
+            return parent::__response('参数错误!',(int)-2);
+        }
+        $reply_id = (int)Yii::$app->request->post('reply_id');
+
+        $StoryCommentReply_row=StoryCommentReply::find()
+            ->select(['{{%story_comment}}.story_id','{{%story_comment}}.content as comment_content','{{%story_comment_reply}}.comment_id','{{%story_comment_reply}}.reply_from_uid','{{%story_comment_reply}}.reply_content','{{%story_comment_reply}}.reply_at','{{%story_comment_reply}}.likes','{{%member}}.username','{{%member}}.picture_url'])
+            ->leftJoin('{{%member}}','{{%story_comment_reply}}.reply_from_uid={{%member}}.id')
+            ->leftJoin('{{%story_comment}}','{{%story_comment_reply}}.comment_id={{%story_comment}}.id')
+            ->andWhere(['=', '{{%story_comment_reply}}.id', $reply_id])
+            ->andWhere(['=', '{{%story_comment_reply}}.reply_type', 1])
+            ->asArray()
+            ->one();
+
+        //找到游戏名称标签
+        $game_title=Story::find()->select(['game_title'])->where(['id'=>$StoryCommentReply_row['story_id']])->scalar();
+        
+        if($game_title){
+            $StoryCommentReply_row['game_title']=$game_title;
+        }else{
+            $StoryCommentReply_row['game_title']='';
+        }
+
+        if($StoryCommentReply_row){
+            return parent::__response('ok',0,$StoryCommentReply_row);
+        }else{
+            return parent::__response('暂无回复评论',(int)-0);
+        }
+
 
     }
 

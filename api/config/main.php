@@ -67,6 +67,8 @@ return [
                             'POST members' => 'member/like-list',
                             'POST members' => 'member/following',
                             'POST members' => 'member/upload-photo',
+                            'POST members' => 'member/my-reply-list',
+                            'POST members' => 'member/my-reply-details',
                             'POST storys' => 'story/home',
                             'POST storys' => 'story/like',
                             'POST storys' => 'story/get-likes',

@@ -74,10 +74,17 @@ class StoryCommentReplyController extends BaseController
         }
         $reply_id = (int)Yii::$app->request->post('reply_id');
 
+//        $StoryCommentReply_row=StoryCommentReply::find()
+//            ->select(['reply_from_uid','reply_content','reply_at','likes'])
+//            ->andWhere(['=', 'id', $reply_id])
+//            ->andWhere(['=', 'reply_type', 1])
+//            ->asArray()
+//            ->one();
         $StoryCommentReply_row=StoryCommentReply::find()
-            ->select(['reply_from_uid','reply_content','reply_at','likes'])
-            ->andWhere(['=', 'id', $reply_id])
-            ->andWhere(['=', 'reply_type', 1])
+            ->select(['{{%story_comment_reply}}.reply_from_uid','{{%story_comment_reply}}.reply_content','{{%story_comment_reply}}.reply_at','{{%story_comment_reply}}.likes','{{%member}}.username','{{%member}}.picture_url'])
+            ->leftJoin('{{%member}}','{{%story_comment_reply}}.reply_from_uid={{%member}}.id')
+            ->andWhere(['=', '{{%story_comment_reply}}.id', $reply_id])
+            ->andWhere(['=', '{{%story_comment_reply}}.reply_type', 1])
             ->asArray()
             ->one();
 
