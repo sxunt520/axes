@@ -100,71 +100,28 @@ class MemberController extends BaseController
             return parent::__response('Request Error!',(int)-1);
         }
         $user_id=Yii::$app->request->POST("user_id");
-        $headers = Yii::$app->getRequest()->getHeaders();
-        $token = $headers->get('token');
-        //$user_id=Yii::$app->user->getId();
         $data=array();
 
-        if($token){//如果有Token用户自己看自己
-            //用户个人基本信息
-            $user = Member::findIdentityByAccessToken($token);
-            if(!$user){
-                return parent::__response('Token失效不存在',-1);
-            }
-            $data['user_profile']=[
-                'id'=>$user->id,
-                'username'=>!empty($user->username)?$user->username:'',
-                'picture_url'=>!empty($user->picture_url)?$user->picture_url:'',
-                'nickname'=>!empty($user->nickname)?$user->nickname:'',
-                'signature'=>!empty($user->signature)?$user->signature:'',
-                'real_name_status'=>!empty($user->real_name_status)?$user->real_name_status:0,
-                'mobile'=>!empty($user->mobile)?$user->mobile:'',
-            ];
-            //我的评论
-            $mylast_comment_row=StoryComment::find()
-                ->select(['{{%story_comment}}.id','{{%story_comment}}.title','{{%story_comment_img}}.img_url'])
-                ->leftJoin('{{%story_comment_img}}','{{%story_comment}}.comment_img_id={{%story_comment_img}}.id')
-                ->andWhere(['=', '{{%story_comment}}.from_uid', $user->id])
-                ->orderBy(['{{%story_comment}}.id'=>SORT_DESC])
-                ->asArray()
-                ->one();
-            if($mylast_comment_row){
-                $data['mylast_comment_row']=$mylast_comment_row;
-            }else{
-                $data['mylast_comment_row']=[];
-            }
+        //先看是否有传user_id,然后看目标用户的个人中心信息
+        if(isset($user_id)&&$user_id>0){
 
-            //我的旅行记录  travel_record story
-            $travel_record=TravelRecord::find()
-                ->select(['{{%travel_record}}.story_id','{{%travel_record}}.history_chapters','{{%story}}.title','{{%story}}.record_pic'])
-                ->leftJoin('{{%story}}','{{%travel_record}}.story_id={{%story}}.id')
-                ->andWhere(['=', '{{%travel_record}}.user_id', $user->id])
-                ->orderBy(['{{%travel_record}}.id'=>SORT_DESC])
-                ->asArray()
-                ->limit(2)
-                ->all();
-            if($travel_record){
-                $data['travel_record']=$travel_record;
-            }else{
-                $data['travel_record']=[];
-            }
-
-            //等待回复数
-            $wait_comment_num=StoryComment::find()->where(['from_uid'=>$user->id,'status'=>0])->count();
-            $wait_reply_num=StoryCommentReply::find()->where(['reply_to_uid'=>$user->id,'status'=>0])->count();
-            $data['wait_reply_num']=$wait_comment_num+$wait_reply_num;
-
-            //通知数
-            $data['announce_num']=(int)StoryAnnouncePushLog::find()->where(['user_id'=>$user->id,'status'=>0])->count();
-
-        }elseif($user_id>0){//如果没有Token，用户看别人
             //用户个人基本信息
             $user_profile=Member::find()->select(['id','username','picture_url','nickname','signature','real_name_status','mobile'])->where(['id'=>$user_id])->asArray()->one();
             if(!$user_profile){
                 return parent::__response('用户不存在',-1);
             }else{
+                if($user_profile['signature']==NULL){
+                    $user_profile['signature']='';
+                }
                 $data['user_profile']=$user_profile;
             }
+
+            //关注数
+            $data['follower_count']=(int)Follower::find()->where(['from_user_id'=>$user_id,'follower_type'=>1])->count();
+            //热度值
+            $data['heart_val_count']=(int)StoryComment::find()->select('sum(heart_val) as heart_val_count')->where(['from_uid'=>$user_id,'is_show'=>1])->groupBy('from_uid')->asArray()->scalar();
+            //粉丝数
+            $data['fans_count']=(int)Follower::find()->where(['to_user_id'=>$user_id,'follower_type'=>1])->count();
 
             //Ta的评论
             $mylast_comment_row=StoryComment::find()
@@ -181,13 +138,99 @@ class MemberController extends BaseController
             }
 
             //Ta的旅行记录
+            $travel_record=TravelRecord::find()
+                ->select(['{{%travel_record}}.story_id','{{%travel_record}}.history_chapters','{{%story}}.title','{{%story}}.record_pic'])
+                ->leftJoin('{{%story}}','{{%travel_record}}.story_id={{%story}}.id')
+                ->andWhere(['=', '{{%travel_record}}.user_id', $user_id])
+                ->orderBy(['{{%travel_record}}.id'=>SORT_DESC])
+                ->asArray()
+                ->limit(2)
+                ->all();
+            if($travel_record){
+                $data['travel_record']=$travel_record;
+            }else{
+                $data['travel_record']=[];
+            }
 
-        }else{
-            return parent::__response('参数错误!',(int)-2);
+            //等待回复数
+            $wait_comment_num=StoryComment::find()->where(['from_uid'=>$user_id,'status'=>0])->count();
+            $wait_reply_num=StoryCommentReply::find()->where(['reply_to_uid'=>$user_id,'status'=>0])->count();
+            $data['wait_reply_num']=$wait_comment_num+$wait_reply_num;
+
+            //通知数
+            $data['announce_num']=(int)StoryAnnouncePushLog::find()->where(['user_id'=>$user_id,'status'=>0])->count();
+
+        }else{//否则看已登录的用户个人中心信息
+
+            if(!empty($this->Token)){//有效Token，所以开始找当前登录用户的个人中心信息
+
+                //先检验Token有效性，然后Token换取用户个人基本信息
+                $user = Member::findIdentityByAccessToken($this->Token);
+                if(!$user){
+                    return parent::__response('Token失效不存在',-1);
+                }
+                $data['user_profile']=[
+                    'id'=>$user->id,
+                    'username'=>!empty($user->username)?$user->username:'',
+                    'picture_url'=>!empty($user->picture_url)?$user->picture_url:'',
+                    'nickname'=>!empty($user->nickname)?$user->nickname:'',
+                    'signature'=>!empty($user->signature)?$user->signature:'',
+                    'real_name_status'=>!empty($user->real_name_status)?$user->real_name_status:0,
+                    'mobile'=>!empty($user->mobile)?$user->mobile:'',
+                ];
+
+                //关注数
+                $data['follower_count']=(int)Follower::find()->where(['from_user_id'=>$user->id,'follower_type'=>1])->count();
+                //热度值
+                $data['heart_val_count']=(int)StoryComment::find()->select('sum(heart_val) as heart_val_count')->where(['from_uid'=>$user->id,'is_show'=>1])->groupBy('from_uid')->asArray()->scalar();
+                //粉丝数
+                $data['fans_count']=(int)Follower::find()->where(['to_user_id'=>$user->id,'follower_type'=>1])->count();
+
+                //我的评论
+                $mylast_comment_row=StoryComment::find()
+                    ->select(['{{%story_comment}}.id','{{%story_comment}}.title','{{%story_comment_img}}.img_url'])
+                    ->leftJoin('{{%story_comment_img}}','{{%story_comment}}.comment_img_id={{%story_comment_img}}.id')
+                    ->andWhere(['=', '{{%story_comment}}.from_uid', $user->id])
+                    ->orderBy(['{{%story_comment}}.id'=>SORT_DESC])
+                    ->asArray()
+                    ->one();
+                if($mylast_comment_row){
+                    $data['mylast_comment_row']=$mylast_comment_row;
+                }else{
+                    $data['mylast_comment_row']=[];
+                }
+
+                //我的旅行记录  travel_record story
+                $travel_record=TravelRecord::find()
+                    ->select(['{{%travel_record}}.story_id','{{%travel_record}}.history_chapters','{{%story}}.title','{{%story}}.record_pic'])
+                    ->leftJoin('{{%story}}','{{%travel_record}}.story_id={{%story}}.id')
+                    ->andWhere(['=', '{{%travel_record}}.user_id', $user->id])
+                    ->orderBy(['{{%travel_record}}.id'=>SORT_DESC])
+                    ->asArray()
+                    ->limit(2)
+                    ->all();
+                if($travel_record){
+                    $data['travel_record']=$travel_record;
+                }else{
+                    $data['travel_record']=[];
+                }
+
+                //等待回复数
+                $wait_comment_num=StoryComment::find()->where(['from_uid'=>$user->id,'status'=>0])->count();
+                $wait_reply_num=StoryCommentReply::find()->where(['reply_to_uid'=>$user->id,'status'=>0])->count();
+                $data['wait_reply_num']=$wait_comment_num+$wait_reply_num;
+
+                //通知数
+                $data['announce_num']=(int)StoryAnnouncePushLog::find()->where(['user_id'=>$user->id,'status'=>0])->count();
+
+            }else{//Token user_id都没有，这里主要看Token，所以是Token无效，直接打回去
+                throw new \yii\web\UnauthorizedHttpException("Token无效.请重新登录!");
+            }
+
         }
 
-        // var_dump(Yii::$app->user->getId());exit;// 获取用户id
         return parent::__response('ok',0,$data);
+
     }
 
     /**
@@ -773,9 +816,9 @@ class MemberController extends BaseController
                     'signature'=>!empty($user->signature)?$user->signature:'',
                     'real_name_status'=>!empty($user->real_name_status)?$user->real_name_status:0,
                     'mobile'=>!empty($user->mobile)?$user->mobile:'',
-                    'api_token'=>!empty($user->api_token)?$user->api_token:'',
+                    //'api_token'=>!empty($user->api_token)?$user->api_token:'',
                 ];
-                return parent::__response('登录成功',0,['user_profile'=>$user_profile]);//Token在里面
+                return parent::__response('登录成功',0,['user_profile'=>$user_profile,'api_token'=>$user->api_token]);//Token在里面
             } else {
                 return $user->errors;
             }
@@ -877,9 +920,9 @@ class MemberController extends BaseController
                     'signature'=>!empty($user->signature)?$user->signature:'',
                     'real_name_status'=>!empty($user->real_name_status)?$user->real_name_status:0,
                     'mobile'=>!empty($user->mobile)?$user->mobile:'',
-                    'api_token'=>!empty($user->api_token)?$user->api_token:'',
+                    //'api_token'=>!empty($user->api_token)?$user->api_token:'',
                 ];
-                return parent::__response('登录成功',0,['user_profile'=>$user_profile]);//Token在里面
+                return parent::__response('登录成功',0,['user_profile'=>$user_profile,'api_token'=>$user->api_token]);//Token在里面
             } else {
                 return $user->errors;
             }
