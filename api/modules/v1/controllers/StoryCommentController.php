@@ -44,15 +44,20 @@ class StoryCommentController extends BaseController
             ->limit($pagenum)
             ->asArray()
             ->all();
-        if(!$StoryComment_rows){
-            return parent::__response('获取失败',(int)-1);
+
+        if(!is_array($StoryComment_rows)){
+            return parent::__response('暂无数据',(int)0);
         }
          
       //图片、用户头像名字、标签
         foreach ($StoryComment_rows as $k=>$v){
 
             $StoryCommentImg=StoryCommentImg::find()->select(['id','img_url','img_text'])->where(['id' => $v['comment_img_id']])->asArray()->one();
-            if($StoryCommentImg)$StoryComment_rows[$k]['comment_img']=$StoryCommentImg['img_url'];
+            if($StoryCommentImg){
+                $StoryComment_rows[$k]['comment_img']=$StoryCommentImg['img_url'];
+            }else{
+                $StoryComment_rows[$k]['comment_img']='';
+            }
 
             $member_arr=Member::find()->select(['username','picture_url'])->where(['id' => $v['from_uid']])->asArray()->one();
             if($member_arr){
@@ -72,7 +77,11 @@ class StoryCommentController extends BaseController
             }
 
             $StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $v['story_id']])->asArray()->all();
-            if($StoryTag_rows) $StoryComment_rows[$k]['tags']=$StoryTag_rows;
+            if($StoryTag_rows){
+                $StoryComment_rows[$k]['tags']=$StoryTag_rows;
+            }else{
+                $StoryComment_rows[$k]['tags']=[];
+            }
 
         }
 
@@ -147,7 +156,8 @@ class StoryCommentController extends BaseController
             ->asArray()
             ->all();
         if(!$StoryComment_rows){
-            return parent::__response('获取失败',(int)-1);
+            //return parent::__response('获取失败',(int)-1);
+            $StoryComment_rows=[];
         }
 
         //图片
@@ -348,7 +358,7 @@ class StoryCommentController extends BaseController
         if($StoryCommentImg_rows){
             return parent::__response('ok', 0, $StoryCommentImg_rows);
         }else{
-            return parent::__response('获取失败',(int)-1);
+            return parent::__response('后台没添加评论图片组数据', 0,[]);
         }
 
     }

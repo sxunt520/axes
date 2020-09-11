@@ -60,6 +60,9 @@ class StoryController extends BaseController
 	        ->limit($pagenum)
 	        ->asArray()
 	        ->all();
+         if(!is_array($Story_rows)){
+             return parent::__response('暂无数据',0);
+         }
          
       //标签、评论数
         foreach ($Story_rows as $k=>$v){
@@ -93,13 +96,15 @@ class StoryController extends BaseController
         }
         $id = (int)Yii::$app->request->post('id');
 
-        $data['story_details']=Story::find()
+        $story_details=Story::find()
             ->select(['id','title','intro','type','cover_url','video_url','created_at','updated_at','next_updated_at','current_chapters','total_chapters','likes','views','share_num','game_title'])
             ->asArray()->where(['=', 'id', $id])->one();
 
         //先看故事是否存在
-        if(!$data['story_details']){
+        if(!$story_details){
             return parent::__response('故事不存在!',(int)-1);
+        }else{
+            $data['story_details']=$story_details;
         }
 
         // 浏览量变化
@@ -133,11 +138,19 @@ class StoryController extends BaseController
         //故事人气值	计算规则：人气值外显代表 游戏观看数+评论+转发的虚拟数值总和  1次观看=10点人气，一条评论=50点人气，一次转发=100点人气
         //$data['story_details']
         $data['story_details']['popular_val']=$data['story_details']['views']*10+$story_comment_num*50+$data['story_details']['share_num']*100;//人气值
+
         //标签
         $StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $id])->asArray()->all();
+        if(!is_array($StoryTag_rows)){
+            $StoryTag_rows=[];
+        }
         if($StoryTag_rows) $data['story_details']['tags']=$StoryTag_rows;
+
         //多图
         $StoryImg_rows=StoryImg::find()->select(['id','img_url','img_text'])->where(['story_id' => $id])->asArray()->all();
+        if(!is_array($StoryImg_rows)){
+            $StoryImg_rows=[];
+        }
         if($StoryImg_rows) $data['story_details']['iamges']=$StoryImg_rows;
 
         ///////////公告标签处
@@ -148,15 +161,15 @@ class StoryController extends BaseController
             ->asArray()
             ->limit(2)
             ->all();
-        if($announce_model){
+        if(is_array($announce_model)){
             $data['announce_list']=$announce_model;
         }else{
-            $data['announce_list']=$announce_model;
+            $data['announce_list']=[];
         }
 
         ///////////宣传视频组video_rows
         $StoryVideo_rows=StoryVideo::find()->select(['id','video_url','video_cover','title'])->where(['story_id' => $id])->asArray()->all();
-        if($StoryVideo_rows){
+        if(is_array($StoryVideo_rows)){
             $data['video_list']=$StoryVideo_rows;
         }else{
             $data['video_list']=[];
@@ -377,7 +390,7 @@ class StoryController extends BaseController
             ->asArray()
             ->all();
         if(!$StoryVideo_rows){
-            return parent::__response('获取失败',(int)-1);
+            return parent::__response('暂无数据',(int)0);
         }
 
         return parent::__response('ok',0,$StoryVideo_rows);

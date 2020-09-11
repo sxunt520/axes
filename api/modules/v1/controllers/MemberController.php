@@ -73,15 +73,18 @@ class MemberController extends BaseController
 	    $headers = Yii::$app->getRequest()->getHeaders();
 	    $token = $headers->get('token');
 	    $user = Member::findIdentityByAccessToken($token);
+	    if(!$user){
+            return parent::__response('Token失效错误',-1);
+        }
 
 	    $user_profile=[
 	        'id'=>$user->id,
-            'username'=>$user->username,
-            'picture_url'=>$user->picture_url,
-            'nickname'=>$user->nickname,
-            'signature'=>$user->signature,
-            'real_name_status'=>$user->real_name_status,
-            'mobile'=>$user->mobile,
+            'username'=>!empty($user->username)?$user->username:'',
+            'picture_url'=>!empty($user->picture_url)?$user->picture_url:'',
+            'nickname'=>!empty($user->nickname)?$user->nickname:'',
+            'signature'=>!empty($user->signature)?$user->signature:'',
+            'real_name_status'=>!empty($user->real_name_status)?$user->real_name_status:0,
+            'mobile'=>!empty($user->mobile)?$user->mobile:'',
         ];
 
        // var_dump(Yii::$app->user->getId());exit;// 获取用户id
@@ -105,26 +108,34 @@ class MemberController extends BaseController
         if($token){//如果有Token用户自己看自己
             //用户个人基本信息
             $user = Member::findIdentityByAccessToken($token);
+            if(!$user){
+                return parent::__response('Token失效不存在',-1);
+            }
             $data['user_profile']=[
                 'id'=>$user->id,
-                'username'=>$user->username,
-                'picture_url'=>$user->picture_url,
-                'nickname'=>$user->nickname,
-                'signature'=>$user->signature,
-                'real_name_status'=>$user->real_name_status,
-                'mobile'=>$user->mobile,
+                'username'=>!empty($user->username)?$user->username:'',
+                'picture_url'=>!empty($user->picture_url)?$user->picture_url:'',
+                'nickname'=>!empty($user->nickname)?$user->nickname:'',
+                'signature'=>!empty($user->signature)?$user->signature:'',
+                'real_name_status'=>!empty($user->real_name_status)?$user->real_name_status:0,
+                'mobile'=>!empty($user->mobile)?$user->mobile:'',
             ];
             //我的评论
-            $data['mylast_comment_row']=StoryComment::find()
+            $mylast_comment_row=StoryComment::find()
                 ->select(['{{%story_comment}}.id','{{%story_comment}}.title','{{%story_comment_img}}.img_url'])
                 ->leftJoin('{{%story_comment_img}}','{{%story_comment}}.comment_img_id={{%story_comment_img}}.id')
                 ->andWhere(['=', '{{%story_comment}}.from_uid', $user->id])
                 ->orderBy(['{{%story_comment}}.id'=>SORT_DESC])
                 ->asArray()
                 ->one();
+            if($mylast_comment_row){
+                $data['mylast_comment_row']=$mylast_comment_row;
+            }else{
+                $data['mylast_comment_row']=[];
+            }
 
             //我的旅行记录  travel_record story
-            $data['travel_record']=TravelRecord::find()
+            $travel_record=TravelRecord::find()
                 ->select(['{{%travel_record}}.story_id','{{%travel_record}}.history_chapters','{{%story}}.title','{{%story}}.record_pic'])
                 ->leftJoin('{{%story}}','{{%travel_record}}.story_id={{%story}}.id')
                 ->andWhere(['=', '{{%travel_record}}.user_id', $user->id])
@@ -132,6 +143,11 @@ class MemberController extends BaseController
                 ->asArray()
                 ->limit(2)
                 ->all();
+            if($travel_record){
+                $data['travel_record']=$travel_record;
+            }else{
+                $data['travel_record']=[];
+            }
 
             //等待回复数
             $wait_comment_num=StoryComment::find()->where(['from_uid'=>$user->id,'status'=>0])->count();
@@ -143,15 +159,26 @@ class MemberController extends BaseController
 
         }elseif($user_id>0){//如果没有Token，用户看别人
             //用户个人基本信息
-            $data['user_profile']=Member::find()->select(['id','username','picture_url','nickname','signature','real_name_status','mobile'])->where(['id'=>$user_id])->asArray()->one();
+            $user_profile=Member::find()->select(['id','username','picture_url','nickname','signature','real_name_status','mobile'])->where(['id'=>$user_id])->asArray()->one();
+            if(!$user_profile){
+                return parent::__response('用户不存在',-1);
+            }else{
+                $data['user_profile']=$user_profile;
+            }
+
             //Ta的评论
-            $data['mylast_comment_row']=StoryComment::find()
+            $mylast_comment_row=StoryComment::find()
                 ->select(['{{%story_comment}}.id','{{%story_comment}}.title','{{%story_comment_img}}.img_url'])
                 ->leftJoin('{{%story_comment_img}}','{{%story_comment}}.comment_img_id={{%story_comment_img}}.id')
                 ->andWhere(['=', '{{%story_comment}}.from_uid', $user_id])
                 ->orderBy(['{{%story_comment}}.id'=>SORT_DESC])
                 ->asArray()
                 ->one();
+            if($mylast_comment_row){
+                $data['mylast_comment_row']=$mylast_comment_row;
+            }else{
+                $data['mylast_comment_row']=[];
+            }
 
             //Ta的旅行记录
 
@@ -254,7 +281,7 @@ class MemberController extends BaseController
             ->asArray()
             ->all();
         if(!$Follower_rows){
-            return parent::__response('获取失败',(int)-1);
+            return parent::__response('暂无数据',(int)0);
         }
 
         //我的关注
@@ -268,14 +295,18 @@ class MemberController extends BaseController
             ->asArray()
             ->all();
         if(!$me_Follower_rows){
-            return parent::__response('获取失败',(int)-1);
+            //return parent::__response('获取失败',(int)-1);
+            $me_Follower_rows=[];
         }
 
         //我的关注数组id
         $me_follower_arr=array();
-        foreach($me_Follower_rows as $k=>$v){
-            $me_follower_arr[]=(int)$v['id'];
+        if(is_array($me_Follower_rows)){
+            foreach($me_Follower_rows as $k=>$v){
+                $me_follower_arr[]=(int)$v['id'];
+            }
         }
+
 //        $me_Flollower_str=implode(',',$me_follower_arr);//把我关注的人拼起来
 
         foreach ($Follower_rows as $kk=>$vv){
@@ -342,7 +373,7 @@ class MemberController extends BaseController
             ->asArray()
             ->all();
         if(!$fans_rows){
-            return parent::__response('获取失败',(int)-1);
+            return parent::__response('暂无数据',(int)0);
         }
 
         //我的关注
@@ -356,7 +387,7 @@ class MemberController extends BaseController
             ->asArray()
             ->all();
         if(!$me_Follower_rows){
-            return parent::__response('获取失败',(int)-1);
+            $me_Follower_rows=[];
         }
 
         //我的关注数组id
@@ -447,6 +478,9 @@ class MemberController extends BaseController
             ->limit($comment_pagenum)
             ->asArray()
             ->all();
+        if(!is_array($like_rows1)){
+            $like_rows1=[];
+        }
 
         //story_comment_reply story_comment_reply_like_log member
         ///////////////////////////查看目标用户对评论发表过的回复评论id数组//////////////////
@@ -467,6 +501,9 @@ class MemberController extends BaseController
             ->limit($reply_pagenum)
             ->asArray()
             ->all();
+        if(!is_array($like_rows2)){
+            $like_rows2=[];
+        }
 
         //评论故事的和回复的合并
         $like_rows=array_merge($like_rows1,$like_rows2);
@@ -728,7 +765,17 @@ class MemberController extends BaseController
         if ($user = $MobileLoginForm_model->mobile_login()) {
             if ($user instanceof IdentityInterface) {
                 //return $user->api_token;
-                return parent::__response('登录成功',0,['Token'=>$user->api_token]);
+                $user_profile=[
+                    'id'=>$user->id,
+                    'username'=>!empty($user->username)?$user->username:'',
+                    'picture_url'=>!empty($user->picture_url)?$user->picture_url:'',
+                    'nickname'=>!empty($user->nickname)?$user->nickname:'',
+                    'signature'=>!empty($user->signature)?$user->signature:'',
+                    'real_name_status'=>!empty($user->real_name_status)?$user->real_name_status:0,
+                    'mobile'=>!empty($user->mobile)?$user->mobile:'',
+                    'api_token'=>!empty($user->api_token)?$user->api_token:'',
+                ];
+                return parent::__response('登录成功',0,['user_profile'=>$user_profile]);//Token在里面
             } else {
                 return $user->errors;
             }
@@ -822,8 +869,17 @@ class MemberController extends BaseController
         $ThirdLoginForm_model->username=$username;
         if ($user = $ThirdLoginForm_model->username_login()) {
             if ($user instanceof IdentityInterface) {
-                //return $user->api_token;
-                return parent::__response('登录成功',0,['Token'=>$user->api_token]);
+                $user_profile=[
+                    'id'=>$user->id,
+                    'username'=>!empty($user->username)?$user->username:'',
+                    'picture_url'=>!empty($user->picture_url)?$user->picture_url:'',
+                    'nickname'=>!empty($user->nickname)?$user->nickname:'',
+                    'signature'=>!empty($user->signature)?$user->signature:'',
+                    'real_name_status'=>!empty($user->real_name_status)?$user->real_name_status:0,
+                    'mobile'=>!empty($user->mobile)?$user->mobile:'',
+                    'api_token'=>!empty($user->api_token)?$user->api_token:'',
+                ];
+                return parent::__response('登录成功',0,['user_profile'=>$user_profile]);//Token在里面
             } else {
                 return $user->errors;
             }

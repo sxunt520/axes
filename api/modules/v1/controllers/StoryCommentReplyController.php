@@ -54,7 +54,7 @@ class StoryCommentReplyController extends BaseController
             ->asArray()
             ->all();
         if(!$StoryCommentReply_rows){
-            return parent::__response('获取失败',(int)-1);
+            return parent::__response('暂无回复评论',(int)0,[]);
         }
 
         return parent::__response('ok',0,$StoryCommentReply_rows);
@@ -84,7 +84,7 @@ class StoryCommentReplyController extends BaseController
         if($StoryCommentReply_row){
             return parent::__response('ok',0,$StoryCommentReply_row);
         }else{
-            return parent::__response('获取失败',(int)-1);
+            return parent::__response('暂无回复评论',(int)-0);
         }
 
 
@@ -146,7 +146,7 @@ class StoryCommentReplyController extends BaseController
             ->all();
 
         if(!$StoryCommentReply_rows){
-            return parent::__response('获取失败',(int)-1);
+            return parent::__response('暂无回复评论',(int)0);
         }
 
         return parent::__response('ok',0,$StoryCommentReply_rows);

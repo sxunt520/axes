@@ -36,8 +36,11 @@ class LoadingController extends BaseController
             ->limit($pagenum)
             ->asArray()
             ->all();
-
-        return parent::__response('ok',0,$Loading_rows);
+        if($Loading_rows){
+            return parent::__response('ok',0,$Loading_rows);
+        }else{
+            return parent::__response('暂无数据',0);
+        }
 
     }
 
