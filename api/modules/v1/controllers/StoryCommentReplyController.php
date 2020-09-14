@@ -177,6 +177,7 @@ class StoryCommentReplyController extends BaseController
         $reply_to_uid = (int)Yii::$app->request->post('reply_to_uid');//回复目标用户id @人就是@人的id，否则就是要回复的目标用户id
         $reply_content = Yii::$app->request->post('reply_content');//回复内容
 
+        $parent_reply_id=0;
         if($reply_type==1){//对评论发布回复
             //先看评论是否存在
             $StoryCommen_Model=StoryComment::findOne($comment_id);
@@ -189,6 +190,7 @@ class StoryCommentReplyController extends BaseController
             if(!$StoryCommenReply_Model){
                 return parent::__response('回复的评论不存在!',(int)-1);
             }
+            $parent_reply_id=$StoryCommenReply_Model->id;
         }elseif($reply_type==3){//@人+对回复发布回复
             //先看回复的评论是否存在
             $StoryCommenReply_Model=StoryCommentReply::findOne($comment_id);
@@ -200,6 +202,7 @@ class StoryCommentReplyController extends BaseController
             if(!$Member_Model){
                 return parent::__response('@的用户不存在!',(int)-1);
             }
+            $parent_reply_id=$StoryCommenReply_Model->id;
         }else{
             return parent::__response('reply_type参数值错误!',(int)-2);
         }
@@ -214,6 +217,7 @@ class StoryCommentReplyController extends BaseController
         $StoryCommentReply_model->reply_from_uid = $reply_from_uid;
         $StoryCommentReply_model->reply_to_uid = $reply_to_uid;
         $StoryCommentReply_model->reply_content = $reply_content;
+        $StoryCommentReply_model->parent_reply_id=$parent_reply_id;//父回复id
         //$StoryCommentReply_model->is_show = 1;//是否显示
         //$StoryCommentReply_model->status = 0;// 状态 0未读 1已读 2已回
         //$StoryCommentReply_model->reply_at=time();

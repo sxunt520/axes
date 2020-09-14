@@ -17,6 +17,7 @@ use Yii;
  * @property integer $status
  * @property integer $is_show
  * @property string $likes
+ * @property integer $parent_reply_id
  */
 class StoryCommentReply extends \common\models\StoryCommentReply
 {
@@ -28,7 +29,7 @@ class StoryCommentReply extends \common\models\StoryCommentReply
     {
         return [
             [['comment_id','reply_type','reply_from_uid','reply_to_uid'],'required'],
-            [['comment_id', 'reply_type', 'reply_from_uid', 'reply_to_uid', 'reply_at', 'status', 'is_show', 'likes'], 'integer'],
+            [['comment_id', 'reply_type', 'reply_from_uid', 'reply_to_uid', 'reply_at', 'status', 'is_show', 'likes','parent_reply_id'], 'integer'],
             [['reply_content'], 'string'],
             ['reply_at', 'default','value' => time()],
             ['status', 'default','value' =>0],//;// 状态 0未读 1已读 2已回

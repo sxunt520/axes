@@ -17,6 +17,7 @@ use Yii;
  * @property integer $status
  * @property integer $is_show
  * @property string $likes
+ * @property integer $parent_reply_id
  */
 class StoryCommentReply extends \yii\db\ActiveRecord
 {
@@ -34,7 +35,7 @@ class StoryCommentReply extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['comment_id', 'reply_type', 'reply_from_uid', 'reply_to_uid', 'reply_at', 'status', 'is_show', 'likes'], 'integer'],
+            [['comment_id', 'reply_type', 'reply_from_uid', 'reply_to_uid', 'reply_at', 'status', 'is_show', 'likes','parent_reply_id'], 'integer'],
             [['reply_content'], 'string']
         ];
     }
