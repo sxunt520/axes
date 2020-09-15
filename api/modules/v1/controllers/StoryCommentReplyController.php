@@ -32,6 +32,7 @@ class StoryCommentReplyController extends BaseController
             return parent::__response('参数错误!',(int)-2);
         }
         $comment_id = (int)Yii::$app->request->post('comment_id');//评论id
+
         //先看评论是否存在
         $StoryCommen_Model=StoryComment::findOne($comment_id);
         if(!$StoryCommen_Model){
@@ -53,6 +54,12 @@ class StoryCommentReplyController extends BaseController
             ->limit($pagenum)
             ->asArray()
             ->all();
+
+         //回复数添加
+        foreach($StoryCommentReply_rows as $k=>$v){
+            $StoryCommentReply_rows[$k]['reply_num']=(int)StoryCommentReply::find()->andWhere(['comment_id'=>$v['comment_id'],'parent_reply_id'=>$v['id']])->andWhere(['in' , 'reply_type' , [2,3]])->count();
+        }
+
         if(!$StoryCommentReply_rows){
             return parent::__response('暂无回复评论',(int)0,[]);
         }
@@ -99,7 +106,7 @@ class StoryCommentReplyController extends BaseController
 
     /**
      * 评论的回复的详情_下面回复列表
-     * comment_id page pagenum order_by
+     * reply_id page pagenum order_by
      */
     public function actionReplyDetailsList(){
 
@@ -143,7 +150,7 @@ class StoryCommentReplyController extends BaseController
         $StoryCommentReply_rows=StoryCommentReply::find()
             ->select(['{{%story_comment_reply}}.*','{{%member}}.username','{{%member}}.picture_url'])
             ->leftJoin('{{%member}}','{{%story_comment_reply}}.reply_from_uid={{%member}}.id')
-            ->andWhere(['=', '{{%story_comment_reply}}.comment_id', $reply_id])
+            ->andWhere(['=', '{{%story_comment_reply}}.parent_reply_id', $reply_id])
             ->andWhere(['or','{{%story_comment_reply}}.reply_type = 2','{{%story_comment_reply}}.reply_type = 3'])//1对评论发布回复 2对回复发布回复 3@人+对回复发布回复
             ->andWhere(['=', '{{%story_comment_reply}}.is_show', 1])
             ->orderBy($order_by_arr)
@@ -161,7 +168,12 @@ class StoryCommentReplyController extends BaseController
     }
 
     /**
-     * reply_type=1对评论发布回复 or reply_type=2对回复发布回复
+     * @params
+     * comment_id 评论id
+     * reply_type=1 对评论发布回复 2对回复发布回复 3@人+对回复发布回复
+     * reply_to_uid 回复目标用户id @人就是@人的id，否则就是要回复的目标用户id
+     * reply_content 回复内容
+     * reply_id 当reply_type=2,3 时 需要传入参数回复reply_id @人也是传入回复详情的id
      */
     public function actionAdd(){
 
@@ -176,24 +188,28 @@ class StoryCommentReplyController extends BaseController
         $reply_from_uid = (int)Yii::$app->user->getId();//回复用户id
         $reply_to_uid = (int)Yii::$app->request->post('reply_to_uid');//回复目标用户id @人就是@人的id，否则就是要回复的目标用户id
         $reply_content = Yii::$app->request->post('reply_content');//回复内容
+        $reply_id = (int)Yii::$app->request->post('reply_id');//父回复id
+        if($reply_id>0){//如果传入回复id 父回复id就是reply_id， 否刚是comment_id
+            $parent_reply_id=$reply_id;
+        }else{
+            $parent_reply_id=$comment_id;
+        }
 
-        $parent_reply_id=0;
         if($reply_type==1){//对评论发布回复
             //先看评论是否存在
             $StoryCommen_Model=StoryComment::findOne($comment_id);
             if(!$StoryCommen_Model){
                 return parent::__response('评论不存在!',(int)-1);
             }
-        }elseif($reply_type==2){//对回复发布回复
+        }elseif($reply_type==2&&$reply_id>0){//对回复发布回复
             //先看回复的评论是否存在
-            $StoryCommenReply_Model=StoryCommentReply::findOne($comment_id);
+            $StoryCommenReply_Model=StoryCommentReply::findOne($reply_id);
             if(!$StoryCommenReply_Model){
                 return parent::__response('回复的评论不存在!',(int)-1);
             }
-            $parent_reply_id=$StoryCommenReply_Model->id;
-        }elseif($reply_type==3){//@人+对回复发布回复
+        }elseif($reply_type==3&&$reply_id>0){//@人+对回复发布回复
             //先看回复的评论是否存在
-            $StoryCommenReply_Model=StoryCommentReply::findOne($comment_id);
+            $StoryCommenReply_Model=StoryCommentReply::findOne($reply_id);
             if(!$StoryCommenReply_Model){
                 return parent::__response('回复的评论不存在!',(int)-1);
             }
@@ -202,7 +218,6 @@ class StoryCommentReplyController extends BaseController
             if(!$Member_Model){
                 return parent::__response('@的用户不存在!',(int)-1);
             }
-            $parent_reply_id=$StoryCommenReply_Model->id;
         }else{
             return parent::__response('reply_type参数值错误!',(int)-2);
         }

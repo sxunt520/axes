@@ -55,7 +55,7 @@ class StoryController extends BaseController
          $Story_rows=Story::find()
 	        ->select(['id','title','intro','type','cover_url','video_url','created_at','likes','game_title'])
 	        ->andWhere(['=', 'is_show', 1])
-	        ->andWhere(['=', 'type', 1])
+	        //->andWhere(['=', 'type', 1])
 	        ->orderBy(['id' => SORT_DESC])
 	        ->offset($pagenum * ($page - 1))
 	        ->limit($pagenum)

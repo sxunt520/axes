@@ -56,6 +56,7 @@ class StoryCommentReply extends \yii\db\ActiveRecord
             'status' => 'Status',
             'is_show' => 'Is Show',
             'likes' => 'Likes',
+            'parent_reply_id' => 'parent_reply_id',
         ];
     }
 }
