@@ -23,7 +23,11 @@ class UploadForm extends Model
     public function upload()
     {
         if ($this->validate()) {
-            $upurl='uploads/' .date("Ymd").'_'.uniqid('axe',true) . '.' . $this->imageFile->extension;
+            $dir = "uploads/".date("Ymd");
+            if (!is_dir($dir)){
+                mkdir($dir);
+            }
+            $upurl=$dir."/".date("Ymd").'_'.uniqid('axe',true) . '.' . $this->imageFile->extension;
             $r=$this->imageFile->saveAs($upurl);
             if($r){
                 return $upurl;
