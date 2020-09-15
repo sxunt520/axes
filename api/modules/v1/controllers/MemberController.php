@@ -1053,14 +1053,12 @@ class MemberController extends BaseController
 //            }
 //        }
 
-        $SendSms_model=new SendSms;
-        $response = $SendSms_model->sendSms(18201458982,999999);
-        if($response->Code=='OK'){
-            return parent::__response('ok发送成功',0);
-        }else{
-            return parent::__response('发送失败',(int)-1);
-        }
-
+//        $SendSms_model=new SendSms;
+//        $response = $SendSms_model->sendSms(18201458982,999999);
+//        if($response->Code!='OK'){
+//           return parent::__response('发送失败',(int)-1,['send_Message'=>$response->Message,'send_Code'=>$response->Code,'RequestId'=>$response->RequestId]);
+//       }
+    echo 222;
 
 	}
 
