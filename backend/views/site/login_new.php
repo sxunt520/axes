@@ -246,7 +246,7 @@ function deleteAll(){
 </DIV>
 <?php ActiveForm::end(); ?>
 <div style="text-align:center;width:100%; margin-top:60px;">
-<p><a href="index.php?p=admin&c=index&a=index" style=" color:gray;">斧王网络</a></p>
+<p><a href="/" style=" color:gray;">斧王网络</a></p>
 </div>
 <?php $this->endBody() ?>
 </BODY>

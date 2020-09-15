@@ -36,7 +36,8 @@ use dmstr\widgets\Alert;
 </div>
 
 <footer class="main-footer">
-    <?= Yii::powered()?>
+    <?php //Yii::powered()?>
+    Copyright © 2020 - All Rights Reserved - 斧王网络
 </footer>
 
 <!-- Control Sidebar -->
