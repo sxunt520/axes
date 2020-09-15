@@ -31,6 +31,7 @@ class BaseController extends ActiveController
                 'class' => QueryParamAuth::className() ,
                 'tokenParam' => 'token',
                 'optional' => [//过滤不需要验证Token的action
+                    'test',
                     'login',
                     'signup',
                     'home',

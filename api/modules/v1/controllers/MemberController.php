@@ -22,6 +22,7 @@ use api\models\TravelRecord;
 use api\models\SmsLog;
 use api\models\MemberAuths;
 use api\models\ThirdLoginForm;
+use api\components\SendSms;
 
 class MemberController extends BaseController
 {
@@ -714,17 +715,21 @@ class MemberController extends BaseController
        //查看最后一次发短信的时间，限制一个手机发短信的时间频率
        $last_send_time=SmsLog::find()->select(['created_at'])->where(['mobile'=>$mobile])->orderBy(['id'=>SORT_DESC])->scalar();
        if($last_send_time){
-           if((time()-$last_send_time)<Yii::$app->params['sendsms_code_time']){
+           if((time()-$last_send_time)<Yii::$app->params['sendsms_code_time']*60){
                return parent::__response('短信已发出，请稍后在试!',(int)-1);
            }
        }
         //Yii::$app->request->getUserIP();exit;
 
-       $send_sms=true;
        //发短信接口操作
+       $send_flag=true;
+//       $SendSms_model=new SendSms;
+//       $response = $SendSms_model->sendSms($mobile,$code);
+//       if($response->Code!='OK'){
+//           return parent::__response('发送失败',(int)-1,['send_Message'=>$response->Message,'send_Code'=>$response->Code,'RequestId'=>$response->RequestId]);
+//       }
 
-
-       if($send_sms){
+       if($send_flag){
            $sms_model=new SmsLog();
            $sms_model->mobile=$mobile;
            $sms_model->code=$code;
@@ -737,7 +742,7 @@ class MemberController extends BaseController
            if ($isValid) {
                $r=$sms_model->save();
                if($r){
-                   return parent::__response('发送成功,请在'.Yii::$app->params['sendsms_code_time'].'秒之内及时验证！',(int)0);
+                   return parent::__response('发送成功,请在'.Yii::$app->params['sendsms_code_time'].'分钟之内及时验证！',(int)0);
                }else{
                    return parent::__response('发送失败!',(int)-1);
                }
@@ -781,7 +786,7 @@ class MemberController extends BaseController
             if($sms_model->code!=$code){
                 return parent::__response('验证码错误!',(int)-1);
             }
-            if((time()-$sms_model->created_at)>Yii::$app->params['sendsms_code_time']){//检验验证码是否过期
+            if((time()-$sms_model->created_at)>Yii::$app->params['sendsms_code_time']*60){//检验验证码是否过期
                 return parent::__response('验证码已过期,请重新发送短信验证!',(int)-2);
             }
         }
@@ -1035,18 +1040,27 @@ class MemberController extends BaseController
 //	    return [
 //	        'xxxxxxxxxxxxx',
 //	    ];
-        $model = new UploadForm();
+//        $model = new UploadForm();
+//
+//        if (Yii::$app->request->isPost) {
+//            //return file_get_contents('php://input');exit;
+//            $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
+//            if ($model->upload()) {
+//                // 文件上传成功
+//                return 'ok';
+//            }else{
+//                return '0';
+//            }
+//        }
 
-        if (Yii::$app->request->isPost) {
-            //return file_get_contents('php://input');exit;
-            $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
-            if ($model->upload()) {
-                // 文件上传成功
-                return 'ok';
-            }else{
-                return '0';
-            }
+        $SendSms_model=new SendSms;
+        $response = $SendSms_model->sendSms(18201458982,999999);
+        if($response->Code=='OK'){
+            return parent::__response('ok发送成功',0);
+        }else{
+            return parent::__response('发送失败',(int)-1);
         }
+
 
 	}
 
