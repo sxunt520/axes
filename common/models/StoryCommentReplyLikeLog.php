@@ -30,7 +30,8 @@ class StoryCommentReplyLikeLog extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['reply_id', 'user_id', 'ip', 'create_at', 'status'], 'integer']
+            [['reply_id', 'user_id', 'ip', 'create_at', 'status'], 'integer'],
+            //[['ip'], 'string', 'max' => 13]
         ];
     }
 

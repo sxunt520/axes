@@ -228,4 +228,15 @@ return array (
       '@trntv/yii/datetime' => $vendorDir . '/trntv/yii2-datetime-widget/src',
     ),
   ),
+    // 图片处理类
+    'imagine/imagine/lib' =>
+        array (
+            'name' => 'imagine/imagine/lib',
+            'version' => '0.7.1',
+            'alias' =>
+                array (
+                    '@yii/imagine' => $vendorDir . '/imagine/imagine/lib',
+                ),
+        ),
+
 );

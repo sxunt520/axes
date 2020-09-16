@@ -679,7 +679,7 @@ class MemberController extends BaseController
 
         $model = new UploadForm();
         $model->imageFile = UploadedFile::getInstance($model, 'picture_url');
-        $picture_url=$model->upload();
+        $picture_url=$model->upload(true,400,400);
         if($picture_url){
             //保存头像地址
             $member_model = Member::findOne($user_id);
@@ -1037,6 +1037,18 @@ class MemberController extends BaseController
 	 */
 	public function actionTest ()
 	{
+
+//        $img_all_url='uploads/20200916/20200916_axe5f618d4f005929.12677713.jpg';
+//        $image = \yii\imagine\Image::thumbnail(Yii::getAlias($img_all_url), 100, 100, \Imagine\Image\ManipulatorInterface::THUMBNAIL_OUTBOUND);
+//        $r=$image->save('uploads/20200916/thumb_20200916_axe5f618d4f005929.12677713.jpg');
+//        if($r){
+//            //echo  'small-' . $filename;
+//            //$uparr['thumb_url']=$host_dir . '/thumb-' . $filename;
+//            echo 111;
+//        }else{
+//            echo 000;
+//        }
+
 //	    return [
 //	        'xxxxxxxxxxxxx',
 //	    ];

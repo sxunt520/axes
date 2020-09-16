@@ -30,7 +30,8 @@ class StoryLikeLog extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['story_id', 'user_id', 'ip', 'create_at', 'status'], 'integer']
+            [['story_id', 'user_id', 'create_at', 'status'], 'integer'],
+            //[['ip'], 'string', 'max' => 13]
         ];
     }
 

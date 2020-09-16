@@ -68,6 +68,21 @@ class StoryCommentController extends BaseController
                 $StoryComment_rows[$k]['user_picture']='';
             }
 
+
+            //如果登录判断是否点赞
+            if(!empty($this->Token)){
+                $user_id = (int)Yii::$app->user->getId();//登录用户id
+                $like_r=StoryCommentLikeLog::find()->where(['comment_id' => $v['id'],'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
+                if ($like_r && time()-($like_r->create_at) < Yii::$app->params['user.liketime']){
+                    $StoryComment_rows[$k]['is_like']=1;
+                }else{
+                    $StoryComment_rows[$k]['is_like']=0;
+                }
+            }else{
+                $StoryComment_rows[$k]['is_like']=0;
+            }
+
+
             //游戏名
             $game_title=Story::find()->select(['game_title'])->where(['id'=>$v['story_id']])->scalar();
             if($game_title){
@@ -175,6 +190,19 @@ class StoryCommentController extends BaseController
                 $StoryComment_rows[$k]['user_picture']='';
             }
 
+            //如果登录判断是否点赞
+            if(!empty($this->Token)){
+                $user_id = (int)Yii::$app->user->getId();//登录用户id
+                $like_r=StoryCommentLikeLog::find()->where(['comment_id' => $v['id'],'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
+                if ($like_r && time()-($like_r->create_at) < Yii::$app->params['user.liketime']){
+                    $StoryComment_rows[$k]['is_like']=1;
+                }else{
+                    $StoryComment_rows[$k]['is_like']=0;
+                }
+            }else{
+                $StoryComment_rows[$k]['is_like']=0;
+            }
+
 //            $StoryCommentImg=StoryCommentImg::find()->select(['id','img_url','img_text'])->where(['id' => $v['comment_img_id']])->asArray()->one();
 //            if($StoryCommentImg)$StoryComment_rows[$k]['comment_img']=$StoryCommentImg;
         }
@@ -221,7 +249,7 @@ class StoryCommentController extends BaseController
             $StoryComment_row['user_picture']='';
         }
 
-        //如果用户登录的，显示关注相关的状态 关注类型 0无状态 1关注 2拉黑
+        //如果用户登录的，显示关注相关的状态 关注类型 0无状态 1关注 2拉黑，是否已点赞
         if(!empty($this->Token)){
             $user_id = (int)Yii::$app->user->getId();//登录用户id
             //echo $user_id.'-----'.$StoryComment_row['from_uid'];exit;
@@ -233,9 +261,18 @@ class StoryCommentController extends BaseController
                 $StoryComment_row['follower_text']='未关注';
                 $StoryComment_row['follower_type']=0;
             }
+
+            //点赞状况
+            $like_r=StoryCommentLikeLog::find()->where(['comment_id' => $id,'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
+            if ($like_r && time()-($like_r->create_at) < Yii::$app->params['user.liketime']){
+                $StoryComment_row['is_like']=1;
+            }else{
+                $StoryComment_row['is_like']=0;
+            }
         }else{
             $StoryComment_row['follower_text']='未关注';
             $StoryComment_row['follower_type']=0;
+            $StoryComment_row['is_like']=0;
         }
 
         //标签

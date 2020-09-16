@@ -10,7 +10,7 @@ use Yii;
  * @property integer $id
  * @property integer $comment_id
  * @property integer $user_id
- * @property integer $ip
+ * @property string $ip
  * @property integer $create_at
  * @property integer $status
  */
@@ -24,7 +24,8 @@ class StoryCommentLikeLog extends \common\models\StoryCommentLikeLog
     public function rules()
     {
         return [
-            [['comment_id', 'user_id', 'ip', 'create_at', 'status'], 'integer']
+            [['comment_id', 'user_id', 'create_at', 'status'], 'integer'],
+            //[['ip'], 'string', 'max' => 13]
         ];
     }
 
@@ -56,7 +57,8 @@ class StoryCommentLikeLog extends \common\models\StoryCommentLikeLog
             $this->error='评论内容不存在！';
             return false;
         }
-        $r=self::find()->where(['comment_id' => $comment_id,'ip'=>ip2long(Yii::$app->request->getUserIP())])->orderBy(['create_at' => SORT_DESC])->one();
+        //$r=self::find()->where(['comment_id' => $comment_id,'user_id' => $user_id,'ip'=>ip2long(Yii::$app->request->getUserIP())])->orderBy(['create_at' => SORT_DESC])->one();
+        $r=self::find()->where(['comment_id' => $comment_id,'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
 
         if ($r && time()-($r->create_at) < Yii::$app->params['user.liketime']){
             $this->error='两次点赞间隔不能低于'.Yii::$app->params['user.liketime'].'秒';

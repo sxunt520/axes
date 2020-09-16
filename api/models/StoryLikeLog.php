@@ -10,7 +10,7 @@ use Yii;
  * @property integer $id
  * @property integer $story_id
  * @property integer $user_id
- * @property integer $ip
+ * @property string $ip
  * @property integer $create_at
  * @property integer $status
  */
@@ -24,7 +24,8 @@ class StoryLikeLog extends \common\models\StoryLikeLog
     public function rules()
     {
         return [
-            [['story_id', 'user_id', 'ip', 'create_at', 'status'], 'integer']
+            [['story_id', 'user_id', 'create_at', 'status'], 'integer'],
+            //[['ip'], 'string', 'max' => 13]
         ];
     }
 
@@ -57,7 +58,8 @@ class StoryLikeLog extends \common\models\StoryLikeLog
             return false;
         }
         //$r = $this->findOne(['story_id'=>$story_id,'ip'=>ip2long(Yii::$app->request->getUserIP())],'create_at desc');
-        $r=self::find()->where(['story_id' => $story_id,'ip'=>ip2long(Yii::$app->request->getUserIP())])->orderBy(['create_at' => SORT_DESC])->one();
+        //$r=self::find()->where(['story_id' => $story_id,'user_id' => $user_id,'ip'=>ip2long(Yii::$app->request->getUserIP())])->orderBy(['create_at' => SORT_DESC])->one();
+        $r=self::find()->where(['story_id' => $story_id,'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
         //var_dump($r->create_at) ;exit;
         //$_time=time()-($r->create_at);
         //var_dump($v);exit;

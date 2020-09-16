@@ -3,6 +3,7 @@
 namespace api\modules\v1\controllers;
 
 use api\models\Follower;
+use api\models\StoryCommentLikeLog;
 use Yii;
 use api\components\BaseController;
 use api\models\Member;
@@ -73,6 +74,22 @@ class StoryController extends BaseController
             }else{
                 $Story_rows[$k]['comment_num']=0;
             }
+
+            //如果登录判断是否点赞
+            if(!empty($this->Token)){
+                $user_id = (int)Yii::$app->user->getId();//登录用户id
+                //echo $v['id'].'---'.$user_id.'------'.ip2long(Yii::$app->request->getUserIP());exit;
+                //$like_r=StoryLikeLog::find()->where(['story_id' => $v['id'],'user_id' => $user_id,'ip'=>ip2long(Yii::$app->request->getUserIP())])->orderBy(['create_at' => SORT_DESC])->one();
+                $like_r=StoryLikeLog::find()->where(['story_id' => $v['id'],'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
+                if ($like_r && time()-($like_r->create_at) < Yii::$app->params['user.liketime']){
+                    $Story_rows[$k]['is_like']=1;
+                }else{
+                    $Story_rows[$k]['is_like']=0;
+                }
+            }else{
+                $Story_rows[$k]['is_like']=0;
+            }
+
             $StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $v['id']])->asArray()->all();
             if($StoryTag_rows) $Story_rows[$k]['tags']=$StoryTag_rows;
 
@@ -105,6 +122,20 @@ class StoryController extends BaseController
         if(!$story_details){
             return parent::__response('故事不存在!',(int)-1);
         }else{
+
+            //如果登录，判断是否收藏
+            if(!empty($this->Token)){
+                $user_id = (int)Yii::$app->user->getId();//登录用户id
+                $StoryCollect_model=StoryCollect::find()->where(['story_id' => $id,'user_id' => $user_id])->one();
+                if ($StoryCollect_model&&$StoryCollect_model->status==1){
+                    $story_details['is_collect']=1;
+                }else{
+                    $story_details['is_collect']=0;
+                }
+            }else{
+                $story_details['is_collect']=0;
+            }
+
             $data['story_details']=$story_details;
         }
 
@@ -201,6 +232,19 @@ class StoryController extends BaseController
                     $StoryComment_rows[$k]['user_picture']='';
                 }
 
+                //如果登录判断是否点赞
+                if(!empty($this->Token)){
+                    $user_id = (int)Yii::$app->user->getId();//登录用户id
+                    $like_r=StoryCommentLikeLog::find()->where(['comment_id' => $v['id'],'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
+                    if ($like_r && time()-($like_r->create_at) < Yii::$app->params['user.liketime']){
+                        $StoryComment_rows[$k]['is_like']=1;
+                    }else{
+                        $StoryComment_rows[$k]['is_like']=0;
+                    }
+                }else{
+                    $StoryComment_rows[$k]['is_like']=0;
+                }
+
             }
             $data['story_comment_list']=$StoryComment_rows;
         }else{
@@ -227,7 +271,7 @@ class StoryController extends BaseController
             return parent::__response('参数错误!',(int)-2);
         }
         $StoryLikeLog_model = new StoryLikeLog();
-
+        //echo Yii::$app->request->getUserIP().'-----'.ip2long(Yii::$app->request->getUserIP());exit;
         $result=$StoryLikeLog_model->apiLike($story_id,$user_id);//数据库里去更新点赞数，存入缓存
 
         if ($result && Yii::$app->cache->exists('story_id:'.$story_id)){

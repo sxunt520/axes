@@ -55,13 +55,27 @@ class StoryCommentReplyController extends BaseController
             ->asArray()
             ->all();
 
+        if(!$StoryCommentReply_rows){
+            return parent::__response('暂无回复评论',(int)0,[]);
+        }
+
          //回复数添加
         foreach($StoryCommentReply_rows as $k=>$v){
             $StoryCommentReply_rows[$k]['reply_num']=(int)StoryCommentReply::find()->andWhere(['comment_id'=>$v['comment_id'],'parent_reply_id'=>$v['id']])->andWhere(['in' , 'reply_type' , [2,3]])->count();
-        }
 
-        if(!$StoryCommentReply_rows){
-            return parent::__response('暂无回复评论',(int)0,[]);
+            //如果登录判断是否点赞
+            if(!empty($this->Token)){
+                $user_id = (int)Yii::$app->user->getId();//登录用户id
+                $like_r=StoryCommentReplyLikeLog::find()->where(['reply_id' => $v['id'],'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
+                if ($like_r && time()-($like_r->create_at) < Yii::$app->params['user.liketime']){
+                    $StoryCommentReply_rows[$k]['is_like']=1;
+                }else{
+                    $StoryCommentReply_rows[$k]['is_like']=0;
+                }
+            }else{
+                $StoryCommentReply_rows[$k]['is_like']=0;
+            }
+
         }
 
         return parent::__response('ok',0,$StoryCommentReply_rows);
@@ -96,6 +110,20 @@ class StoryCommentReplyController extends BaseController
             ->one();
 
         if($StoryCommentReply_row){
+
+            //如果登录判断是否点赞
+            if(!empty($this->Token)){
+                $user_id = (int)Yii::$app->user->getId();//登录用户id
+                $like_r=StoryCommentReplyLikeLog::find()->where(['reply_id' => $reply_id,'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
+                if ($like_r && time()-($like_r->create_at) < Yii::$app->params['user.liketime']){
+                    $StoryCommentReply_row['is_like']=1;
+                }else{
+                    $StoryCommentReply_row['is_like']=0;
+                }
+            }else{
+                $StoryCommentReply_row['is_like']=0;
+            }
+
             return parent::__response('ok',0,$StoryCommentReply_row);
         }else{
             return parent::__response('暂无回复评论',(int)-0);
@@ -161,6 +189,24 @@ class StoryCommentReplyController extends BaseController
 
         if(!$StoryCommentReply_rows){
             return parent::__response('暂无回复评论',(int)0);
+        }
+
+        //回复数添加
+        foreach($StoryCommentReply_rows as $k=>$v){
+
+            //如果登录判断是否点赞
+            if(!empty($this->Token)){
+                $user_id = (int)Yii::$app->user->getId();//登录用户id
+                $like_r=StoryCommentReplyLikeLog::find()->where(['reply_id' => $v['id'],'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
+                if ($like_r && time()-($like_r->create_at) < Yii::$app->params['user.liketime']){
+                    $StoryCommentReply_rows[$k]['is_like']=1;
+                }else{
+                    $StoryCommentReply_rows[$k]['is_like']=0;
+                }
+            }else{
+                $StoryCommentReply_rows[$k]['is_like']=0;
+            }
+
         }
 
         return parent::__response('ok',0,$StoryCommentReply_rows);
