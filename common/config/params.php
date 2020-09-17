@@ -8,5 +8,5 @@ return [
         'en-US'=>'English (US)',
         'zh-CN' => '简体中文',
     ],
-    'img_host'=>'http://img.sxunt.com',
+    'img_host'=>'http://api.axes.com',
 ];

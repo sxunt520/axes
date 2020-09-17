@@ -5,7 +5,7 @@ return [
     'runtimePath' => dirname(dirname(__DIR__)).'/runtime',
     'timezone' => 'PRC',
     'language' => 'zh-CN',
-    'name' => 'Axe',
+    'name' => '旅人计划',
     'components' => [
         'cache' => [
             'class' => 'yii\caching\FileCache',
