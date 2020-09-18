@@ -42,6 +42,8 @@ class Story extends \yii\db\ActiveRecord
             [['title','game_title'], 'string', 'max' => 50],
             [['cover_url', 'video_url','record_pic','game_title'], 'string', 'max' => 255],
             [['next_updated_at'], 'filter', 'filter' => 'strtotime', 'skipOnEmpty' => true],
+            ['created_at', 'default', 'value' => time()],
+            ['admin_id', 'default', 'value' => Yii::$app->user->getId()],
         ];
     }
 

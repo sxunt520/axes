@@ -71,6 +71,7 @@ use kartik\file\FileInput;
             ]
         ])->label('旅行记录图(720*430px|5:3 文件格式jpg、png 3MB以下') ?>
 
+        <?= $form->field($model, 'video_url')->textInput(['maxlength' => true]) ?>
 
         <?= $form->field($model, 'is_show')->dropDownList([0=>'否',1=>'是'], ['prompt'=>'未选择','style'=>'width:120px']) ?>
 
@@ -91,7 +92,7 @@ use kartik\file\FileInput;
     </div>
     <?php if($id0!=''&&$model2!=''){?>
         <div class="tab-pane <?php echo $flag==1?'active':'';?>" id="tab_3">
-            <?= $form->field($model2, 'edify_url')->label('渲染画册')->widget(FileInput::classname(), [
+            <?= $form->field($model2, 'img_url')->label('故事组图')->widget(FileInput::classname(), [
                 'options' => ['multiple' => true],
                 //'template' => '<img src="{image}" class="file-preview-image" style="width:auto;height:160px;">',
                 'pluginOptions' => [
@@ -109,7 +110,7 @@ use kartik\file\FileInput;
                     'uploadUrl' => \yii\helpers\Url::toRoute(['async-image']),
                     // 异步上传需要携带的其他参数，比如商品id等
                     'uploadExtraData' => [
-                        'edify_id' => $id0,
+                        'story_id' => $id0,
                     ],
                     'uploadAsync' => true,
                     // 最少上传的文件个数限制
