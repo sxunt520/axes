@@ -26,6 +26,35 @@ class StoryController extends Controller
         ];
     }
 
+    public function actions() {
+        return [
+
+            //单图上传
+            'upload_one'=>[
+                'class' => 'common\widgets\file_upload\UploadAction',     //这里扩展地址别写错
+                'config' => [
+                    'imagePathFormat' => "/uploads/upload_one/{yyyy}{mm}{dd}/{time}{rand:6}",
+                ]
+            ],
+
+            //多图上传
+            'upload_more'=>[
+                'class' => 'common\widgets\batch_upload\UploadAction'
+            ],
+
+            //编辑器上传
+//            'upload' => [
+//                'class' => 'kucha\ueditor\UEditorAction',
+//                'config' => [
+//                    //'imageUrlPrefix' => \Yii::getAlias('@static').'/', //图片访问路径前缀
+//                    'imageUrlPrefix' => \Yii::getAlias('@static'), //图片访问路径前缀
+//                    'imagePathFormat' => '/data/uploads/{yyyy}{mm}{dd}/{time}{rand:6}', //上传保存路径
+//                ],
+//            ],
+
+        ];
+    }
+
     /**
      * Lists all Story models.
      * @return mixed

@@ -25,9 +25,52 @@ use kartik\file\FileInput;
 
         <?= $form->field($model, 'type')->dropDownList(['1'=>'图片','2'=>'视频'], ['prompt'=>'未选择','style'=>'width:120px']) ?>
 
-        <?= $form->field($model, 'cover_url')->widget('yidashi\webuploader\Cropper',['options'=>['boxId' => 'picker', 'previewWidth'=>720, 'previewHeight'=>'auto']]) ?>
+        <?php // $form->field($model, 'cover_url')->widget('yidashi\webuploader\Cropper',['options'=>['boxId' => 'picker', 'previewWidth'=>720, 'previewHeight'=>'auto']]) ?>
+        <?php //$form->field($model, 'record_pic')->widget('yidashi\webuploader\Cropper2',['options'=>['boxId' => 'picker2', 'previewWidth'=>800, 'previewHeight'=>'auto']]) ?>
 
-        <?= $form->field($model, 'record_pic')->widget('yidashi\webuploader\Cropper2',['options'=>['boxId' => 'picker2', 'previewWidth'=>800, 'previewHeight'=>'auto']]) ?>
+        <?php
+//        $adv_width=720;
+//        $adv_height=1280;
+//        $valueArr=array();
+//        $valueArr['value']=$model->cover_url;
+//        $valueArr['config']['inputName']='Story[cover_url]';
+//        if($adv_width&&$adv_height){
+//            $valueArr['config']['adv_width']=$adv_width;
+//            $valueArr['config']['adv_height']=$adv_height;
+//             $valueArr2['config']['is_thumb']=true;
+//        }
+//        echo common\widgets\file_upload\FileUpload2::widget($valueArr);
+//
+//        $adv_width2=500;
+//        $adv_height2=300;
+//         $valueArr2=array();
+//         $valueArr2['value']=$model->record_pic;
+//         $valueArr2['config']['inputName']='Banner[record_pic]';
+//         if($adv_width&&$adv_height){
+//             $valueArr2['config']['adv_width']=$adv_width2;
+//             $valueArr2['config']['adv_height']=$adv_height2;
+//             $valueArr2['config']['is_thumb']=true;
+//         }
+//         echo common\widgets\file_upload\FileUpload2::widget($valueArr2);
+
+        ?>
+
+        <?= $form->field($model, 'cover_url')->widget('common\widgets\file_upload\FileUpload',[
+            'config'=>[
+                //图片上传的一些配置，不写调用默认配置
+                'domain_url' => Yii::getAlias('@static'),////图片域名
+                'serverUrl' => yii\helpers\Url::to(['upload_one','action'=>'uploadimage','is_thumb'=>true,'adv_width'=>720,'adv_height'=>1280]),  //上传服务器地址 is_thumb就否返回生成缩略图
+            ]
+        ])->label('故事封面图(720*1280px|9:16 文件格式jpg、png 3MB以下') ?>
+
+        <?= $form->field($model, 'record_pic')->widget('common\widgets\file_upload\FileUpload',[
+            'config'=>[
+                //图片上传的一些配置，不写调用默认配置
+                'domain_url' => Yii::getAlias('@static'),////图片域名
+                'serverUrl' => yii\helpers\Url::to(['upload_one','action'=>'uploadimage','is_thumb'=>true,'adv_width'=>720,'adv_height'=>430]),  //上传服务器地址 is_thumb就否返回生成缩略图
+            ]
+        ])->label('旅行记录图(720*430px|5:3 文件格式jpg、png 3MB以下') ?>
+
 
         <?= $form->field($model, 'is_show')->dropDownList([0=>'否',1=>'是'], ['prompt'=>'未选择','style'=>'width:120px']) ?>
 

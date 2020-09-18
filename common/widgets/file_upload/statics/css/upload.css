@@ -1,0 +1,57 @@
+.per_upload_con {
+}
+.per_upload_img {
+    border: 1px solid #e4e4e4;
+    cursor: pointer;
+    float: left;
+    margin-right: 12px;
+    color: #999999;
+    line-height: 146px;
+    text-align: center;
+}
+.per_upload_img.empty {
+}
+.per_real_img {
+
+    overflow: hidden;
+    cursor: pointer;
+}
+.per_real_img img{
+
+}
+.per_upload_img:hover {
+    border-color: #f3a948;
+    color: #ff7624;
+}
+.per_upload_img:hover .plus, .per_upload_img:hover .plus_text {
+    color: #ff7624;
+}
+.per_upload_text {
+    float: left;
+    padding-top: 0;
+}
+.per_upload_con .red {
+    color: #ff6702;
+}
+.per_upload_con .upname {
+    color: #1f1d1c;
+    line-height: 12px;
+}
+.per_upload_con .rule {
+    color: #999999;
+    line-height: 22px;
+}
+.per_upload_con .plus {
+    font-size: 100px;
+    color: #b8b8b8;
+    line-height: 100px;
+}
+.per_upload_con .plus_text {
+    color: #999999;
+    line-height: 22px;
+}
+.green{
+	background-color: #35aa47;
+    color: white;
+    text-shadow: none;
+}

@@ -8,5 +8,6 @@ return [
         'en-US'=>'English (US)',
         'zh-CN' => '简体中文',
     ],
-    'img_host'=>'http://api.axes.com',
+    'img_host'=>'http://192.168.0.149:188/uploads',
+    'images' => 'http://192.168.0.149:188/uploads',
 ];
