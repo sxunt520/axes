@@ -32,3 +32,5 @@ phpunit.phar
 
 /static/demo_img
 /static/demo_mp4
+/web/assets
+
