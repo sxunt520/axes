@@ -46,6 +46,8 @@ class BaseController extends ActiveController
                     'send-sms',
                     'mobile-login',
                     'third-login',
+                    'follower-list',
+                    'fans-list',
                     //'signup-test'
                 ],
             ]
