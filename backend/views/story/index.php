@@ -65,7 +65,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             ]
                         ],
                         'value' => function ($model) {
-                            $pic=strpos($model->cover_url, 'http:') === false ? (\Yii::getAlias('@api_host') . '/' . $model->cover_url) : $model->cover_url;
+                            $pic=strpos($model->cover_url, 'http:') === false ? (\Yii::getAlias('@static') . $model->cover_url) : $model->cover_url;
                             return $pic;
                         }
                     ],
@@ -75,7 +75,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         'label' => '故事视频',
                         'attribute'=>'video_url',
                         'value' => function ($model) {
-                            $pic=strpos($model->video_url, 'http:') === false ? (\Yii::getAlias('@api_host') . '/' . $model->video_url) : $model->video_url;
+                            $pic=strpos($model->video_url, 'http:') === false ? (\Yii::getAlias('@static') . $model->video_url) : $model->video_url;
                             $video_xxx= '<video width="150" height="auto" controls="controls"><source src="'.$pic.'" type="video/mp4"></video>';
                             return $video_xxx;
                         },

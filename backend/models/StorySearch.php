@@ -94,8 +94,8 @@ class StorySearch extends Story
     {
         $dropDownList = [
             "type"=> [
-                "1"=>"视频",
-                "2"=>"图片",
+                "1"=>"图片",
+                "2"=>"视频",
             ],
             "is_show"=> [
                 "0"=>"否",

@@ -23,6 +23,8 @@ use Yii;
  */
 class Story extends \yii\db\ActiveRecord
 {
+    public $_video_url;
+
     /**
      * @inheritdoc
      */
@@ -37,12 +39,14 @@ class Story extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            [['title', 'intro','type',], 'required'],
             [['intro'], 'string'],
             [['type', 'created_at', 'updated_at', 'admin_id', 'current_chapters', 'total_chapters', 'is_show'], 'integer'],
             [['title','game_title'], 'string', 'max' => 50],
             [['cover_url', 'video_url','record_pic','game_title'], 'string', 'max' => 255],
             [['next_updated_at'], 'filter', 'filter' => 'strtotime', 'skipOnEmpty' => true],
             ['created_at', 'default', 'value' => time()],
+            ['updated_at', 'default', 'value' => time()],
             ['admin_id', 'default', 'value' => Yii::$app->user->getId()],
         ];
     }

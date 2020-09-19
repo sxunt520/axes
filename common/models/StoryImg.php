@@ -30,7 +30,7 @@ class StoryImg extends \yii\db\ActiveRecord
     {
         return [
             [['story_id', 'updated_at'], 'integer'],
-            [['img_url', 'img_text'], 'string', 'max' => 255]
+            [['img_url', 'img_text'], 'string', 'max' => 255],
         ];
     }
 

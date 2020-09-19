@@ -36,7 +36,7 @@ class StoryVideo extends \yii\db\ActiveRecord
     {
         return [
             [['story_id', 'video_type', 'is_show', 'views', 'likes', 'share_num', 'created_at'], 'integer'],
-            [['title', 'video_url', 'video_cover'], 'required'],
+            //[['title', 'video_url'], 'required'],
             [['title', 'video_url', 'video_cover'], 'string', 'max' => 255]
         ];
     }

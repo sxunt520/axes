@@ -2,6 +2,9 @@
 
 namespace backend\controllers;
 
+use common\models\StoryImg;
+use common\models\StoryCommentImg;
+use common\models\StoryVideo;
 use Yii;
 use common\models\Story;
 use backend\models\StorySearch;
@@ -114,13 +117,15 @@ class StoryController extends Controller
 
         //画册
         $id0=$id;
+
+        ///////故事多图
         $relationBanners = \common\models\StoryImg::find()->where(['story_id' => $id0])->asArray()->all();
-        // 对商品banner图进行处理
         $p1 = $p2 = [];
         if ($relationBanners) {
             foreach ($relationBanners as $k => $v) {
                 //$p1[$k] = $v['banner_url'];
-                $p1[$k] = '<img src="'.Yii::getAlias('@static').$v['img_url'].'" class="file-preview-image" style="width:auto;height:160px;">';
+                $p1[$k] = '<img src="'.Yii::getAlias('@static').$v['img_url'].'" class="file-preview-image" style="width:auto;height:160px;"><input name="StoryImg_text['.$v['id'].']" type="text" value="'.$v['img_text'].'" style="display: block; width: 100%;margin-top: 10px;"/>';
+                //$p1[$k] = '<img src="'.Yii::getAlias('@static').$v['img_url'].'" class="file-preview-image" style="width:auto;height:160px;">';
                 $p2[$k] = [
                     'url' => \yii\helpers\Url::toRoute('deleteimg'),
                     'key' => $v['id'],
@@ -129,21 +134,141 @@ class StoryController extends Controller
         }
         $model2 = new \common\models\StoryImg;
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+
+        ///////故事评论多图
+        $relationBanners_x = \common\models\StoryCommentImg::find()->where(['story_id' => $id0])->asArray()->all();
+        $p1_x = $p2_x = [];
+        if ($relationBanners_x) {
+            foreach ($relationBanners_x as $kk => $vv) {
+                //$p1[$k] = $v['banner_url'];
+                $p1_x[$kk] = '<img src="'.Yii::getAlias('@static').$vv['img_url'].'" class="file-preview-image" style="width:auto;height:160px;"><input name="StoryCommentImg_text['.$vv['id'].']" type="text" value="'.$vv['img_text'].'" style="display: block; width: 100%;margin-top: 10px;"/>';
+                //$p1_x[$k] = '<img src="'.Yii::getAlias('@static').$v['img_url'].'" class="file-preview-image" style="width:auto;height:160px;">';
+                $p2_x[$kk] = [
+                    'url' => \yii\helpers\Url::toRoute('deleteimg-x'),
+                    'key' => $vv['id'],
+                ];
+            }
+        }
+        $model2_x = new \common\models\StoryCommentImg;
+
+
+        ///////故事视频组
+        $relationBanners_v = \common\models\StoryVideo::find()->where(['story_id' => $id0])->asArray()->all();
+        $p1_v = $p2_v = [];
+        if ($relationBanners_v) {
+            foreach ($relationBanners_v as $kkk => $vvv) {
+                $p1_v[$kkk] ='<video width="300" height="auto" controls="controls"><source src="'.Yii::getAlias('@static').$vvv['video_url'].'" type="video/mp4"></video><input name="StoryVideo_title['.$vvv['id'].']" type="text" value="'.$vvv['title'].'" style="display: block; width: 100%;margin-top: 10px;"/>';
+                $p2_v[$kkk] = [
+                    'url' => \yii\helpers\Url::toRoute('delete-video'),
+                    'key' => $vvv['id'],
+                ];
+            }
+        }
+        $model2_v = new \common\models\StoryVideo;
+
+
+        ////////////更新操作////////
+        if ($model->load(Yii::$app->request->post())) {
+            $model->updated_at=time();
+            $model->save();
+
+            //更新故事组图文案
+            $StoryImg_text_arr=Yii::$app->request->POST("StoryImg_text");
+            if(is_array($StoryImg_text_arr)){
+                foreach ($StoryImg_text_arr as $k=>$v){
+                    $StoryImg_model=StoryImg::findOne($k);
+                    if($StoryImg_model){
+                        $StoryImg_model->img_text=$v;
+                        $StoryImg_model->save();
+                    }
+                }
+            }
+
+            //更新评论组图文案
+            $StoryCommentImg_text_arr=Yii::$app->request->POST("StoryCommentImg_text");//
+            if(is_array($StoryCommentImg_text_arr)){
+                foreach ($StoryCommentImg_text_arr as $k=>$v){
+                    $StoryCommentImg_text_model=StoryCommentImg::findOne($k);
+                    if($StoryCommentImg_text_model){
+                        $StoryCommentImg_text_model->img_text=$v;
+                        $StoryCommentImg_text_model->save();
+                    }
+                }
+            }
+
+            //更新视频标题文案
+            $StoryVideo_title_arr=Yii::$app->request->POST("StoryVideo_title");//
+            if(is_array($StoryVideo_title_arr)){
+                foreach ($StoryVideo_title_arr as $k=>$v){
+                    $StoryVideo_model=StoryVideo::findOne($k);
+                    if($StoryVideo_model){
+                        $StoryVideo_model->title=$v;
+                        $StoryVideo_model->save();
+                    }
+                }
+            }
+
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
                 'model' => $model,
+
                 'model2' => $model2,
                 'p1' => $p1,
                 'p2' => $p2,
+
+                'model2_x' => $model2_x,
+                'p1_x' => $p1_x,
+                'p2_x' => $p2_x,
+
+                'model2_v' => $model2_v,
+                'p1_v' => $p1_v,
+                'p2_v' => $p2_v,
+
                 'id0' => $id0,
                 'flag'=>$flag
             ]);
         }
     }
 
-    //画册AJAX
+    //故事异步上传一个封面视频
+    public function actionAsyncVideo ()
+    {
+        $p1 = $p2 = [];
+        if (empty($_FILES['Story']['name']) || empty($_FILES['Story']['name']['_video_url'])) {
+            echo '{}';
+            return;
+        }
+
+        $model = new \common\models\Story();
+        $uploadSuccessPath = "";
+        if (Yii::$app->request->isPost) {
+            $file = UploadedFile::getInstance($model, "_video_url");
+            //文件上传存放的目录
+            $dir = "../../api/web/uploads/video_".date("Ymd").'/';
+
+            if(!file_exists($dir)){
+                mkdir($dir,0777);
+            }
+            //文件名
+            $fileName = date("Ymdhis").'_'.uniqid(). "." . $file->extension;
+            $dir = $dir."/". $fileName;
+            $file->saveAs($dir);
+            $uploadSuccessPath = "/uploads/video_".date("Ymd")."/".$fileName;
+
+        }
+
+        $video_url= $uploadSuccessPath; //调用图片接口上传后返回图片地址
+        $p1[]= '<video width="300" height="auto" controls="controls"><source src="'.Yii::getAlias('@static').$video_url.'" type="video/mp4"></video>';
+        echo json_encode([
+            'initialPreview' => $p1,
+            'video_url'=>$video_url,
+            'append' => false,//控制不追回，只传一个
+        ]);
+        return;
+    }
+
+    //故事多图 异步获取
     public function actionAsyncImage ()
     {
         // 商品ID
@@ -154,7 +279,7 @@ class StoryController extends Controller
             return;
         }
         for ($i = 0; $i < count($_FILES['StoryImg']['name']['img_url']); $i++) {
-            $url = 'delete';
+            $url = \yii\helpers\Url::toRoute('deleteimg');
 
             $model = new \common\models\StoryImg();
             $uploadSuccessPath = "";
@@ -179,6 +304,7 @@ class StoryController extends Controller
             //$model = new \common\models\Banner;
             $model->story_id = $id;
             $model->img_url = $imageUrl;
+            $model->updated_at = time();
             $key = 0;
             if ($model->save(false)) {
                 $key = $model->id;
@@ -187,7 +313,7 @@ class StoryController extends Controller
             // $caption = $pathinfo['basename'];
             // $size = $_FILES['Banner']['size']['banner_url'][$i];
             //$p1[$i] = $imageUrl;
-            $p1[$i] ='<img src="'.Yii::getAlias('@static').$imageUrl.'" class="file-preview-image" style="width:auto;height:160px;">';
+            $p1[$i] ='<img src="'.Yii::getAlias('@static').$imageUrl.'" class="file-preview-image" style="width:auto;height:160px;"><input name="StoryImg_text['.$key.']" type="text" value=" " style="display: block; width: 100%;margin-top: 10px;"/>';
             $p2[$i] = ['url' => $url, 'key' => $key,'width' => '120px'];
         }
         echo json_encode([
@@ -198,12 +324,158 @@ class StoryController extends Controller
         return;
     }
 
-    ////删除画册AJAX
+
+    //故事评论多图 异步获取
+    public function actionAsyncImageX ()
+    {
+        // 商品ID
+        $id = Yii::$app->request->post('story_id');
+        $p1_x = $p2_x = [];
+        if (empty($_FILES['StoryCommentImg']['name']) || empty($_FILES['StoryCommentImg']['name']['img_url']) || !$id) {
+            echo '{}';
+            return;
+        }
+        for ($i = 0; $i < count($_FILES['StoryCommentImg']['name']['img_url']); $i++) {
+            $url = \yii\helpers\Url::toRoute('deleteimg-x');
+
+            $model = new \common\models\StoryCommentImg();
+            $uploadSuccessPath = "";
+            if (Yii::$app->request->isPost) {
+                $file = UploadedFile::getInstance($model, "img_url");
+                //文件上传存放的目录
+                $dir = "../../api/web/uploads/".date("Ymd").'/';
+
+                if(!file_exists($dir)){
+                    mkdir($dir,0777);
+                }
+                //文件名
+                $fileName = date("Ymdhis").'_'.uniqid(). "." . $file->extension;
+                $dir = $dir."/". $fileName;
+                $file->saveAs($dir);
+                $uploadSuccessPath = "/uploads/".date("Ymd")."/".$fileName;
+
+            }
+
+            $imageUrl = $uploadSuccessPath; //调用图片接口上传后返回图片地址
+            // 图片入库操作，此处不可以批量直接入库，因为后面我们还要把key返回 便于图片的删除
+            //$model = new \common\models\Banner;
+            $model->story_id = $id;
+            $model->img_url = $imageUrl;
+            $model->updated_at = time();
+            $key = 0;
+            if ($model->save(false)) {
+                $key = $model->id;
+            }
+            // $pathinfo = pathinfo($imageUrl);
+            // $caption = $pathinfo['basename'];
+            // $size = $_FILES['Banner']['size']['banner_url'][$i];
+            //$p1[$i] = $imageUrl;
+            $p1_x[$i] ='<img src="'.Yii::getAlias('@static').$imageUrl.'" class="file-preview-image" style="width:auto;height:160px;"><input name="StoryCommentImg_text['.$key.']" type="text" value=" " style="display: block; width: 100%;margin-top: 10px;"/>';
+            $p2_x[$i] = ['url' => $url, 'key' => $key,'width' => '120px'];
+        }
+        echo json_encode([
+            'initialPreview' => $p1_x,
+            'initialPreviewConfig' => $p2_x,
+            'append' => true,
+        ]);
+        return;
+    }
+
+    //故事视频组 异步获取
+    public function actionAsyncStoryVideo()
+    {
+        // 商品ID
+        $id = Yii::$app->request->post('story_id');
+        $p1_v = $p2_v = [];
+        if (empty($_FILES['StoryVideo']['name']) || empty($_FILES['StoryVideo']['name']['video_url']) || !$id) {
+            echo '{}';
+            return;
+        }
+        for ($i = 0; $i < count($_FILES['StoryVideo']['name']['video_url']); $i++) {
+            $url = \yii\helpers\Url::toRoute('delete-video');
+
+            $model = new \common\models\StoryVideo();
+            $uploadSuccessPath = "";
+            if (Yii::$app->request->isPost) {
+                $file = UploadedFile::getInstance($model, "video_url");
+                //文件上传存放的目录
+                $dir = "../../api/web/uploads/video_".date("Ymd").'/';
+
+                if(!file_exists($dir)){
+                    mkdir($dir,0777);
+                }
+                //文件名
+                $fileName = date("Ymdhis").'_'.uniqid(). "." . $file->extension;
+                $dir = $dir."/". $fileName;
+                $file->saveAs($dir);
+                $uploadSuccessPath = "/uploads/video_".date("Ymd")."/".$fileName;
+
+            }
+
+            $video_url = $uploadSuccessPath; //调用图片接口上传后返回图片地址
+            // 图片入库操作，此处不可以批量直接入库，因为后面我们还要把key返回 便于图片的删除
+            //$model = new \common\models\Banner;
+            $model->story_id = $id;
+            $model->video_url = $video_url;
+            $model->created_at = time();
+            $key = 0;
+            if ($model->save(false)) {
+                $key = $model->id;
+            }
+            $p1_x[$i] ='<video width="300" height="auto" controls="controls"><source src="'.Yii::getAlias('@static').$video_url.'" type="video/mp4"></video><input name="StoryVideo_title['.$key.']" type="text" value=" " style="display: block; width: 100%;margin-top: 10px;"/>';
+            $p2_x[$i] = ['url' => $url, 'key' => $key,'width' => '120px'];
+        }
+        echo json_encode([
+            'initialPreview' => $p1_x,
+            'initialPreviewConfig' => $p2_x,
+            'append' => true,
+        ]);
+        return;
+    }
+
+
+    ////删除故事多图AJAX
     public function actionDeleteimg ()
     {
         if ($id = Yii::$app->request->post('key')) {
 
             $model = \common\models\StoryImg::find()->where(['id' => $id])->one();
+
+            if($model->delete()){
+                Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+                return ['success' => true];
+            }else{
+                return ['success' => false];
+            }
+        }else{
+            return ['success' => false];
+        }
+    }
+
+    ////删除故事评论多图AJAX
+    public function actionDeleteimgX ()
+    {
+        if ($id = Yii::$app->request->post('key')) {
+
+            $model = \common\models\StoryCommentImg::find()->where(['id' => $id])->one();
+
+            if($model->delete()){
+                Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+                return ['success' => true];
+            }else{
+                return ['success' => false];
+            }
+        }else{
+            return ['success' => false];
+        }
+    }
+
+    ////删除故事视频组AJAX
+    public function actionDeleteVideo ()
+    {
+        if ($id = Yii::$app->request->post('key')) {
+
+            $model = \common\models\StoryVideo::find()->where(['id' => $id])->one();
 
             if($model->delete()){
                 Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;

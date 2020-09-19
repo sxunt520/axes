@@ -9,8 +9,10 @@ Yii::setAlias('tests', dirname(dirname(__DIR__)) . '/tests');
 Yii::setAlias('runnerScript', dirname(dirname(dirname(__FILE__))) .'/yii');
 Yii::setAlias('staticroot', dirname(dirname(__DIR__)) . '/api/web/');
 if (YII_ENV=='dev') {
-	Yii::setAlias('api_host', 'http://192.168.0.149:188');
-    Yii::setAlias('static', 'http://192.168.0.149:188');
+    Yii::setAlias('api_host', 'http://api.axes.com');
+    Yii::setAlias('static', 'http://api.axes.com');
+//	Yii::setAlias('api_host', 'http://192.168.0.149:188');
+//    Yii::setAlias('static', 'http://192.168.0.149:188');
 } else {
 	Yii::setAlias('api_host', 'http://81.71.11.205');
     Yii::setAlias('static', 'http://81.71.11.205');
