@@ -185,6 +185,7 @@ class ArticleController extends Controller
         $model = $this->findModel($id);
         $dataModel = ArticleData::findOne($id);
         if ($model->load(Yii::$app->request->post()) && $dataModel->load(Yii::$app->request->post())) {
+            var_dump($_POST);exit;
             $isValid = $model->validate();
             $isValid = $dataModel->validate() && $isValid;
             if ($isValid) {

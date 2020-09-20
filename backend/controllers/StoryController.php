@@ -96,7 +96,10 @@ class StoryController extends Controller
         $model = new Story();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            $model->setTags();//标签保存
+            //return $this->redirect(['view', 'id' => $model->id]);
+            Yii::$app->session->setFlash('success', '添加成功');
+            return $this->redirect(['index']);
         } else {
             return $this->render('create', [
                 'model' => $model,
@@ -172,6 +175,9 @@ class StoryController extends Controller
             $model->updated_at=time();
             $model->save();
 
+            //更新标签
+            $model->setTags();
+
             //更新故事组图文案
             $StoryImg_text_arr=Yii::$app->request->POST("StoryImg_text");
             if(is_array($StoryImg_text_arr)){
@@ -208,7 +214,15 @@ class StoryController extends Controller
                 }
             }
 
-            return $this->redirect(['view', 'id' => $model->id]);
+
+            //Yii::$app->session->setFlash('success', 'This is the message');//绿色
+            //Yii::$app->session->setFlash('error', 'This is the message');//红色
+            //Yii::$app->session->setFlash('info', 'This is the message');//蓝色
+            //Yii::$app->session->setFlash('warning', 'This is the message');//橙色
+
+            Yii::$app->session->setFlash('success', '更新成功');
+            return $this->redirect(['index']);
+            //return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
                 'model' => $model,

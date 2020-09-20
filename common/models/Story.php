@@ -25,6 +25,8 @@ class Story extends \yii\db\ActiveRecord
 {
     public $_video_url;
 
+    private $_tagNames;
+
     /**
      * @inheritdoc
      */
@@ -48,6 +50,7 @@ class Story extends \yii\db\ActiveRecord
             ['created_at', 'default', 'value' => time()],
             ['updated_at', 'default', 'value' => time()],
             ['admin_id', 'default', 'value' => Yii::$app->user->getId()],
+            [['tagNames'], 'safe'],
         ];
     }
 
@@ -75,6 +78,66 @@ class Story extends \yii\db\ActiveRecord
             'share_num'=>'分享数',
             'record_pic'=>'旅行记录图',
             'game_title'=>'游戏标题',
+            'tagNames' => '标签',
         ];
     }
+
+    public function attributeHints()
+    {
+        return [
+            'tagNames' => '（空格分隔多个标签）'
+        ];
+    }
+
+    //story 和story_tag 两个表实现一对多的关联绑定设置
+    public function getTags()
+    {
+        return $this->hasMany(StoryTag::className(), ['story_id' => 'id']);
+    }
+
+
+    //渲染视图时get、自动获取tagNames字段内容的值，而这个值是通过上面关联绑定  用$this->tags获取相关绑定已存在tag值
+    public function getTagNames()
+    {
+        $tags = $this->tags;
+        if (!empty($tags)) {
+            $tagNames = [];
+            foreach($tags as $tag) {
+                $tagNames[] = $tag->tag_name;
+            }
+            $tagNames = join(' ', $tagNames);
+        } else {
+            $tagNames = '';
+        }
+        return $tagNames;
+    }
+
+    //提交表单，is_post save 后，tagNames有设置，然后把值装入 _tagNames 待用~
+    public function setTagNames($value)
+    {
+        $this->_tagNames = $value;
+        return $this->_tagNames;
+    }
+
+    //提交后相关标签入库
+    public function setTags()
+    {
+        // 先清除文章所有标签
+        StoryTag::deleteAll(['story_id' => $this->id]);
+        if (!empty($this->_tagNames)) {
+            $tags = explode(' ', $this->_tagNames);
+            foreach($tags as $tag) {
+                $StoryTag_model=StoryTag::find()->andWhere(['tag_name'=>$tag,'story_id'=>$this->id])->one();
+                if (empty($StoryTag_model)) {
+                    $tagModel = new StoryTag();
+                    $tagModel->tag_name = $tag;
+                    $tagModel->story_id = $this->id;
+                    $tagModel->save();
+                }
+            }
+
+        }
+    }
+
+
 }

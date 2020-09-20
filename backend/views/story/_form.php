@@ -124,11 +124,12 @@ use kartik\file\FileInput;
                 'locale' => 'zh-cn'
             ]
         ) ?>
+        <?= $form->field($model, 'tagNames')->widget(\common\widgets\tag\Tag::className()) ?>
     </div>
     <?php if($id0!=''&&$model2!=''){?>
         <div class="tab-pane <?php echo $flag==1?'active':'';?>" id="tab_3">
             <?= $form->field($model2, 'img_url')->label('故事组图')->widget(FileInput::classname(), [
-                'options' => ['multiple' => true],
+                'options' => ['multiple' => true,'accept' => 'image/*'],
                 //'template' => '<img src="{image}" class="file-preview-image" style="width:auto;height:160px;">',
                 'pluginOptions' => [
                     // 需要预览的文件格式
@@ -188,7 +189,7 @@ use kartik\file\FileInput;
     <?php if($id0!=''&&$model2_x!=''){?>
         <div class="tab-pane <?php echo $flag==1?'active':'';?>" id="tab_4">
             <?= $form->field($model2_x, 'img_url')->label('评论组图')->widget(FileInput::classname(), [
-                'options' => ['multiple' => true],
+                'options' => ['multiple' => true,'accept' => 'image/*'],
                 //'template' => '<img src="{image}" class="file-preview-image" style="width:auto;height:160px;">',
                 'pluginOptions' => [
                     // 需要预览的文件格式
@@ -248,7 +249,7 @@ use kartik\file\FileInput;
     <?php if($id0!=''&&$model2_v!=''){?>
         <div class="tab-pane <?php echo $flag==1?'active':'';?>" id="tab_5">
             <?= $form->field($model2_v, 'video_url')->label('故事视频组')->widget(FileInput::classname(), [
-                'options' => ['multiple' => true],
+                'options' => ['multiple' => true,'accept' => 'video/*'],
                 //'template' => '<img src="{image}" class="file-preview-image" style="width:auto;height:160px;">',
                 'pluginOptions' => [
                     // 需要预览的文件格式
@@ -306,7 +307,7 @@ use kartik\file\FileInput;
     <?php };?>
 
     <div class="form-group">
-        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+        <?= Html::submitButton($model->isNewRecord ? '提交' : '更新', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>
