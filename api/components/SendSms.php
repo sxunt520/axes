@@ -40,9 +40,9 @@ class SendSms
         $domain = "dysmsapi.aliyuncs.com";
 
         // TODO 此处需要替换成开发者自己的AK (https://ak-console.aliyun.com/)
-        $accessKeyId = "LTAITyDHbp4FKyjj"; // AccessKeyId
+        $accessKeyId = \Yii::$app->params['aliyun_sendsms']['accessKeyId']; // AccessKeyId
 
-        $accessKeySecret = "6EvZVVJiMnYOUfCc5q8W3ObviaPy8i"; // AccessKeySecret
+        $accessKeySecret = \Yii::$app->params['aliyun_sendsms']['accessKeySecret']; // AccessKeySecret
 
         // 暂时不支持多Region
         $region = "cn-hangzhou";
@@ -81,10 +81,10 @@ class SendSms
         $request->setPhoneNumbers($mobile);
 
         // 必填，设置签名名称，应严格按"签名名称"填写，请参考: https://dysms.console.aliyun.com/dysms.htm#/develop/sign
-        $request->setSignName("旅人计划");
+        $request->setSignName(\Yii::$app->params['aliyun_sendsms']['SignName']);
 
         // 必填，设置模板CODE，应严格按"模板CODE"填写, 请参考: https://dysms.console.aliyun.com/dysms.htm#/develop/template
-        $request->setTemplateCode("SMS_202810147");
+        $request->setTemplateCode(\Yii::$app->params['aliyun_sendsms']['TemplateCode']);
 
         // 可选，设置模板参数, 假如模板中存在变量需要替换则为必填项
         $request->setTemplateParam(json_encode(array(  // 短信模板中字段的值

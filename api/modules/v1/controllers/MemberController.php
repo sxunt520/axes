@@ -723,11 +723,11 @@ class MemberController extends BaseController
 
        //发短信接口操作
        $send_flag=true;
-//       $SendSms_model=new SendSms;
-//       $response = $SendSms_model->sendSms($mobile,$code);
-//       if($response->Code!='OK'){
-//           return parent::__response('发送失败',(int)-1,['send_Message'=>$response->Message,'send_Code'=>$response->Code,'RequestId'=>$response->RequestId]);
-//       }
+       $SendSms_model=new SendSms;
+       $response = $SendSms_model->sendSms($mobile,$code);
+       if($response->Code!='OK'){
+           return parent::__response('发送失败',(int)-1,['send_Message'=>$response->Message,'send_Code'=>$response->Code,'RequestId'=>$response->RequestId]);
+       }
 
        if($send_flag){
            $sms_model=new SmsLog();
