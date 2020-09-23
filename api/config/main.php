@@ -8,31 +8,31 @@ $params = array_merge(
 
 return [
     'id' => 'app-api',
-    'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log'],
-    'controllerNamespace' => 'api\controllers',
-    'language' => 'zh-CN',
-    'charset' => 'utf-8',
-    'defaultRoute' => '/site/index',
-    'modules' => [
-        'v1' => [
-            'class' => 'api\modules\v1\Module',
-        ],
-        'v2' => [
-            'class' => 'api\modules\v2\Module',
-        ],
-	],
-    'components' => [
-         'user' => [ 
-            'identityClass' => 'common\models\Member',
-            'enableAutoLogin' => true,
-            'enableSession'=>false
-         ],
-        'log' => [
-            'traceLevel' => YII_DEBUG ? 3 : 0,
-            'targets' => [
-                [
-                    'class' => 'yii\log\FileTarget',
+                    'basePath' => dirname(__DIR__),
+                    'bootstrap' => ['log'],
+                    'controllerNamespace' => 'api\controllers',
+                    'language' => 'zh-CN',
+                    'charset' => 'utf-8',
+                    'defaultRoute' => '/site/index',
+                    'modules' => [
+                        'v1' => [
+                            'class' => 'api\modules\v1\Module',
+                        ],
+                        'v2' => [
+                            'class' => 'api\modules\v2\Module',
+                        ],
+                    ],
+                    'components' => [
+                        'user' => [
+                            'identityClass' => 'common\models\Member',
+                            'enableAutoLogin' => true,
+                            'enableSession'=>false
+                        ],
+                        'log' => [
+                            'traceLevel' => YII_DEBUG ? 3 : 0,
+                            'targets' => [
+                                [
+                                    'class' => 'yii\log\FileTarget',
                     'levels' => ['error', 'warning'],
                 ],
             ],
