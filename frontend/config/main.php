@@ -42,5 +42,6 @@ return [
             'errorAction' => 'site/error',
         ],
     ],
+    'as ThemeBehavior' => \frontend\behaviors\ThemeBehavior::className(),//主题适配
     'params' => $params,
 ];
