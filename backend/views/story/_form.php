@@ -12,9 +12,9 @@ use kartik\file\FileInput;
     <ul class="nav nav-tabs">
         <li class="<?php echo $flag==0?'active':'';?>"><a href="#tab_1" data-toggle="tab" aria-expanded="<?php echo $flag==0?'true':'false';?>">故事内容</a></li>
         <li class=""><a href="#tab_2" data-toggle="tab" aria-expanded="false">游戏内容</a></li>
-        <?php if($id0!=''&&$model2!=''){?><li class="<?php echo $flag==1?'active':'';?>"><a href="#tab_3" data-toggle="tab" aria-expanded="<?php echo $flag==1?'true':'false';?>">故事多图</a></li><?php }?>
+        <?php if($id0!=''&&$model2!=''){?><li class="<?php echo $flag==1?'active':'';?>"><a href="#tab_3" data-toggle="tab" aria-expanded="<?php echo $flag==1?'true':'false';?>">故事轮播图</a></li><?php }?>
         <?php if($id0!=''&&$model2_x!=''){?><li class="<?php echo $flag==1?'active':'';?>"><a href="#tab_4" data-toggle="tab" aria-expanded="<?php echo $flag==1?'true':'false';?>">评论组图</a></li><?php }?>
-        <?php if($id0!=''&&$model2_x!=''){?><li class="<?php echo $flag==1?'active':'';?>"><a href="#tab_5" data-toggle="tab" aria-expanded="<?php echo $flag==1?'true':'false';?>">故事视频组</a></li><?php }?>
+        <?php if($id0!=''&&$model2_x!=''){?><li class="<?php echo $flag==1?'active':'';?>"><a href="#tab_5" data-toggle="tab" aria-expanded="<?php echo $flag==1?'true':'false';?>">游戏宣传视频</a></li><?php }?>
     </ul>
     <?php $form = ActiveForm::begin([
         'options' => ['class' => 'tab-content','enctype'=>'multipart/form-data']
@@ -129,7 +129,7 @@ use kartik\file\FileInput;
     </div>
     <?php if($id0!=''&&$model2!=''){?>
         <div class="tab-pane <?php echo $flag==1?'active':'';?>" id="tab_3">
-            <?= $form->field($model2, 'img_url')->label('故事组图')->widget(FileInput::classname(), [
+            <?= $form->field($model2, 'img_url')->label('故事轮播图<span style="color: #DD4B39;">1080*720px | 3:2 大小不超过500k</span>')->widget(FileInput::classname(), [
                 'options' => ['multiple' => true,'accept' => 'image/*'],
                 //'template' => '<img src="{image}" class="file-preview-image" style="width:auto;height:160px;">',
                 'pluginOptions' => [
@@ -189,7 +189,7 @@ use kartik\file\FileInput;
 
     <?php if($id0!=''&&$model2_x!=''){?>
         <div class="tab-pane <?php echo $flag==1?'active':'';?>" id="tab_4">
-            <?= $form->field($model2_x, 'img_url')->label('评论组图')->widget(FileInput::classname(), [
+            <?= $form->field($model2_x, 'img_url')->label('评论组图 <span style="color: #DD4B39;">1280*720px|16:9 大小不超过500k</span>')->widget(FileInput::classname(), [
                 'options' => ['multiple' => true,'accept' => 'image/*'],
                 //'template' => '<img src="{image}" class="file-preview-image" style="width:auto;height:160px;">',
                 'pluginOptions' => [
@@ -249,7 +249,7 @@ use kartik\file\FileInput;
 
     <?php if($id0!=''&&$model2_v!=''){?>
         <div class="tab-pane <?php echo $flag==1?'active':'';?>" id="tab_5">
-            <?= $form->field($model2_v, 'video_url')->label('故事视频组')->widget(FileInput::classname(), [
+            <?= $form->field($model2_v, 'video_url')->label('游戏宣传视频  <span style="color: #DD4B39;">*至少两个</span>')->widget(FileInput::classname(), [
                 'options' => ['multiple' => true,'accept' => 'video/*'],
                 //'template' => '<img src="{image}" class="file-preview-image" style="width:auto;height:160px;">',
                 'pluginOptions' => [

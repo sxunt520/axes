@@ -77,7 +77,7 @@ class Story extends \yii\db\ActiveRecord
             'views'=>'浏览数',
             'share_num'=>'分享数',
             'record_pic'=>'旅行记录图',
-            'game_title'=>'游戏标题',
+            'game_title'=>'游戏名称',
             'tagNames' => '标签',
         ];
     }
