@@ -163,7 +163,7 @@ class StoryController extends Controller
         if ($relationBanners_v) {
             foreach ($relationBanners_v as $kkk => $vvv) {
                 $video_url=strpos($vvv['video_url'], 'http:') === false ? (Yii::getAlias('@static') . $vvv['video_url']) : $vvv['video_url'];
-                $p1_v[$kkk] ='<video width="300" height="auto" controls="controls"><source src="'.$video_url.'" type="video/mp4"></video><input name="StoryVideo_title['.$vvv['id'].']" type="text" value="'.$vvv['title'].'" style="display: block; width: 100%;margin-top: 10px;"/>';
+                $p1_v[$kkk] ='<video width="300" height="auto" controls="controls"><source src="'.$video_url.'" type="video/mp4"></video><input name="StoryVideo_title['.$vvv['id'].']" type="text" value="'.$vvv['title'].'" style="display: block; width: 100%;margin-top: 10px;"/><a href="/admin/video/update?id='.$vvv['id'].'">更新视频详情</a>';
                 $p2_v[$kkk] = [
                     'url' => \yii\helpers\Url::toRoute('delete-video'),
                     'key' => $vvv['id'],
@@ -439,7 +439,7 @@ class StoryController extends Controller
             if ($model->save(false)) {
                 $key = $model->id;
             }
-            $p1_x[$i] ='<video width="300" height="auto" controls="controls"><source src="'.$video_url.'" type="video/mp4"></video><input name="StoryVideo_title['.$key.']" type="text" value=" " style="display: block; width: 100%;margin-top: 10px;"/>';
+            $p1_x[$i] ='<video width="300" height="auto" controls="controls"><source src="'.$video_url.'" type="video/mp4"></video><input name="StoryVideo_title['.$key.']" type="text" value=" " style="display: block; width: 100%;margin-top: 10px;"/><a href="/admin/video/update?id='.$key.'">更新视频详情</a>';
             $p2_x[$i] = ['url' => $url, 'key' => $key,'width' => '120px'];
         }
         echo json_encode([

@@ -26,6 +26,20 @@ class VideoController extends Controller
         ];
     }
 
+    public function actions() {
+        return [
+
+            //单图上传
+            'upload_one'=>[
+                'class' => 'common\widgets\file_upload\UploadAction',     //这里扩展地址别写错
+                'config' => [
+                    'imagePathFormat' => "/uploads/upload_one/{yyyy}{mm}{dd}/{time}{rand:6}",
+                ]
+            ],
+
+        ];
+    }
+
     /**
      * Lists all StoryVideo models.
      * @return mixed
@@ -82,7 +96,8 @@ class VideoController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            Yii::$app->session->setFlash('success', '更新成功');
+            return $this->redirect(['index', 'id' => $model->id]);
         } else {
             return $this->render('update', [
                 'model' => $model,

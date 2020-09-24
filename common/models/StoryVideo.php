@@ -47,17 +47,17 @@ class StoryVideo extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'story_id' => 'Story ID',
-            'title' => 'Title',
-            'video_url' => 'Video Url',
-            'video_cover' => 'Video Cover',
-            'video_type' => 'Video Type',
-            'is_show' => 'Is Show',
-            'views' => 'Views',
-            'likes' => 'Likes',
-            'share_num' => 'Share Num',
-            'created_at' => 'Created At',
+            'id' => '视频ID',
+            'story_id' => '故事id',
+            'title' => '视频标题',
+            'video_url' => '视频地址',
+            'video_cover' => '视频封面图',
+            'video_type' => '视频类别',
+            'is_show' => '是否显示',
+            'views' => '浏览量',
+            'likes' => '点赞数',
+            'share_num' => '分享数',
+            'created_at' => '创建时间',
         ];
     }
 }
