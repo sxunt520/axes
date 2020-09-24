@@ -683,7 +683,7 @@ class MemberController extends BaseController
         if($picture_url){
             //保存头像地址
             $member_model = Member::findOne($user_id);
-            $member_model->picture_url=Yii::getAlias('@static').$picture_url;
+            $member_model->picture_url=Yii::getAlias('@static').'/'.$picture_url;
             $r=$member_model->save(false);
             if ($r){
                 return parent::__response('上传成功',0);
@@ -782,14 +782,14 @@ class MemberController extends BaseController
         }
 
         //如果不是特例的验证码就要验证下
-        if($code!=123456){
+        //if($code!=123456){
             if($sms_model->code!=$code){
                 return parent::__response('验证码错误!',(int)-1);
             }
             if((time()-$sms_model->created_at)>Yii::$app->params['sendsms_code_time']*60){//检验验证码是否过期
                 return parent::__response('验证码已过期,请重新发送短信验证!',(int)-2);
             }
-        }
+        //}
 
         //查看用户是否有注册在用户表
         //$member_model=Member::find()->andWhere(['mobile'=>$mobile])->one();
