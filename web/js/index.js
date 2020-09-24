@@ -76,7 +76,7 @@ function _classCallCheck(e, t) {
     }]), c);
 
     function c(e) {//这里的this.length = 5 设置鼠标滚动的次数
-        _classCallCheck(this, c), this.length = 5, this.activeIndex = 0, this.lockDelay = 1500, this.lock = !1, this.callback = e
+        _classCallCheck(this, c), this.length = 5, this.activeIndex = 0, this.lockDelay = 0, this.lock = !1, this.callback = e
     }
 
     function n() {
