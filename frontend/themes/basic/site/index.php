@@ -32,10 +32,10 @@ $this->title = '旅人计划';
     </div>
 </header>
 
-<section class="section section-main section-active">
+<section class="section section-main section-active" style=" background: #fff url(/images/home_bg.jpg) no-repeat center center/cover;">
     <div class="video-container">
 
-        <div class="img_box" style=" background:url(/images/home_bg.jpg) repeat center top;"></div>
+<!--        <div class="img_box" style=" background:url(/images/home_bg.jpg) repeat center top;"></div>-->
 <!--         <video muted="muted" loop="loop" autoplay="autoplay" src="http://192.168.0.149:188/uploads/demo_mp4/home_head.mp4" class="video" id="video-home" data-object-fit="">抱歉，您的浏览器不支持内嵌视频</video>-->
 
     </div>
