@@ -683,7 +683,7 @@ class MemberController extends BaseController
         if($picture_url){
             //保存头像地址
             $member_model = Member::findOne($user_id);
-            $member_model->picture_url=$picture_url;
+            $member_model->picture_url=Yii::getAlias('@static').$picture_url;
             $r=$member_model->save(false);
             if ($r){
                 return parent::__response('上传成功',0);
@@ -799,7 +799,7 @@ class MemberController extends BaseController
             $user->username = $mobile;
             $user->mobile = $mobile;
             $user->nickname = $mobile;
-            $user->picture_url='/uploads/default/avatar.png';//头像
+            $user->picture_url=Yii::getAlias('@static').'/uploads/default/avatar.png';//头像
             //$user->setPassword($mobile);
             //$user->generateAuthKey();
             $r=$user->save(false);
