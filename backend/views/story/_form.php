@@ -78,7 +78,8 @@ use kartik\file\FileInput;
         <?= $form->field($model,'video_url')->textInput()->hiddenInput(['value'=>$model->video_url])->label(false);?>
         <?php
             if($model->video_url){
-                    $video_url='<video width="300" height="auto" controls="controls"><source src="'.Yii::getAlias('@static').$model->video_url.'" type="video/mp4"></video>';
+                $video=strpos($model->video_url, 'http:') === false ? (\Yii::getAlias('@static') . $model->video_url) : $model->video_url;
+                $video_url='<video width="300" height="auto" controls="controls"><source src="'.$video.'" type="video/mp4"></video>';
                 }else{
                     $video_url=null;
             }
