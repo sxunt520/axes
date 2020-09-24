@@ -15,8 +15,8 @@ use Aliyun\Api\Sms\Request\V20170525\QuerySendDetailsRequest;
  * 这是短信服务API产品的DEMO程序，直接执行此文件即可体验短信服务产品API功能
  * (只需要将AK替换成开通了云通信-短信服务产品功能的AK即可)
  * 备注:Demo工程编码采用UTF-8
+ *取得AcsClient
  */
-     * 取得AcsClient
     class SendSms
     {
 
