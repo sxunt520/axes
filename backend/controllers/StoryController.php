@@ -127,7 +127,8 @@ class StoryController extends Controller
         if ($relationBanners) {
             foreach ($relationBanners as $k => $v) {
                 //$p1[$k] = $v['banner_url'];
-                $p1[$k] = '<img src="'.Yii::getAlias('@static').$v['img_url'].'" class="file-preview-image" style="width:auto;height:160px;"><input name="StoryImg_text['.$v['id'].']" type="text" value="'.$v['img_text'].'" style="display: block; width: 100%;margin-top: 10px;"/>';
+                $img_url=strpos($v['img_url'], 'http:') === false ? (Yii::getAlias('@static') . $v['img_url']) : $v['img_url'];
+                $p1[$k] = '<img src="'.$img_url.'" class="file-preview-image" style="width:auto;height:160px;"><input name="StoryImg_text['.$v['id'].']" type="text" value="'.$v['img_text'].'" style="display: block; width: 100%;margin-top: 10px;"/>';
                 //$p1[$k] = '<img src="'.Yii::getAlias('@static').$v['img_url'].'" class="file-preview-image" style="width:auto;height:160px;">';
                 $p2[$k] = [
                     'url' => \yii\helpers\Url::toRoute('deleteimg'),
@@ -144,7 +145,8 @@ class StoryController extends Controller
         if ($relationBanners_x) {
             foreach ($relationBanners_x as $kk => $vv) {
                 //$p1[$k] = $v['banner_url'];
-                $p1_x[$kk] = '<img src="'.Yii::getAlias('@static').$vv['img_url'].'" class="file-preview-image" style="width:auto;height:160px;"><input name="StoryCommentImg_text['.$vv['id'].']" type="text" value="'.$vv['img_text'].'" style="display: block; width: 100%;margin-top: 10px;"/>';
+                $img_url=strpos($vv['img_url'], 'http:') === false ? (Yii::getAlias('@static') . $vv['img_url']) : $vv['img_url'];
+                $p1_x[$kk] = '<img src="'.$img_url.'" class="file-preview-image" style="width:auto;height:160px;"><input name="StoryCommentImg_text['.$vv['id'].']" type="text" value="'.$vv['img_text'].'" style="display: block; width: 100%;margin-top: 10px;"/>';
                 //$p1_x[$k] = '<img src="'.Yii::getAlias('@static').$v['img_url'].'" class="file-preview-image" style="width:auto;height:160px;">';
                 $p2_x[$kk] = [
                     'url' => \yii\helpers\Url::toRoute('deleteimg-x'),
@@ -160,7 +162,8 @@ class StoryController extends Controller
         $p1_v = $p2_v = [];
         if ($relationBanners_v) {
             foreach ($relationBanners_v as $kkk => $vvv) {
-                $p1_v[$kkk] ='<video width="300" height="auto" controls="controls"><source src="'.Yii::getAlias('@static').$vvv['video_url'].'" type="video/mp4"></video><input name="StoryVideo_title['.$vvv['id'].']" type="text" value="'.$vvv['title'].'" style="display: block; width: 100%;margin-top: 10px;"/>';
+                $video_url=strpos($vvv['video_url'], 'http:') === false ? (Yii::getAlias('@static') . $vvv['video_url']) : $vvv['video_url'];
+                $p1_v[$kkk] ='<video width="300" height="auto" controls="controls"><source src="'.$video_url.'" type="video/mp4"></video><input name="StoryVideo_title['.$vvv['id'].']" type="text" value="'.$vvv['title'].'" style="display: block; width: 100%;margin-top: 10px;"/>';
                 $p2_v[$kkk] = [
                     'url' => \yii\helpers\Url::toRoute('delete-video'),
                     'key' => $vvv['id'],
@@ -272,8 +275,8 @@ class StoryController extends Controller
 
         }
 
-        $video_url= $uploadSuccessPath; //调用图片接口上传后返回图片地址
-        $p1[]= '<video width="300" height="auto" controls="controls"><source src="'.Yii::getAlias('@static').$video_url.'" type="video/mp4"></video>';
+        $video_url= Yii::getAlias('@static').$uploadSuccessPath; //调用图片接口上传后返回图片地址
+        $p1[]= '<video width="300" height="auto" controls="controls"><source src="'.$video_url.'" type="video/mp4"></video>';
         echo json_encode([
             'initialPreview' => $p1,
             'video_url'=>$video_url,
@@ -313,7 +316,7 @@ class StoryController extends Controller
 
             }
 
-            $imageUrl = $uploadSuccessPath; //调用图片接口上传后返回图片地址
+            $imageUrl = Yii::getAlias('@static').$uploadSuccessPath; //调用图片接口上传后返回图片地址
             // 图片入库操作，此处不可以批量直接入库，因为后面我们还要把key返回 便于图片的删除
             //$model = new \common\models\Banner;
             $model->story_id = $id;
@@ -327,7 +330,7 @@ class StoryController extends Controller
             // $caption = $pathinfo['basename'];
             // $size = $_FILES['Banner']['size']['banner_url'][$i];
             //$p1[$i] = $imageUrl;
-            $p1[$i] ='<img src="'.Yii::getAlias('@static').$imageUrl.'" class="file-preview-image" style="width:auto;height:160px;"><input name="StoryImg_text['.$key.']" type="text" value=" " style="display: block; width: 100%;margin-top: 10px;"/>';
+            $p1[$i] ='<img src="'.$imageUrl.'" class="file-preview-image" style="width:auto;height:160px;"><input name="StoryImg_text['.$key.']" type="text" value=" " style="display: block; width: 100%;margin-top: 10px;"/>';
             $p2[$i] = ['url' => $url, 'key' => $key,'width' => '120px'];
         }
         echo json_encode([
@@ -370,7 +373,7 @@ class StoryController extends Controller
 
             }
 
-            $imageUrl = $uploadSuccessPath; //调用图片接口上传后返回图片地址
+            $imageUrl = Yii::getAlias('@static').$uploadSuccessPath; //调用图片接口上传后返回图片地址
             // 图片入库操作，此处不可以批量直接入库，因为后面我们还要把key返回 便于图片的删除
             //$model = new \common\models\Banner;
             $model->story_id = $id;
@@ -384,7 +387,7 @@ class StoryController extends Controller
             // $caption = $pathinfo['basename'];
             // $size = $_FILES['Banner']['size']['banner_url'][$i];
             //$p1[$i] = $imageUrl;
-            $p1_x[$i] ='<img src="'.Yii::getAlias('@static').$imageUrl.'" class="file-preview-image" style="width:auto;height:160px;"><input name="StoryCommentImg_text['.$key.']" type="text" value=" " style="display: block; width: 100%;margin-top: 10px;"/>';
+            $p1_x[$i] ='<img src="'.$imageUrl.'" class="file-preview-image" style="width:auto;height:160px;"><input name="StoryCommentImg_text['.$key.']" type="text" value=" " style="display: block; width: 100%;margin-top: 10px;"/>';
             $p2_x[$i] = ['url' => $url, 'key' => $key,'width' => '120px'];
         }
         echo json_encode([
@@ -426,7 +429,7 @@ class StoryController extends Controller
 
             }
 
-            $video_url = $uploadSuccessPath; //调用图片接口上传后返回图片地址
+            $video_url = Yii::getAlias('@static').$uploadSuccessPath; //调用图片接口上传后返回图片地址
             // 图片入库操作，此处不可以批量直接入库，因为后面我们还要把key返回 便于图片的删除
             //$model = new \common\models\Banner;
             $model->story_id = $id;
@@ -436,7 +439,7 @@ class StoryController extends Controller
             if ($model->save(false)) {
                 $key = $model->id;
             }
-            $p1_x[$i] ='<video width="300" height="auto" controls="controls"><source src="'.Yii::getAlias('@static').$video_url.'" type="video/mp4"></video><input name="StoryVideo_title['.$key.']" type="text" value=" " style="display: block; width: 100%;margin-top: 10px;"/>';
+            $p1_x[$i] ='<video width="300" height="auto" controls="controls"><source src="'.$video_url.'" type="video/mp4"></video><input name="StoryVideo_title['.$key.']" type="text" value=" " style="display: block; width: 100%;margin-top: 10px;"/>';
             $p2_x[$i] = ['url' => $url, 'key' => $key,'width' => '120px'];
         }
         echo json_encode([

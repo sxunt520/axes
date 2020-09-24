@@ -35,10 +35,10 @@
  				if(json.state == 'SUCCESS'){
 
 					if(json.is_thumb ==true){//是否返回生成缩略图
-						$('input[up-id='+ from+']').val(json.thumb_url);
+						$('input[up-id='+ from+']').val(domainUrl+json.thumb_url);
 						$('.'+ from).html($('<img />').attr('src', domainUrl+json.thumb_url));
 					}else{
-						$('input[up-id='+ from+']').val(json.url);
+						$('input[up-id='+ from+']').val(domainUrl+json.url);
 						$('.'+ from).html($('<img />').attr('src', domainUrl+json.url));
 					}
 
