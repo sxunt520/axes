@@ -7,10 +7,12 @@
  */
  
 use yii\helpers\Html;
+
+$inputValue=strpos($inputValue, 'http:') === false ? (\Yii::getAlias('@static') . $inputValue) : $inputValue;
 ?>
 <div class="per_upload_con" data-url="<?=$config['serverUrl']?>">
     <div class="per_real_img <?=$attribute?>" domain-url = "<?=$config['domain_url']?>">
-        <?=isset($inputValue)?'<img src="'.$config['domain_url'].$inputValue.'">':''?>
+        <?=isset($inputValue)?'<img src="'.$inputValue.'">':''?>
     </div>
 <!--    <div class="per_upload_img">图片上传</div>-->
     <div class="per_upload_text">
