@@ -44,7 +44,7 @@ class StoryCommentReplyController extends BaseController
     	if ($pagenum < 1) $pagenum = 5;
     	
          $StoryCommentReply_rows=StoryCommentReply::find()
-            ->select(['{{%story_comment_reply}}.*','{{%member}}.username','{{%member}}.picture_url'])
+            ->select(['{{%story_comment_reply}}.*','{{%member}}.username','{{%member}}.nickname','{{%member}}.picture_url'])
              ->leftJoin('{{%member}}','{{%story_comment_reply}}.reply_from_uid={{%member}}.id')
              ->andWhere(['=', '{{%story_comment_reply}}.comment_id', $comment_id])
              ->andWhere(['=', '{{%story_comment_reply}}.reply_type', 1])//1对评论发布回复 2对回复发布回复 3@人+对回复发布回复
@@ -102,7 +102,7 @@ class StoryCommentReplyController extends BaseController
 //            ->asArray()
 //            ->one();
         $StoryCommentReply_row=StoryCommentReply::find()
-            ->select(['{{%story_comment_reply}}.reply_from_uid','{{%story_comment_reply}}.reply_content','{{%story_comment_reply}}.reply_at','{{%story_comment_reply}}.likes','{{%member}}.username','{{%member}}.picture_url'])
+            ->select(['{{%story_comment_reply}}.reply_from_uid','{{%story_comment_reply}}.reply_content','{{%story_comment_reply}}.reply_at','{{%story_comment_reply}}.likes','{{%member}}.username','{{%member}}.nickname','{{%member}}.picture_url'])
             ->leftJoin('{{%member}}','{{%story_comment_reply}}.reply_from_uid={{%member}}.id')
             ->andWhere(['=', '{{%story_comment_reply}}.id', $reply_id])
             ->andWhere(['=', '{{%story_comment_reply}}.reply_type', 1])
@@ -176,7 +176,7 @@ class StoryCommentReplyController extends BaseController
 //            ->all();
 
         $StoryCommentReply_rows=StoryCommentReply::find()
-            ->select(['{{%story_comment_reply}}.*','{{%member}}.username','{{%member}}.picture_url'])
+            ->select(['{{%story_comment_reply}}.*','{{%member}}.username','{{%member}}.nickname','{{%member}}.picture_url'])
             ->leftJoin('{{%member}}','{{%story_comment_reply}}.reply_from_uid={{%member}}.id')
             ->andWhere(['=', '{{%story_comment_reply}}.parent_reply_id', $reply_id])
             ->andWhere(['or','{{%story_comment_reply}}.reply_type = 2','{{%story_comment_reply}}.reply_type = 3'])//1对评论发布回复 2对回复发布回复 3@人+对回复发布回复

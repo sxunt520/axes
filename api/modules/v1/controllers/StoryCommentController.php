@@ -59,12 +59,14 @@ class StoryCommentController extends BaseController
                 $StoryComment_rows[$k]['comment_img']='';
             }
 
-            $member_arr=Member::find()->select(['username','picture_url'])->where(['id' => $v['from_uid']])->asArray()->one();
+            $member_arr=Member::find()->select(['username','nickname','picture_url'])->where(['id' => $v['from_uid']])->asArray()->one();
             if($member_arr){
                 $StoryComment_rows[$k]['user_name']=$member_arr['username'];
+                $StoryComment_rows[$k]['nickname']=$member_arr['nickname'];
                 $StoryComment_rows[$k]['user_picture']=$member_arr['picture_url'];
             }else{
                 $StoryComment_rows[$k]['user_name']='';
+                $StoryComment_rows[$k]['nickname']='';
                 $StoryComment_rows[$k]['user_picture']='';
             }
 
@@ -181,12 +183,14 @@ class StoryCommentController extends BaseController
             $StoryCommentImg=StoryCommentImg::find()->select(['id','img_url','img_text'])->where(['id' => $v['comment_img_id']])->asArray()->one();
             if($StoryCommentImg)$StoryComment_rows[$k]['comment_img']=$StoryCommentImg['img_url'];
 
-            $member_arr=Member::find()->select(['username','picture_url'])->where(['id' => $v['from_uid']])->asArray()->one();
+            $member_arr=Member::find()->select(['username','nickname','picture_url'])->where(['id' => $v['from_uid']])->asArray()->one();
             if($member_arr){
                 $StoryComment_rows[$k]['user_name']=$member_arr['username'];
+                $StoryComment_rows[$k]['nickname']=$member_arr['nickname'];
                 $StoryComment_rows[$k]['user_picture']=$member_arr['picture_url'];
             }else{
                 $StoryComment_rows[$k]['user_name']='';
+                $StoryComment_rows[$k]['nickname']='';
                 $StoryComment_rows[$k]['user_picture']='';
             }
 
@@ -240,12 +244,14 @@ class StoryCommentController extends BaseController
         StoryComment::addView($id);//缓存添加操作
         $StoryComment_row['views']=$StoryComment_row['views']+\Yii::$app->cache->get('story_comment:views:' . $id);//获取真实的浏览量 StoryComment::getTrueViews($id);
 
-        $member_arr=Member::find()->select(['username','picture_url'])->where(['id' => $StoryComment_row['from_uid']])->asArray()->one();
+        $member_arr=Member::find()->select(['nickname','picture_url'])->where(['id' => $StoryComment_row['from_uid']])->asArray()->one();
         if($member_arr){
             $StoryComment_row['user_name']=$member_arr['username'];
+            $StoryComment_row['nickname']=$member_arr['nickname'];
             $StoryComment_row['user_picture']=$member_arr['picture_url'];
         }else{
             $StoryComment_row['user_name']='';
+            $StoryComment_row['nickname']='';
             $StoryComment_row['user_picture']='';
         }
 
@@ -302,7 +308,7 @@ class StoryCommentController extends BaseController
             $StoryComment_row['likes_num']=0;
         }
         //赞的人信息
-        $sql_arr="select like_log.comment_id,like_log.user_id,like_log.create_at,s_member.username,s_member.picture_url from (select * from {{%story_comment_like_log}} where comment_id={$id} group by user_id) as like_log INNER JOIN {{%member}} on like_log.user_id=s_member.id ORDER BY like_log.create_at ASC limit 6";
+        $sql_arr="select like_log.comment_id,like_log.user_id,like_log.create_at,s_member.username,s_member.nickname,s_member.picture_url from (select * from {{%story_comment_like_log}} where comment_id={$id} group by user_id) as like_log INNER JOIN {{%member}} on like_log.user_id=s_member.id ORDER BY like_log.create_at ASC limit 6";
         $likes_arr=Yii::$app->db->createCommand($sql_arr)->queryAll();
         if($likes_arr){
             $StoryComment_row['likes_user_arr']=$likes_arr;
