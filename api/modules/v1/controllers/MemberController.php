@@ -798,7 +798,7 @@ class MemberController extends BaseController
             $user = new Member();
             $user->username = $mobile;
             $user->mobile = $mobile;
-            $user->nickname = $mobile;
+            $user->nickname =substr($mobile, 0, 3).'****'.substr($mobile, 7, 4);
             $user->picture_url=Yii::getAlias('@static').'/uploads/default/avatar.png';//头像
             //$user->setPassword($mobile);
             //$user->generateAuthKey();
