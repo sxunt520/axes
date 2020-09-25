@@ -62,7 +62,7 @@ use kartik\file\FileInput;
                 'domain_url' => Yii::getAlias('@static'),////图片域名
                 'serverUrl' => yii\helpers\Url::to(['upload_one','action'=>'uploadimage','is_thumb'=>true,'adv_width'=>720,'adv_height'=>1280]),  //上传服务器地址 is_thumb就否返回生成缩略图
             ]
-        ])->label('故事封面图(720*1280px|9:16 文件格式jpg、png 3MB以下') ?>
+        ])->label('故事封面图(720*1280px|9:16 文件格式jpg、png 500k以下') ?>
 
         <?= $form->field($model, 'record_pic')->widget('common\widgets\file_upload\FileUpload',[
             'config'=>[
@@ -70,7 +70,7 @@ use kartik\file\FileInput;
                 'domain_url' => Yii::getAlias('@static'),////图片域名
                 'serverUrl' => yii\helpers\Url::to(['upload_one','action'=>'uploadimage','is_thumb'=>true,'adv_width'=>720,'adv_height'=>430]),  //上传服务器地址 is_thumb就否返回生成缩略图
             ]
-        ])->label('旅行记录图(720*430px|5:3 文件格式jpg、png 3MB以下') ?>
+        ])->label('旅行记录图(720*430px|5:3 文件格式jpg、png 500k以下') ?>
 
         <?php // $form->field($model, 'video_url')->textInput(['maxlength' => true]) ?>
         <?php //$form->field($model, 'video_url')->widget(FileInput::classname(), ['options' => ['accept' => 'video/*'],]);?>
