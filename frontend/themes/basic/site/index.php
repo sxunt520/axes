@@ -93,6 +93,7 @@ $this->title = '旅人计划';
             sectionsColor: ['#fff', '#fff', '#fff', '#fff', '#fff'],
             'navigation': true,
             loopBottom: true,  //滚动到最底部后是否滚回顶部
+            //continuousVertical: true,//无感觉循环
             'navigationColor':'#E9292C',
             afterLoad: function(anchorLink, index){
 
