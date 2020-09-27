@@ -50,7 +50,6 @@ class Story extends \yii\db\ActiveRecord
             [['next_updated_at'], 'filter', 'filter' => 'strtotime', 'skipOnEmpty' => true],
             ['created_at', 'default', 'value' => time()],
             ['updated_at', 'default', 'value' => time()],
-            ['next_updated_at', 'default', 'value' => time()],
             ['admin_id', 'default', 'value' => Yii::$app->user->getId()],
             [['tagNames'], 'safe'],
         ];
