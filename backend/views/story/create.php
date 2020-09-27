@@ -7,7 +7,7 @@ use yii\helpers\Html;
 /* @var $model common\models\Story */
 
 $this->title = '新增游戏';
-$this->params['breadcrumbs'][] = ['label' => 'Stories', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => '游戏列表', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="story-create">

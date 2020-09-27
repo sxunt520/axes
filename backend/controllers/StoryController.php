@@ -12,6 +12,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\UploadedFile;
+use common\models\StoryRecommend;
 
 /**
  * StoryController implements the CRUD actions for Story model.
@@ -514,6 +515,9 @@ class StoryController extends Controller
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
+
+        //删除所属以下故事
+        StoryRecommend::deleteAll(['story_id'=>$id]);
 
         return $this->redirect(['index']);
     }

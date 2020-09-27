@@ -39,7 +39,13 @@ $this->params['breadcrumbs'][] = $this->title;
                         'label' => '所属游戏(游戏名称)',
                         "attribute" => "story_id",
                         "value" => function ($model) {
-                            return \common\models\Story::getStoryRows()[$model->story_id];
+                            $StoryRows=\common\models\Story::getStoryRows();
+                            if(array_key_exists($model->story_id, $StoryRows)){
+                                return $StoryRows[$model->story_id];
+                            }else{
+                                return '--游戏已删除--';
+                            }
+                            //return \common\models\Story::getStoryRows()[$model->story_id];
                         },
                         "filter" =>  \common\models\Story::getStoryRows(),
                         "headerOptions" => ["width" => "300"]
