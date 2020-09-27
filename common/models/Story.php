@@ -3,6 +3,7 @@
 namespace common\models;
 
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "{{%story}}".
@@ -41,7 +42,7 @@ class Story extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['title', 'intro','type',], 'required'],
+            [['game_title', 'intro'], 'required'],
             [['intro'], 'string'],
             [['type', 'created_at', 'updated_at', 'admin_id', 'current_chapters', 'total_chapters', 'is_show'], 'integer'],
             [['title','game_title'], 'string', 'max' => 50],
@@ -61,8 +62,8 @@ class Story extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'title' => '标题',
-            'intro' => '简介',
+            'title' => '游戏标题',
+            'intro' => '游戏简介',
             'type' => '类型',
             'cover_url' => '封面地址',
             'video_url' => '视频地址',
@@ -137,6 +138,24 @@ class Story extends \yii\db\ActiveRecord
             }
 
         }
+    }
+
+    /**
+     *Time:2020/9/27 15:02
+     *Author:始渲
+     *Remark:获取故事列表
+     * @params:
+     */
+    public static function getStoryRows()
+    {
+        // $list = Yii::$app->cache->get('categoryList');
+        //if ($list === false) {
+        $list = static::find()->select('id,game_title')->andWhere(['is_show'=>1])->asArray()->all();
+        $list = ArrayHelper::map($list, 'id', 'game_title');
+        //Yii::$app->cache->set('categoryList', $list);
+        //}
+
+        return $list;
     }
 
 

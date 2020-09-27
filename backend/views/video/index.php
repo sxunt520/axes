@@ -30,6 +30,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         "headerOptions" => ["width" => "60"],
                     ],
                     [
+                        'label' => '游戏id',
                         "attribute" => "story_id",
                         "value" => "story_id",
                         "headerOptions" => ["width" => "60"],
@@ -37,7 +38,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     'title',
                     //'video_url:url',
                     [
-                        'label' => '故事视频',
+                        'label' => '游戏视频',
                         'attribute'=>'video_url',
                         'value' => function ($model) {
                             $pic=strpos($model->video_url, 'http:') === false ? (\Yii::getAlias('@static') . $model->video_url) : $model->video_url;

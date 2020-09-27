@@ -6,7 +6,7 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model common\models\Story */
 
-$this->title = '新增故事';
+$this->title = '新增游戏';
 $this->params['breadcrumbs'][] = ['label' => 'Stories', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>

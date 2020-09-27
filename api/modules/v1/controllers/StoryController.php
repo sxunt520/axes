@@ -18,6 +18,7 @@ use api\models\StoryVideo;
 use api\models\StoryAnnounce;
 use api\models\StoryAnnounceTag;
 use api\models\TravelRecord;
+use api\models\StoryRecommend;
 
 //use yii\web\NotFoundHttpException;
 //use api\components\library\UserException;
@@ -31,48 +32,73 @@ class StoryController extends BaseController
     public $modelClass = 'api\models\Story';
 
     /**
-     * 故事首页推荐内容
+     *Time:2020/9/27 16:46
+     *Author:始渲
+     *Remark:新故事推荐
+     * @params:
      */
     public function actionHome(){
-    	//throw new NotFoundHttpException('标签不存在');
-    	//throw new UserException(['code'=>400,'message'=>'xxxxx','errorCode'=>2000]);
-    	//Yii::$app->response->statusCode = 300;
-    	//throw new \yii\web\HttpException(400, 'xxxxxxxxxxxxxxxxxxxx',4000);
-    	
-    	//     	$redis = Yii::$app->redis;
-    	//     	$key = 'username';
-    	//     	if($val = $redis->get($key)){
-    	// 			var_dump($val);exit;
-    	// 		} else {
-    	// 			$redis->set($key, 'marko');
-    	// 			$redis->expire($key, 5);
-    	// 		}
-    	
-    	$page = (int)Yii::$app->request->post('page');//当前页
-    	$pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少
-    	if ($page < 1) $page = 1;
-    	if ($pagenum < 1) $pagenum = 1;
-    	
-         $Story_rows=Story::find()
-	        ->select(['id','title','intro','type','cover_url','video_url','created_at','likes','game_title'])
-	        ->andWhere(['=', 'is_show', 1])
-	        //->andWhere(['=', 'type', 1])
-	        ->orderBy(['id' => SORT_DESC])
-	        ->offset($pagenum * ($page - 1))
-	        ->limit($pagenum)
-	        ->asArray()
-	        ->all();
-         if(!is_array($Story_rows)){
-             return parent::__response('暂无数据',0);
-         }
-         
-      //标签、评论数
-        foreach ($Story_rows as $k=>$v){
-            $comment_num=StoryComment::find()->where(['story_id' => $v['id']])->count();
-            if($comment_num>0){
-                $Story_rows[$k]['comment_num']=(int)$comment_num;
+        //throw new NotFoundHttpException('标签不存在');
+        //throw new UserException(['code'=>400,'message'=>'xxxxx','errorCode'=>2000]);
+        //Yii::$app->response->statusCode = 300;
+        //throw new \yii\web\HttpException(400, 'xxxxxxxxxxxxxxxxxxxx',4000);
+
+        //     	$redis = Yii::$app->redis;
+        //     	$key = 'username';
+        //     	if($val = $redis->get($key)){
+        // 			var_dump($val);exit;
+        // 		} else {
+        // 			$redis->set($key, 'marko');
+        // 			$redis->expire($key, 5);
+        // 		}
+
+        $page = (int)Yii::$app->request->post('page');//当前页
+        $pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少
+        if ($page < 1) $page = 1;
+        if ($pagenum < 1) $pagenum = 1;
+
+//        $StoryRecommend_rows=StoryRecommend::find()
+//            ->select(['{{%story_recommend}}.id','{{%story_recommend}}.title','{{%story_recommend}}.type','{{%story_recommend}}.cover_url','{{%story_recommend}}.video_url','{{%story_recommend}}.story_id','{{%story_recommend}}.created_at','{{%story}}.likes'])
+//            ->leftJoin('{{%story}}','{{%story_recommend}}.story_id={{%story}}.id')
+//            ->andWhere(['=', '{{%story_recommend}}.is_show', 1])
+//            ->orderBy($order_by_arr)
+//            ->offset($pagenum * ($page - 1))
+//            ->limit($pagenum)
+//            ->asArray()
+//            ->all();
+
+        //'likes','game_title'
+        $StoryRecommend_rows=StoryRecommend::find()
+            ->select(['id','title','type','cover_url','video_url','story_id','created_at'])
+            ->andWhere(['=', 'is_show', 1])
+            //->andWhere(['=', 'type', 1])
+            ->orderBy(['id' => SORT_DESC])
+            ->offset($pagenum * ($page - 1))
+            ->limit($pagenum)
+            ->asArray()
+            ->all();
+        if(!is_array($StoryRecommend_rows)){
+            return parent::__response('暂无数据',0);
+        }
+
+        //操作其它
+        foreach ($StoryRecommend_rows as $k=>$v){
+            //游戏点赞数、游戏标题
+            $Story_rows=Story::find()->select(['likes','game_title'])->where(['id' => $v['story_id']])->asArray()->one();
+            if($Story_rows){
+                $StoryRecommend_rows[$k]['likes']=$Story_rows['likes'];
+                $StoryRecommend_rows[$k]['game_title']=$Story_rows['game_title'];
             }else{
-                $Story_rows[$k]['comment_num']=0;
+                $StoryRecommend_rows[$k]['likes']=0;
+                $StoryRecommend_rows[$k]['game_title']=0;
+            }
+
+            //评论数
+            $comment_num=StoryComment::find()->where(['story_id' => $v['story_id']])->count();
+            if($comment_num>0){
+                $StoryRecommend_rows[$k]['comment_num']=(int)$comment_num;
+            }else{
+                $StoryRecommend_rows[$k]['comment_num']=0;
             }
 
             //如果登录判断是否点赞
@@ -80,24 +106,94 @@ class StoryController extends BaseController
                 $user_id = (int)Yii::$app->user->getId();//登录用户id
                 //echo $v['id'].'---'.$user_id.'------'.ip2long(Yii::$app->request->getUserIP());exit;
                 //$like_r=StoryLikeLog::find()->where(['story_id' => $v['id'],'user_id' => $user_id,'ip'=>ip2long(Yii::$app->request->getUserIP())])->orderBy(['create_at' => SORT_DESC])->one();
-                $like_r=StoryLikeLog::find()->where(['story_id' => $v['id'],'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
+                $like_r=StoryLikeLog::find()->where(['story_id' => $v['story_id'],'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
                 if ($like_r && time()-($like_r->create_at) < Yii::$app->params['user.liketime']){
-                    $Story_rows[$k]['is_like']=1;
+                    $StoryRecommend_rows[$k]['is_like']=1;
                 }else{
-                    $Story_rows[$k]['is_like']=0;
+                    $StoryRecommend_rows[$k]['is_like']=0;
                 }
             }else{
-                $Story_rows[$k]['is_like']=0;
+                $StoryRecommend_rows[$k]['is_like']=0;
             }
 
-            $StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $v['id']])->asArray()->all();
-            if($StoryTag_rows) $Story_rows[$k]['tags']=$StoryTag_rows;
+            //标签
+            $StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $v['story_id']])->asArray()->all();
+            if($StoryTag_rows) $StoryRecommend_rows[$k]['tags']=$StoryTag_rows;
 
         }
 
-        return parent::__response('ok',0,$Story_rows);
-        
+        return parent::__response('ok',0,$StoryRecommend_rows);
+
     }
+
+    /**
+     * 故事首页推荐内容
+     */
+//    public function actionHome(){
+//    	//throw new NotFoundHttpException('标签不存在');
+//    	//throw new UserException(['code'=>400,'message'=>'xxxxx','errorCode'=>2000]);
+//    	//Yii::$app->response->statusCode = 300;
+//    	//throw new \yii\web\HttpException(400, 'xxxxxxxxxxxxxxxxxxxx',4000);
+//
+//    	//     	$redis = Yii::$app->redis;
+//    	//     	$key = 'username';
+//    	//     	if($val = $redis->get($key)){
+//    	// 			var_dump($val);exit;
+//    	// 		} else {
+//    	// 			$redis->set($key, 'marko');
+//        // 			$redis->expire($key, 5);
+//        // 		}
+//
+//        $page = (int)Yii::$app->request->post('page');//当前页
+//        $pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少
+//        if ($page < 1) $page = 1;
+//        if ($pagenum < 1) $pagenum = 1;
+//
+//        $Story_rows=Story::find()
+//            ->select(['id','title','intro','type','cover_url','video_url','created_at','likes','game_title'])
+//            ->andWhere(['=', 'is_show', 1])
+//            //->andWhere(['=', 'type', 1])
+//            ->orderBy(['id' => SORT_DESC])
+//            ->offset($pagenum * ($page - 1))
+//            ->limit($pagenum)
+//            ->asArray()
+//            ->all();
+//        if(!is_array($Story_rows)){
+//            return parent::__response('暂无数据',0);
+//        }
+//
+//      //标签、评论数
+//        foreach ($Story_rows as $k=>$v){
+//            $comment_num=StoryComment::find()->where(['story_id' => $v['id']])->count();
+//            if($comment_num>0){
+//                $Story_rows[$k]['comment_num']=(int)$comment_num;
+//            }else{
+//                $Story_rows[$k]['comment_num']=0;
+//            }
+//
+//            //如果登录判断是否点赞
+//            if(!empty($this->Token)){
+//                $user_id = (int)Yii::$app->user->getId();//登录用户id
+//                //echo $v['id'].'---'.$user_id.'------'.ip2long(Yii::$app->request->getUserIP());exit;
+//                //$like_r=StoryLikeLog::find()->where(['story_id' => $v['id'],'user_id' => $user_id,'ip'=>ip2long(Yii::$app->request->getUserIP())])->orderBy(['create_at' => SORT_DESC])->one();
+//                $like_r=StoryLikeLog::find()->where(['story_id' => $v['id'],'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
+//                if ($like_r && time()-($like_r->create_at) < Yii::$app->params['user.liketime']){
+//                    $Story_rows[$k]['is_like']=1;
+//                }else{
+//                    $Story_rows[$k]['is_like']=0;
+//                }
+//            }else{
+//                $Story_rows[$k]['is_like']=0;
+//            }
+//
+//            $StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $v['id']])->asArray()->all();
+//            if($StoryTag_rows) $Story_rows[$k]['tags']=$StoryTag_rows;
+//
+//        }
+//
+//        return parent::__response('ok',0,$Story_rows);
+//
+//    }
 
     /**
  * 故事详情页内容

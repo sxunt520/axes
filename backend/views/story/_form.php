@@ -10,9 +10,9 @@ use kartik\file\FileInput;
 ?>
 <div class="nav-tabs-custom">
     <ul class="nav nav-tabs">
-        <li class="<?php echo $flag==0?'active':'';?>"><a href="#tab_1" data-toggle="tab" aria-expanded="<?php echo $flag==0?'true':'false';?>">故事内容</a></li>
-        <li class=""><a href="#tab_2" data-toggle="tab" aria-expanded="false">游戏内容</a></li>
-        <?php if($id0!=''&&$model2!=''){?><li class="<?php echo $flag==1?'active':'';?>"><a href="#tab_3" data-toggle="tab" aria-expanded="<?php echo $flag==1?'true':'false';?>">故事轮播图</a></li><?php }?>
+        <li class="<?php echo $flag==0?'active':'';?>"><a href="#tab_1" data-toggle="tab" aria-expanded="<?php echo $flag==0?'true':'false';?>">游戏内容</a></li>
+        <li class=""><a href="#tab_2" data-toggle="tab" aria-expanded="false">游戏其它</a></li>
+        <?php if($id0!=''&&$model2!=''){?><li class="<?php echo $flag==1?'active':'';?>"><a href="#tab_3" data-toggle="tab" aria-expanded="<?php echo $flag==1?'true':'false';?>">游戏轮播图</a></li><?php }?>
         <?php if($id0!=''&&$model2_x!=''){?><li class="<?php echo $flag==1?'active':'';?>"><a href="#tab_4" data-toggle="tab" aria-expanded="<?php echo $flag==1?'true':'false';?>">评论组图</a></li><?php }?>
         <?php if($id0!=''&&$model2_x!=''){?><li class="<?php echo $flag==1?'active':'';?>"><a href="#tab_5" data-toggle="tab" aria-expanded="<?php echo $flag==1?'true':'false';?>">游戏宣传视频</a></li><?php }?>
     </ul>
@@ -20,11 +20,11 @@ use kartik\file\FileInput;
         'options' => ['class' => 'tab-content','enctype'=>'multipart/form-data']
     ]); ?>
     <div class="tab-pane <?php echo $flag==0?'active':'';?>" id="tab_1">
-        <?= $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
+        <?= $form->field($model, 'game_title')->textInput(['maxlength' => true]) ?>
 
         <?= $form->field($model, 'intro')->textarea(['rows' => 6]) ?>
 
-        <?= $form->field($model, 'type')->dropDownList(['1'=>'图片','2'=>'视频'], ['prompt'=>'未选择','style'=>'width:120px']) ?>
+        <?php // $form->field($model, 'type')->dropDownList(['1'=>'图片','2'=>'视频'], ['prompt'=>'未选择','style'=>'width:120px']) ?>
 
         <?php // $form->field($model, 'cover_url')->widget('yidashi\webuploader\Cropper',['options'=>['boxId' => 'picker', 'previewWidth'=>720, 'previewHeight'=>'auto']]) ?>
         <?php //$form->field($model, 'record_pic')->widget('yidashi\webuploader\Cropper2',['options'=>['boxId' => 'picker2', 'previewWidth'=>800, 'previewHeight'=>'auto']]) ?>
@@ -56,13 +56,15 @@ use kartik\file\FileInput;
 
         ?>
 
-        <?= $form->field($model, 'cover_url')->widget('common\widgets\file_upload\FileUpload',[
-            'config'=>[
-                //图片上传的一些配置，不写调用默认配置
-                'domain_url' => Yii::getAlias('@static'),////图片域名
-                'serverUrl' => yii\helpers\Url::to(['upload_one','action'=>'uploadimage','is_thumb'=>true,'adv_width'=>720,'adv_height'=>1280]),  //上传服务器地址 is_thumb就否返回生成缩略图
-            ]
-        ])->label('故事封面图(720*1280px|9:16 文件格式jpg、png 500k以下') ?>
+        <?php
+        // $form->field($model, 'cover_url')->widget('common\widgets\file_upload\FileUpload',[
+        //     'config'=>[
+        //         //图片上传的一些配置，不写调用默认配置
+        //         'domain_url' => Yii::getAlias('@static'),////图片域名
+        //         'serverUrl' => yii\helpers\Url::to(['upload_one','action'=>'uploadimage','is_thumb'=>true,'adv_width'=>720,'adv_height'=>1280]),  //上传服务器地址 is_thumb就否返回生成缩略图
+        //     ]
+        // ])->label('故事封面图(720*1280px|9:16 文件格式jpg、png 500k以下') 
+        ?>
 
         <?= $form->field($model, 'record_pic')->widget('common\widgets\file_upload\FileUpload',[
             'config'=>[
@@ -75,46 +77,49 @@ use kartik\file\FileInput;
         <?php // $form->field($model, 'video_url')->textInput(['maxlength' => true]) ?>
         <?php //$form->field($model, 'video_url')->widget(FileInput::classname(), ['options' => ['accept' => 'video/*'],]);?>
 
-        <?= $form->field($model,'video_url')->textInput()->hiddenInput(['value'=>$model->video_url])->label(false);?>
+
+
+        <?php // $form->field($model,'video_url')->textInput()->hiddenInput(['value'=>$model->video_url])->label(false);?>
         <?php
-            if($model->video_url){
-                $video=strpos($model->video_url, 'http:') === false ? (\Yii::getAlias('@static') . $model->video_url) : $model->video_url;
-                $video_url='<video width="300" height="auto" controls="controls"><source src="'.$video.'" type="video/mp4"></video>';
-                }else{
-                    $video_url=null;
-            }
-        echo $form->field($model,'_video_url')->label('故事封面视频')->widget(FileInput::classname(), [
-            'options' => ['accept' => 'video/*'],
-            'pluginOptions' => [
-                // 需要预览的文件格式
-                'previewFileType' => 'video',
-                // 预览的文件
-                'initialPreview' => [$video_url],
-                // 异步上传的接口地址设置
-                'uploadUrl' => \yii\helpers\Url::toRoute(['async-video']),
-                'uploadAsync' => true,
-                // 最少上传的文件个数限制
-                'minFileCount' => 1,
-                // 最多上传的文件个数限制
-                'maxFileCount' => 1,
-            ],
-            // 一些事件行为
-            'pluginEvents' => [
-                // 上传成功后的回调方法，需要的可查看data后再做具体操作，一般不需要设置
-                "fileuploaded" => "function (event, data, id, index) {
-                        console.log(data.response.initialPreview[0]);
-                        //console.log($('input[Story][video_url]'));
-                        $(\"input[name='Story[video_url]']\").val(data.response.video_url)
-                    }",
-            ],
-        ]);?>
+        //     if($model->video_url){
+        //         $video=strpos($model->video_url, 'http:') === false ? (\Yii::getAlias('@static') . $model->video_url) : $model->video_url;
+        //         $video_url='<video width="300" height="auto" controls="controls"><source src="'.$video.'" type="video/mp4"></video>';
+        //         }else{
+        //             $video_url=null;
+        //     }
+        // echo $form->field($model,'_video_url')->label('故事封面视频')->widget(FileInput::classname(), [
+        //     'options' => ['accept' => 'video/*'],
+        //     'pluginOptions' => [
+        //         // 需要预览的文件格式
+        //         'previewFileType' => 'video',
+        //         // 预览的文件
+        //         'initialPreview' => [$video_url],
+        //         // 异步上传的接口地址设置
+        //         'uploadUrl' => \yii\helpers\Url::toRoute(['async-video']),
+        //         'uploadAsync' => true,
+        //         // 最少上传的文件个数限制
+        //         'minFileCount' => 1,
+        //         // 最多上传的文件个数限制
+        //         'maxFileCount' => 1,
+        //     ],
+        //     // 一些事件行为
+        //     'pluginEvents' => [
+        //         // 上传成功后的回调方法，需要的可查看data后再做具体操作，一般不需要设置
+        //         "fileuploaded" => "function (event, data, id, index) {
+        //                 console.log(data.response.initialPreview[0]);
+        //                 //console.log($('input[Story][video_url]'));
+        //                 $(\"input[name='Story[video_url]']\").val(data.response.video_url)
+        //             }",
+        //     ],
+        // ]);
+        ?>
 
         <?= $form->field($model, 'is_show')->dropDownList([0=>'否',1=>'是'], ['prompt'=>'未选择','style'=>'width:120px']) ?>
 
     </div>
     <div class="tab-pane" id="tab_2">
         <?php // $form->field($model, 'other')->widget('kucha\ueditor\UEditor', ['options' => ['style' => 'height:200px']]) ?>
-        <?= $form->field($model, 'game_title')->textInput(['maxlength' => true]) ?>
+        <?php // $form->field($model, 'game_title')->textInput(['maxlength' => true]) ?>
         <?= $form->field($model, 'current_chapters')->textInput() ?>
         <?= $form->field($model, 'total_chapters')->textInput() ?>
         <?= $form->field($model, 'next_updated_at')->widget(
@@ -129,7 +134,7 @@ use kartik\file\FileInput;
     </div>
     <?php if($id0!=''&&$model2!=''){?>
         <div class="tab-pane <?php echo $flag==1?'active':'';?>" id="tab_3">
-            <?= $form->field($model2, 'img_url')->label('故事轮播图<span style="color: #DD4B39;">1080*720px | 3:2 大小不超过500k</span>')->widget(FileInput::classname(), [
+            <?= $form->field($model2, 'img_url')->label('游戏轮播图<span style="color: #DD4B39;">1080*720px | 3:2 大小不超过500k</span>')->widget(FileInput::classname(), [
                 'options' => ['multiple' => true,'accept' => 'image/*'],
                 //'template' => '<img src="{image}" class="file-preview-image" style="width:auto;height:160px;">',
                 'pluginOptions' => [
