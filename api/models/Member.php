@@ -43,6 +43,7 @@ class Member extends \common\models\Member
             [['username', 'password_hash', 'password_reset_token', 'email', 'access-token', 'api_token','picture_url','signature'], 'string', 'max' => 255],
             [['nickname'], 'string', 'max' => 50],
             [['auth_key'], 'string', 'max' => 32],
+            [['real_name','real_idCard'], 'string', 'max' => 30],
         ];
     }
     
@@ -71,6 +72,14 @@ class Member extends \common\models\Member
             'allowance' => 'Allowance',
             'allowance_updated_at' => 'Allowance Updated At',
             'api_token' => 'Api Token',
+            'mobile'=>'mobile',
+            'picture_url'=>'picture_url',
+            'nickname'=>'nickname',
+            'signature'=>'signature',
+            'real_name_status'=>'real_name_status',
+            'real_name'=>'real_name',
+            'real_idCard'=>'real_idCard',
+
         ];
     }
     

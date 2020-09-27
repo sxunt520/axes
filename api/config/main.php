@@ -69,6 +69,7 @@ return [
                             'POST members' => 'member/upload-photo',
                             'POST members' => 'member/my-reply-list',
                             'POST members' => 'member/my-reply-details',
+                            'POST members' => 'member/real-authentication',
                             'POST storys' => 'story/home',
                             'POST storys' => 'story/like',
                             'POST storys' => 'story/get-likes',

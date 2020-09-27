@@ -1031,6 +1031,83 @@ class MemberController extends BaseController
     }
 
 
+    /**
+     *Time:2020/9/27 11:07
+     *Author:始渲
+     *Remark: 实名认证
+     * @params:
+     * real_name string 实名认证名字
+     * real_idCard string 实名认证身份证号
+     */
+    public function actionRealAuthentication()
+    {
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+        $user_id = (int)Yii::$app->user->getId();//已登录的用户，Token判断
+        if(!isset($user_id)) {
+            return parent::__response('请先登录!', (int)-1);
+        }
+
+        if(!Yii::$app->request->post('real_name')||!Yii::$app->request->post('real_idCard')){
+            return parent::__response('参数错误',(int)-2);
+        }
+        $real_name =Yii::$app->request->post('real_name');
+        $real_idCard =Yii::$app->request->post('real_idCard');
+
+
+        //////调第三方接口去认证////
+        $date=date("YmdHis");
+        $str='8cb9abb13a9464c90e8b0261c0c2ea18'.'fce731e789fb812a0458b152cfcbb25f'.$date;
+        $sigParameter=sha1($str,false);
+
+        $str2='8cb9abb13a9464c90e8b0261c0c2ea18'.':'.$date;
+        $Authorization=base64_encode($str2);
+
+        $url='https://www.139130.com/ytx-api/v1.0.0/n-meta/verify/2meta?sig='.$sigParameter;
+
+        $data_arr=['uuid'=>uniqid(),'metas'=>[['name'=>$real_name,'idCard'=>$real_idCard]]];
+        $data  = json_encode($data_arr);
+        //$data='{"uuid": "'.uniqid().'","metas": [{"name": "文建波","idCard": "510524199210025476"}]}';
+
+        $headerArray =array("Content-type:application/json;charset='utf-8'","Accept:application/json",'Authorization:'.$Authorization);
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST,FALSE);
+        curl_setopt($curl, CURLOPT_POST, 1);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($curl,CURLOPT_HTTPHEADER,$headerArray);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        $output = curl_exec($curl);
+        curl_close($curl);
+        $output_arr=json_decode($output,true);
+
+        if($output_arr['code']==0){
+                if($output_arr['metas'][0]['resultCode']==200){
+                    $member_model = Member::findOne($user_id);
+                    $member_model->real_name_status=1;
+                    $member_model->real_name=$real_name;
+                    $member_model->real_idCard=$real_idCard;
+                    $r=$member_model->save(false);
+                    if ($r){
+                        return parent::__response('认证成功',0);
+                    }else{
+                        return parent::__response('认证失败',-1);
+                    }
+                }elseif($output_arr['metas'][0]['resultCode']==201){
+                    return parent::__response('认证失败,信息不匹配',-1);
+                }elseif($output_arr['metas'][0]['resultCode']==202){
+                    return parent::__response('认证失败,查无此身份证',-1);
+                }else{
+                    return parent::__response('认证失败',-1);
+                }
+        }else{
+            return parent::__response('认证失败',-1);
+        }
+
+    }
+
 	/**
 	 * test
      * UploadForm[imageFile]
