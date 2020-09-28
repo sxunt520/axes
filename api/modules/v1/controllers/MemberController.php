@@ -1055,13 +1055,19 @@ class MemberController extends BaseController
         $real_name =Yii::$app->request->post('real_name');
         $real_idCard =Yii::$app->request->post('real_idCard');
 
+        //先看是否已经实名认证过了
+        $member_model = Member::findOne($user_id);
+        if($member_model->real_name_status==1){
+            return parent::__response('已经认证过了，不能重复认证!', (int)-1);
+        }
+
 
         //////调第三方接口去认证////
         $date=date("YmdHis");
-        $str='8cb9abb13a9464c90e8b0261c0c2ea18'.'fce731e789fb812a0458b152cfcbb25f'.$date;
+        $str=Yii::$app->params['ytx_139130']['Account_sid'].Yii::$app->params['ytx_139130']['Auth_token'].$date;
         $sigParameter=sha1($str,false);
 
-        $str2='8cb9abb13a9464c90e8b0261c0c2ea18'.':'.$date;
+        $str2=Yii::$app->params['ytx_139130']['Account_sid'].':'.$date;
         $Authorization=base64_encode($str2);
 
         $url='https://www.139130.com/ytx-api/v1.0.0/n-meta/verify/2meta?sig='.$sigParameter;
@@ -1085,7 +1091,6 @@ class MemberController extends BaseController
 
         if($output_arr['code']==0){
                 if($output_arr['metas'][0]['resultCode']==200){
-                    $member_model = Member::findOne($user_id);
                     $member_model->real_name_status=1;
                     $member_model->real_name=$real_name;
                     $member_model->real_idCard=$real_idCard;

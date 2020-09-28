@@ -18,7 +18,7 @@ $this->title = '控制面板';
                     <div class="icon">
                         <i class="ion ion-document"></i>
                     </div>
-                    <a href="/admin/story/index" class="small-box-footer">更多信息 <i class="fa fa-arrow-circle-right"></i></a>
+                    <a href="/admin/story-recommend/index" class="small-box-footer">更多信息 <i class="fa fa-arrow-circle-right"></i></a>
                 </div>
             </div><!-- ./col -->
             <div class="col-lg-3 col-xs-6">

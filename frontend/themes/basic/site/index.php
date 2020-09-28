@@ -108,20 +108,20 @@ $this->title = '旅人计划';
                     $(".can_u_speak_chinese img").animate({
                         width: "100%",
                         height: "100%",
-                    }, 500 ).animate({
+                    }, 400 ).animate({
                         width: "90%",
                         height: "90%",
-                    }, 500 );
+                    }, 400 );
 
-                    setTimeout(function(){
+                    //setTimeout(function(){
                         $(".can_u_speak_japanese img").animate({
                             width: "100%",
                             height: "100%",
-                        }, 500 ).animate({
+                        }, 400 ).animate({
                             width: "90%",
                             height: "90%",
-                        }, 500 );
-                    }, 1000);
+                        }, 400 );
+                    //}, 1000);
 
                 }
                 if(index == 3){
