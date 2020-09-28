@@ -244,7 +244,7 @@ class StoryCommentController extends BaseController
         StoryComment::addView($id);//缓存添加操作
         $StoryComment_row['views']=$StoryComment_row['views']+\Yii::$app->cache->get('story_comment:views:' . $id);//获取真实的浏览量 StoryComment::getTrueViews($id);
 
-        $member_arr=Member::find()->select(['nickname','picture_url'])->where(['id' => $StoryComment_row['from_uid']])->asArray()->one();
+        $member_arr=Member::find()->select(['nickname','username','picture_url'])->where(['id' => $StoryComment_row['from_uid']])->asArray()->one();
         if($member_arr){
             $StoryComment_row['user_name']=$member_arr['username'];
             $StoryComment_row['nickname']=$member_arr['nickname'];
