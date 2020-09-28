@@ -21,7 +21,8 @@ class ThemeBehavior extends ActionFilter
             'baseUrl' => '@web/themes/basic',
             'pathMap' => [
                 '@frontend/views' => [
-                    '@frontend/themes/'.($isMobile ? 'mobile' : $themeName),
+                    //'@frontend/themes/'.($isMobile ? 'mobile' : $themeName),
+                    '@frontend/themes/'.($isMobile ? 'basic' : $themeName),
                     '@frontend/themes/basic',
                 ],
             ],
