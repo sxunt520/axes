@@ -12,8 +12,8 @@ $this->title = '控制面板';
                 <!-- small box -->
                 <div class="small-box bg-green">
                     <div class="inner">
-                        <h3><?=\common\models\Story::find()->count()?><sup style="font-size: 20px">篇</sup></h3>
-                        <p>当前内容(故事)</p>
+                        <h3><?=\common\models\StoryRecommend::find()->count()?><sup style="font-size: 20px">个</sup></h3>
+                        <p>当前故事数</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-document"></i>
