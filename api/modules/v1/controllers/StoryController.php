@@ -296,12 +296,12 @@ class StoryController extends BaseController
         }
 
         ///////////宣传视频组video_rows
-        $StoryVideo_rows=StoryVideo::find()->select(['id','video_url','video_cover','title'])->where(['story_id' => $id])->limit(1)->asArray()->all();
+        $StoryVideo_rows=StoryVideo::find()->select(['id','video_url','video_cover','title'])->where(['story_id' => $id])->limit(1)->asArray()->one();
         $data['video_num']=(int)StoryVideo::find()->where(['story_id'=>$id])->count();
         if(is_array($StoryVideo_rows)){
-            $data['video_list']=$StoryVideo_rows;
+            $data['video_one']=$StoryVideo_rows;
         }else{
-            $data['video_list']=[];
+            $data['video_one']='';
         }
 
         ///////////最热评论处 story_comment_lists***********************
