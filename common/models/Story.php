@@ -42,7 +42,7 @@ class Story extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['game_title', 'intro'], 'required'],
+            [['game_title', 'intro','is_show'], 'required'],
             [['intro'], 'string'],
             [['type', 'created_at', 'updated_at', 'admin_id', 'current_chapters', 'total_chapters', 'is_show'], 'integer'],
             [['title','game_title'], 'string', 'max' => 50],
@@ -50,6 +50,7 @@ class Story extends \yii\db\ActiveRecord
             [['next_updated_at'], 'filter', 'filter' => 'strtotime', 'skipOnEmpty' => true],
             ['created_at', 'default', 'value' => time()],
             ['updated_at', 'default', 'value' => time()],
+            ['is_show', 'default', 'value' => 0],
             ['admin_id', 'default', 'value' => Yii::$app->user->getId()],
             [['tagNames'], 'safe'],
         ];

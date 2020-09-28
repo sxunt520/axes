@@ -2,6 +2,7 @@
 
 namespace backend\controllers;
 
+use common\models\StoryComment;
 use common\models\StoryImg;
 use common\models\StoryCommentImg;
 use common\models\StoryVideo;
@@ -516,8 +517,16 @@ class StoryController extends Controller
     {
         $this->findModel($id)->delete();
 
-        //删除所属以下故事
+        //删除所属以下推荐故事
         StoryRecommend::deleteAll(['story_id'=>$id]);
+        //删除所属以下评论
+        StoryComment::deleteAll(['story_id'=>$id]);
+        //删除所属以下评论图片
+        StoryCommentImg::deleteAll(['story_id'=>$id]);
+        //删除所属以下多图图片
+        StoryImg::deleteAll(['story_id'=>$id]);
+        //删除所属以下视频
+        StoryVideo::deleteAll(['story_id'=>$id]);
 
         return $this->redirect(['index']);
     }

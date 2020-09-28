@@ -296,7 +296,8 @@ class StoryController extends BaseController
         }
 
         ///////////宣传视频组video_rows
-        $StoryVideo_rows=StoryVideo::find()->select(['id','video_url','video_cover','title'])->where(['story_id' => $id])->asArray()->all();
+        $StoryVideo_rows=StoryVideo::find()->select(['id','video_url','video_cover','title'])->where(['story_id' => $id])->limit(1)->asArray()->all();
+        $data['video_num']=(int)StoryVideo::find()->where(['story_id'=>$id])->count();
         if(is_array($StoryVideo_rows)){
             $data['video_list']=$StoryVideo_rows;
         }else{
@@ -312,6 +313,7 @@ class StoryController extends BaseController
             ->limit(5)
             ->asArray()
             ->all();
+        $data['story_comment_num']=(int)StoryComment::find()->andWhere(['=', 'story_id', $id])->andWhere(['=', 'is_show', 1])->count();
         if($StoryComment_rows){
             //评论图片
             foreach ($StoryComment_rows as $k=>$v){
