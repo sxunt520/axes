@@ -5,13 +5,13 @@
     position: fixed;
     z-index: 1000;
     top: 57%;
-    right: 4px;
+    right: 24px;
     width: 62px;
     height: 59px;
 }
 #down_float_r a{ width: 62px; height: 59px; overflow: hidden;background:url(/images/app_down.png) no-repeat; display: inline-block;}
 #down_float_r a:hover{ cursor: pointer;}
-#down_float_r .float_qrcode{ width: 200px; height: 420px; overflow: hidden; position: absolute; left: -202px; top: -180px; display: none;}
+#down_float_r .float_qrcode{ width: 103px; height: 110px; overflow: hidden; position: absolute; right: 5px; top: 60px; display: none;}
 
 .header {
 	position:fixed;

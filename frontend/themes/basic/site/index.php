@@ -83,7 +83,7 @@ $this->title = '旅人计划';
 
 </div>
 
-<div id="down_float_r" style="display: none;"><a href="javascript:void(0);"></a><div class="float_qrcode"><img src="/images/down_float.png" width="200" height="420"></div></div>
+<div id="down_float_r" style="display: none;"><a href="javascript:void(0);"></a><div class="float_qrcode"><img src="/images/down_float.png" width="103" height="110"></div></div>
 
 <footer class="footer" id="footer" style=" display:none;"></footer>
 
