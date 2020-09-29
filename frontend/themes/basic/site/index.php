@@ -85,8 +85,8 @@ $this->title = '旅人计划';
 
 <div id="down_float_r" style="display: none;"><a href="javascript:void(0);"></a><div class="float_qrcode"><img src="/images/down_float.png" width="103" height="110"></div></div>
 
-<footer class="footer" id="footer" style=" display:none;"><span><a href="http://www.beian.miit.gov.cn/" target="_blank"> © 2020 www.233i.com All rights reserved 蜀ICP备18015972号 川网文（2018）9245-339号
-</a></span></footer>
+<footer class="footer" id="footer" style=" display:none;"><span> © 2020 www.233i.com All rights reserved 蜀ICP备<a href="http://www.beian.miit.gov.cn/" target="_blank">18015972</a>号 川网文（2018）9245-339号
+</span></footer>
 
 <script>
     $(function(){
