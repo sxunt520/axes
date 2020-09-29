@@ -14,6 +14,6 @@ if (YII_ENV=='dev') {
 //	Yii::setAlias('api_host', 'http://192.168.0.149:188');
 //    Yii::setAlias('static', 'http://192.168.0.149:188');
 } else {
-	Yii::setAlias('api_host', 'http://81.71.11.205');
-    Yii::setAlias('static', 'http://81.71.11.205');
+	Yii::setAlias('api_host', 'http://81.71.11.205:8000');
+    Yii::setAlias('static', 'http://81.71.11.205:8000');
 }
