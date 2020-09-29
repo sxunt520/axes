@@ -70,6 +70,8 @@ return [
                             'POST members' => 'member/my-reply-list',
                             'POST members' => 'member/my-reply-details',
                             'POST members' => 'member/real-authentication',
+                            'POST members' => 'member/third-bind-mobile',
+                            'POST members' => 'member/mobile-bind-third',
                             'POST storys' => 'story/home',
                             'POST storys' => 'story/like',
                             'POST storys' => 'story/get-likes',

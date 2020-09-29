@@ -696,7 +696,7 @@ class MemberController extends BaseController
 
     /**
      *
-     * 登录发送验证码
+     * 登录、绑定手机发送验证码
      * mobile string
      */
    public function actionSendSms(){
@@ -707,13 +707,28 @@ class MemberController extends BaseController
            return parent::__response('手机号不能为空',(int)-2);
        }
        $mobile =Yii::$app->request->post('mobile')+0;
-       $code=rand(100000,999999);
+       $send_type =(int)Yii::$app->request->post('send_type');//发送类型 1登录验证码 2绑定手机 3通知
+        if(!$send_type){
+            $send_type=1;
+        }
+        if(!in_array($send_type,[1,2,3])){
+            return parent::__response('参数错误，不支持此发送类型',(int)-2);
+        }
 
        if (!preg_match("/^[1][358][0-9]{9}$/", $mobile)) {
            return parent::__response('手机号格式错误，请重新输入！',(int)-2);
        }
+
+       if($send_type==2){//如果要绑定手机发短信
+           //查看此手机是否有绑定过
+           $mobile_model=Member::find()->andWhere(['mobile'=>$mobile])->one();
+           if($mobile_model){
+               return parent::__response('操作失败！此手机已经绑定过了',(int)-1);
+           }
+       }
+
        //查看最后一次发短信的时间，限制一个手机发短信的时间频率
-       $last_send_time=SmsLog::find()->select(['created_at'])->where(['mobile'=>$mobile])->orderBy(['id'=>SORT_DESC])->scalar();
+       $last_send_time=SmsLog::find()->select(['created_at'])->andWhere(['mobile'=>$mobile])->andWhere(['send_type'=>$send_type])->orderBy(['id'=>SORT_DESC])->scalar();
        if($last_send_time){
            if((time()-$last_send_time)<Yii::$app->params['sendsms_code_time']*60){
                return parent::__response('短信已发出，请稍后在试!',(int)-1);
@@ -724,6 +739,7 @@ class MemberController extends BaseController
        //发短信接口操作
        $send_flag=true;
        $SendSms_model=new SendSms;
+       $code=rand(100000,999999);
        $response = $SendSms_model->sendSms($mobile,$code);
        if($response->Code!='OK'){
            return parent::__response('发送失败',(int)-1,['send_Message'=>$response->Message,'send_Code'=>$response->Code,'RequestId'=>$response->RequestId]);
@@ -734,7 +750,7 @@ class MemberController extends BaseController
            $sms_model->mobile=$mobile;
            $sms_model->code=$code;
            $sms_model->status=1;//发送成功
-           $sms_model->send_type=1;//发送类别验证码
+           $sms_model->send_type=$send_type;//发送类别验证码
            $sms_model->created_at=time();
 
            //验证保存
@@ -926,6 +942,7 @@ class MemberController extends BaseController
                     'signature'=>!empty($user->signature)?$user->signature:'',
                     'real_name_status'=>!empty($user->real_name_status)?$user->real_name_status:0,
                     'mobile'=>!empty($user->mobile)?$user->mobile:'',
+                    'third_type'=>$third_type,
                     //'api_token'=>!empty($user->api_token)?$user->api_token:'',
                 ];
                 return parent::__response('登录成功',0,['user_profile'=>$user_profile,'api_token'=>$user->api_token]);//Token在里面
@@ -934,6 +951,142 @@ class MemberController extends BaseController
             }
         } else {
             return $ThirdLoginForm_model->errors;
+        }
+
+    }
+
+    /**
+     *Time:2020/9/29 14:30
+     *Author:始渲
+     *Remark:第三方登录后绑定手机 需要登录状态下
+     * @params:
+     * mobile 手机号
+     * code 验证码
+     * third_type 1微信 2 QQ 3微博
+     */
+    public function actionThirdBindMobile(){
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+        if(!Yii::$app->request->post('mobile')||!Yii::$app->request->post('code')||!Yii::$app->request->post('third_type')){
+            return parent::__response('参数错误',(int)-2);
+        }
+        $user_id = (int)Yii::$app->user->getId();//已登录的用户，Token判断
+        if(!isset($user_id)) {
+            return parent::__response('请先登录在绑定!', (int)-1);
+        }
+
+        $mobile =Yii::$app->request->post('mobile')+0;
+        $code =(int)Yii::$app->request->post('code');
+        $third_type =(int)Yii::$app->request->post('third_type');
+
+        if (!preg_match("/^[1][358][0-9]{9}$/", $mobile)) {
+            return parent::__response('手机号格式错误，请重新输入！',(int)-2);
+        }
+
+        if(!in_array($third_type,[1,2,3])){//1微信 2 QQ 3微博
+            return parent::__response('参数错误，不支持此绑定类型',(int)-2);
+        }
+
+        //先去看库里有没有此手机发的短信，且短信验证码没有过期
+        $sms_model=SmsLog::find()->andWhere(['mobile'=>$mobile,'status'=>1,'send_type'=>2])->orderBy(['id'=>SORT_DESC])->one();
+        if(!$sms_model){
+            return parent::__response('手机号无效,请重新发送短信验证!',(int)-1);
+        }
+
+        //如果不是特例的验证码就要验证下
+        //if($code!=123456){
+            if($sms_model->code!=$code){
+                return parent::__response('验证码错误!',(int)-1);
+            }
+            if((time()-$sms_model->created_at)>Yii::$app->params['sendsms_code_time']*60){//检验验证码是否过期
+                return parent::__response('验证码已过期,请重新发送短信验证!',(int)-2);
+            }
+        //}
+
+        //查看此手机是否有绑定过
+        $mobile_model=Member::find()->andWhere(['mobile'=>$mobile])->one();
+        if($mobile_model){
+            return parent::__response('操作失败！此手机已经绑定过了',(int)-1);
+        }
+
+        //查看用户是否有注册在用户表
+        $member_model=Member::findOne($user_id);
+        if(!$member_model){
+            return parent::__response('登录用户不存在',(int)-1);
+        }
+        //查看第三方登录表是否有记录
+        $MemberAuths_model=MemberAuths::find()->andWhere(['user_id'=>$user_id,'third_type'=>$third_type])->one();
+        if(!$MemberAuths_model){
+            return parent::__response('第三方登录用户不存在',(int)-1);
+        }
+
+        //更新用户表的手机号码
+        $member_model->mobile=$mobile;
+        $r=$member_model->save(false);
+        if($r){
+            return parent::__response('绑定成功',0);
+        }else{
+            return parent::__response('登录失败',(int)-1);
+        }
+
+    }
+
+    /**
+     *Time:2020/9/29 14:30
+     *Author:始渲
+     *Remark:手机登录后绑定第三方 需要登录状态下
+     * @params:
+     * third_key 第三方登录唯一标识id，什么openid client_id open_id 啥的!
+     * third_type 三方登陆类型 1微信 2QQ 3微博
+     */
+    public function actionMobileBindThird(){
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+        if(!Yii::$app->request->post('third_key')||!Yii::$app->request->post('third_type')){
+            return parent::__response('参数错误',(int)-2);
+        }
+        $user_id = (int)Yii::$app->user->getId();//已登录的用户，Token判断
+        if(!isset($user_id)) {
+            return parent::__response('请先登录在绑定!', (int)-1);
+        }
+
+        //查看用户是否有注册在用户表
+        $member_model=Member::findOne($user_id);
+        if(!$member_model){
+            return parent::__response('登录用户不存在',(int)-1);
+        }
+
+        $third_key =Yii::$app->request->post('third_key');
+        $third_type =(int)Yii::$app->request->post('third_type');
+
+        if(!in_array($third_type,[1,2,3])){//1微信 2 QQ 3微博
+            return parent::__response('参数错误，不支持此绑定类型',(int)-2);
+        }
+
+        //查看此手机登录用户是否有绑定过 此类型第三方
+        $mobile_model=MemberAuths::find()->andWhere(['user_id'=>$user_id,'third_type'=>$third_type])->one();
+        if($mobile_model){
+            return parent::__response('操作失败！此登录用户已经绑定过了',(int)-1);
+        }
+        //查看第三方登录是否有绑定其它的记录
+        $MemberAuths_model=MemberAuths::find()->andWhere(['third_key'=>$third_key,'third_type'=>$third_type])->one();
+        if($MemberAuths_model){
+            return parent::__response('第三方登录用户已经绑定其它的了',(int)-1);
+        }
+
+        ///////先去新增一个第三方member_auths表的记录，关联已经手机登录的账号
+        $member_Auths_Model=new MemberAuths();
+        $member_Auths_Model->user_id=$user_id;
+        $member_Auths_Model->third_key=$third_key;
+        $member_Auths_Model->third_type=$third_type;
+        $member_Auths_Model->created_at=time();
+        $auth_r=$member_Auths_Model->save(false);
+        if($auth_r){
+            return parent::__response('绑定成功',0);
+        }else{
+            return parent::__response('绑定失败',(int)-1);
         }
 
     }
