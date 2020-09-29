@@ -195,12 +195,12 @@ $this->title = '旅人计划官网';
                 }
 
                 if(index == 2){
-                    $(".can_u_speak_chinese img").width('90%').height('90%');
-                    $(".can_u_speak_japanese img").width('90%').height('90%');
+                    $(".can_u_speak_chinese img").width('30%').height('30%');
+                    $(".can_u_speak_japanese img").width('30%').height('30%');
                 }
 
                 if(index == 4){
-                    $(".free_xxx img").width('90%').height('90%');
+                    $(".free_xxx img").width('30%').height('30%');
                 }
 
             }
