@@ -14,7 +14,7 @@ AppAsset::register($this);
             <meta http-equiv="content-type" content="text/html; charset=UTF-8">
             <meta charset="utf-8">
             <title><?= Html::encode($this->title) ?></title>
-            <link rel="shortcut icon" href=" /images/favicon.ico" />
+            <link rel="shortcut icon" href="/images/favicon.ico" />
             <meta name="keywords" content="">
             <meta name="description" content="">
             <link rel="stylesheet" href="/css/fullPage.css">

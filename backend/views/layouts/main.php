@@ -19,6 +19,7 @@ $directoryAsset = Yii::$app->assetManager->getPublishedUrl('@vendor/almasaeed201
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
+    <link rel="shortcut icon" href="/admin/images/favicon.ico" />
     <?php $this->head() ?>
     <script type="text/javascript" src="/admin/js/jquery.min.js"></script>
 </head>
