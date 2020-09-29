@@ -698,6 +698,7 @@ class MemberController extends BaseController
      *
      * 登录、绑定手机发送验证码
      * mobile string
+     * send_type   发送类型 1登录验证码 2绑定手机 3通知\默认不传为1
      */
    public function actionSendSms(){
        if(!Yii::$app->request->isPost){//如果不是post请求
