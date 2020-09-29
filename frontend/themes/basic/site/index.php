@@ -2,7 +2,7 @@
 
 /* @var $this yii\web\View */
 
-$this->title = '旅人计划';
+$this->title = '旅人计划官网';
 ?>
 <header class="header">
     <div class="header-content">
@@ -27,8 +27,8 @@ $this->title = '旅人计划';
                 <div class="myBox_l">
                     <div class="phone_xxx phone_xxx_1"></div>
                     <div class="phone_img phone_img_1"></div>
-                    <div class="can_u_speak_chinese"><img src="/images/can_u_speak_chinese.png" width="90%"></div>
-                    <div class="can_u_speak_japanese"><img src="/images/can_u_speak_japanese.png" width="90%"></div>
+                    <div class="can_u_speak_chinese"><img src="/images/can_u_speak_chinese.png" width="30%"></div>
+                    <div class="can_u_speak_japanese"><img src="/images/can_u_speak_japanese.png" width="30%"></div>
                 </div>
                 <div class="myBox_r"><img src="/images/pick_1.png" width="235" height="114"></div>
             </div>
@@ -57,10 +57,10 @@ $this->title = '旅人计划';
                     <div class="phone_img phone_img_3"></div>
 
                     <div class="section-freeicon free_ico"><img src="/images/free_ico.png" width="90%"></div>
-                    <div class="section-freeicon free_text1 free_xxx"><img src="/images/free_text1.png" width="90%"></div>
-                    <div class="section-freeicon free_text2 free_xxx"><img src="/images/free_text2.png" width="90%"></div>
-                    <div class="section-freeicon free_text3 free_xxx"><img src="/images/free_text3.png" width="90%"></div>
-                    <div class="section-freeicon free_text4 free_xxx"><img src="/images/free_text4.png" width="90%"></div>
+                    <div class="section-freeicon free_text1 free_xxx"><img src="/images/free_text1.png" width="30%"></div>
+                    <div class="section-freeicon free_text2 free_xxx"><img src="/images/free_text2.png" width="30%"></div>
+                    <div class="section-freeicon free_text3 free_xxx"><img src="/images/free_text3.png" width="30%"></div>
+                    <div class="section-freeicon free_text4 free_xxx"><img src="/images/free_text4.png" width="30%"></div>
 
                 </div>
                 <div class="myBox_r"><img src="/images/pick_3.png" width="362" height="114"></div>
@@ -109,13 +109,13 @@ $this->title = '旅人计划';
                     $(".can_u_speak_chinese img").animate({
                         width: "100%",
                         height: "100%",
-                    }, 400 );
+                    }, 100 );
 
                     //setTimeout(function(){
                         $(".can_u_speak_japanese img").animate({
                             width: "100%",
                             height: "100%",
-                        }, 400 );
+                        }, 100 );
                     //}, 1000);
 
                 }
@@ -131,7 +131,7 @@ $this->title = '旅人计划';
                     $(".free_xxx img").animate({
                         width: "100%",
                         height: "100%",
-                    }, 500 );
+                    }, 100 );
 
                     // $(".free_ico img").animate({
                     //     width: "100%",
@@ -233,6 +233,28 @@ $this->title = '旅人计划';
         }).mouseout(function(){
             $(".myBox_l a.hover_like span").hide();
         });
+
+        //适配
+        $(window).resize(function(){
+            autoScrolling();
+        });
+        function autoScrolling(){
+            var $ww = $(window).width();//console.log($ww);
+            if($ww < 1300){
+               //alert('xxxxxx');
+                var x_scroll=$ww-1000;
+                if(x_scroll<70){
+                    x_scroll=70;
+                }
+                $(".footer").height(x_scroll+'px');
+                $(".footer span").css('bottom','5px');
+            }else if($ww > 1300){
+                $(".footer").height('300px');
+                $(".footer span").css('bottom','20px');
+            }
+        }
+        autoScrolling();
+
 
     });
 </script>

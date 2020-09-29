@@ -118,15 +118,14 @@
 	position:fixed;
 	bottom:0;
 	left:0;
-	height:40px;
-	padding-top: 260px;
+	height:300px;
 	z-index:100;
 	width:100%;
-	background:url(/images/footer_xxx.png) no-repeat center 0px/cover;
+	background:url(/images/footer_xxx.png) no-repeat center center/cover;
 	z-index:100;
-	text-align: center;
+	text-align: left;
 	overflow: hidden;
 }
-.footer span{}
-.footer span a{color:#000; text-decoration: none; font-size: 14px;}
+.footer span{color: #b3b3b3; position: absolute; bottom: 20px; left:35%;}
+.footer span a{color:#b3b3b3; text-decoration: none; font-size: 14px;}
 .footer span a:hover{}
