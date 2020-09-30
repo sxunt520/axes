@@ -335,12 +335,13 @@ body {
 .download-area .intro {
 	line-height:50px;
 	padding-right:1px;
-	font-size:40px;
+	font-size:36px;
 	text-align:left;
 	font-weight:600;
 	border-right:3px solid #333;
 	overflow:hidden;
-	white-space:nowrap
+	white-space:nowrap;
+	text-align: center;
 }
 .download-area .intro-01 {
 	width:440px;

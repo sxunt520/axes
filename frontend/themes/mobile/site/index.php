@@ -2,7 +2,7 @@
 
 /* @var $this yii\web\View */
 
-$this->title = '旅人计划 超S级故事阅读平台';
+$this->title = '超S级互动故事阅读平台';
 ?>
 <header class="page-header">
     <div class="qrcode-box">
@@ -34,10 +34,8 @@ $this->title = '旅人计划 超S级故事阅读平台';
         </div>
     </div>
 </div>
-
 <div class="icp">
     <p><a target="_blank" href="http://www.beian.miit.gov.cn/"> © 2020 www.233i.com All rights reserved 蜀ICP备18015972号 川网文（2018）9245-339号</a></p>
 </div>
-
 <script src="/m_static/js/jquery.js"></script>
 <script src="/m_static/js/index.js"></script>

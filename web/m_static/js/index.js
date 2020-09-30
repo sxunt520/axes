@@ -5,7 +5,7 @@
     var kLoopTime = 5000;
     var loopIntroDomList = [];
     var kLoopIntro = [
-        '平台独家pick最爱佳作',
+        '平台独家 pick最爱佳作',
         '暖心评论，遇见万里挑一的灵魂',
         '完全免费，纯粹只为阅读而生',
         '独享精致，只属于你的时光',
