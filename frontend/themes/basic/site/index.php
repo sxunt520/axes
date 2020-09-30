@@ -2,7 +2,7 @@
 
 /* @var $this yii\web\View */
 
-$this->title = '旅人计划官网';
+$this->title = '旅人计划 超S级故事阅读平台';
 ?>
 <header class="header">
     <div class="header-content">

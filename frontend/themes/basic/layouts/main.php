@@ -15,8 +15,8 @@ AppAsset::register($this);
             <meta charset="utf-8">
             <title><?= Html::encode($this->title) ?></title>
             <link rel="shortcut icon" href="/images/favicon.ico" />
-            <meta name="keywords" content="旅人 旅人计划 泡沫冬景 云端之约 圣歌德嘉的晚钟 青箱 长安夜明 孟德大小姐与自爆少年">
-            <meta name="description" content="旅人计划专注于发行独特而有内核的游戏，我们相信，每一款游戏都是一段珍贵的旅途。我们想带你看中世纪教堂顶的信仰之跃，带你看未来世界赛博朋克的魅力，带你看看奇幻世界不可思议的冒险。">
+            <meta name="keywords" content="阅读平台、免费阅读平台、故事阅读平台 、手机阅读平台、网页阅读、有声小说、漫画、旅人计划、游戏下载、游戏平台、广播剧">
+            <meta name="description" content="旅人计划（233i.com)是国内超S级阅读平台，拥有独家内容：泡沫冬景、孟德大小姐与自爆少年、云端之约、长安夜明等；我们秉持每个故事都是一段旅程的理念为用户提供高质量私享阅读体验，营造良好社区氛围，期待每位用户都能在此遇见万里挑一的灵魂。">
             <link rel="stylesheet" href="/css/fullPage.css">
             <link rel="stylesheet" href="/css/my_index.css">
             <style>

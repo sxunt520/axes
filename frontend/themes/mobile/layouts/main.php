@@ -10,18 +10,20 @@ AppAsset::register($this);
 
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
-<html lang="zh-cn">
-<head>
+<html lang="zh-CN"><head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
     <title><?= Html::encode($this->title) ?></title>
-    <meta name="keywords" content="">
-    <meta name="description" content="">
-    <link rel="stylesheet" href="/css/reset.css">
-    <link rel="stylesheet" href="/css/index.css">
+    <link rel="shortcut icon" href="/images/favicon.ico" />
+    <meta name="keywords" content="阅读平台、免费阅读平台、故事阅读平台 、手机阅读平台、网页阅读、有声小说、漫画、旅人计划、游戏下载、游戏平台、广播剧">
+    <meta name="description" content="旅人计划（233i.com)是国内超S级阅读平台，拥有独家内容：泡沫冬景、孟德大小姐与自爆少年、云端之约、长安夜明等；我们秉持每个故事都是一段旅程的理念为用户提供高质量私享阅读体验，营造良好社区氛围，期待每位用户都能在此遇见万里挑一的灵魂。">
+    <link rel="stylesheet" href="/m_static/css/webbase.css">
+    <link rel="stylesheet" href="/m_static/css/index.css">
 </head>
-<body class="home">
+<body>
 <?php $this->beginBody() ?>
 
 <?= $content ?>
