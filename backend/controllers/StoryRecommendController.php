@@ -107,6 +107,73 @@ class StoryRecommendController extends Controller
         }
     }
 
+    //推荐故事异步上传一个封面视频cos
+    public function actionAsyncUpcos()
+    {
+        $p1 = $p2 = [];
+        if (empty($_FILES['StoryRecommend']['name']) || empty($_FILES['StoryRecommend']['name']['_video_url'])) {
+            echo '{}';
+            return;
+        }
+
+        $model = new \common\models\StoryRecommend();
+        $uploadSuccessPath = "";
+        if (Yii::$app->request->isPost) {
+            $file = UploadedFile::getInstance($model, "_video_url");
+            //var_dump($file);exit;
+
+            $secretId = "AKIDgM0QZRSPEn63HHlEEpAF3GExPc6Ko2Wj"; //"云 API 密钥 SecretId";
+            $secretKey = "84jCOK5YmjQFCsOghwv2l4VGlCqk4XZl"; //"云 API 密钥 SecretKey";
+            $region = "ap-beijing"; //设置一个默认的存储桶地域
+            $cosClient = new \Qcloud\Cos\Client(
+                array(
+                    'region' => $region,
+                    'schema' => 'http', //协议头部，默认为http
+                    'credentials'=> array(
+                        'secretId'  => $secretId ,
+                        'secretKey' => $secretKey)));
+            //$local_path = "/Applications/XAMPP/web/demo/jjjj.png";
+            $local_path = $file->tempName;
+            try {
+                $result = $cosClient->upload(
+                    $bucket = 'sxunt-1303818459', //格式：BucketName-APPID
+                    $key = date("Ymd").'/'.uniqid().'.'.$file->extension,
+                    $body = fopen($local_path, 'rb')
+                );
+                // 请求成功
+                //print_r($result);
+
+                $p1[]= '<video width="300" height="auto" controls="controls"><source src="'.'http://'.$result['Location'].'" type="video/mp4"></video>';
+                echo json_encode([
+                    'initialPreview' => $p1,
+                    'video_url'=>'http://'.$result['Location'],
+                    'append' => false,//控制不追回，只传一个
+                ]);
+                return;
+
+            } catch (\Exception $e) {
+                // 请求失败
+                echo($e);
+                return;
+            }
+
+//            exit;
+//            //文件上传存放的目录
+//            $dir = "../../api/web/uploads/video_".date("Ymd").'/';
+//
+//            if(!file_exists($dir)){
+//                mkdir($dir,0777);
+//            }
+//            //文件名
+//            $fileName = date("Ymdhis").'_'.uniqid(). "." . $file->extension;
+//            $dir = $dir."/". $fileName;
+//            $file->saveAs($dir);
+//            $uploadSuccessPath = "/uploads/video_".date("Ymd")."/".$fileName;
+
+        }
+
+    }
+
     //推荐故事异步上传一个封面视频
     public function actionAsyncVideo()
     {
