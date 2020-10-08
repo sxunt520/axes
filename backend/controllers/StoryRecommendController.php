@@ -122,8 +122,8 @@ class StoryRecommendController extends Controller
             $file = UploadedFile::getInstance($model, "_video_url");
             //var_dump($file);exit;
 
-            $secretId = "AKIDgM0QZRSPEn63HHlEEpAF3GExPc6Ko2Wj"; //"云 API 密钥 SecretId";
-            $secretKey = "84jCOK5YmjQFCsOghwv2l4VGlCqk4XZl"; //"云 API 密钥 SecretKey";
+            $secretId = "COS_SECRETID"; //"云 API 密钥 SecretId";
+            $secretKey = "COS_SECRETKEY"; //"云 API 密钥 SecretKey";
             $region = "ap-beijing"; //设置一个默认的存储桶地域
             $cosClient = new \Qcloud\Cos\Client(
                 array(
