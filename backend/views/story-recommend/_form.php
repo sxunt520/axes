@@ -44,7 +44,8 @@ use kartik\file\FileInput;
             // 预览的文件
             'initialPreview' => [$video_url],
             // 异步上传的接口地址设置
-            'uploadUrl' => \yii\helpers\Url::toRoute(['async-upcos']),
+            //'uploadUrl' => \yii\helpers\Url::toRoute(['async-upcos']),
+            'uploadUrl' => \yii\helpers\Url::toRoute(['async-video']),
             'uploadAsync' => true,
             // 最少上传的文件个数限制
             'minFileCount' => 1,
