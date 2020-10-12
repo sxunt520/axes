@@ -107,7 +107,7 @@ class StoryRecommendController extends Controller
         }
     }
 
-    //推荐故事异步上传一个封面视频cos
+    //推荐故事异步上传一个封面视频到cos
     public function actionAsyncUpcos()
     {
         $p1 = $p2 = [];
@@ -124,7 +124,7 @@ class StoryRecommendController extends Controller
 
             $secretId = \Yii::$app->params['tencent_cos']['secretId']; //"云 API 密钥 SecretId";
             $secretKey = \Yii::$app->params['tencent_cos']['secretKey']; //"云 API 密钥 SecretKey";
-            $region = "ap-beijing"; //设置一个默认的存储桶地域
+            $region = "ap-guangzhou"; //设置一个默认的存储桶地域
             $cosClient = new \Qcloud\Cos\Client(
                 array(
                     'region' => $region,
@@ -136,8 +136,8 @@ class StoryRecommendController extends Controller
             $local_path = $file->tempName;
             try {
                 $result = $cosClient->upload(
-                    $bucket = 'sxunt-1303818459', //格式：BucketName-APPID
-                    $key = date("Ymd").'/'.uniqid().'.'.$file->extension,
+                    $bucket = 'axe-video-1257242485', //格式：BucketName-APPID
+                    $key = '/axe_uploads/video_'.date("Ymd").'/'.uniqid().'.'.$file->extension,
                     $body = fopen($local_path, 'rb')
                 );
                 // 请求成功
@@ -157,24 +157,11 @@ class StoryRecommendController extends Controller
                 return;
             }
 
-//            exit;
-//            //文件上传存放的目录
-//            $dir = "../../api/web/uploads/video_".date("Ymd").'/';
-//
-//            if(!file_exists($dir)){
-//                mkdir($dir,0777);
-//            }
-//            //文件名
-//            $fileName = date("Ymdhis").'_'.uniqid(). "." . $file->extension;
-//            $dir = $dir."/". $fileName;
-//            $file->saveAs($dir);
-//            $uploadSuccessPath = "/uploads/video_".date("Ymd")."/".$fileName;
-
         }
 
     }
 
-    //推荐故事异步上传一个封面视频
+    //推荐故事异步上传一个封面视频本地
     public function actionAsyncVideo()
     {
         $p1 = $p2 = [];
