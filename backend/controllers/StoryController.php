@@ -497,7 +497,7 @@ class StoryController extends Controller
                     // 请求成功
                     //print_r($result);
 
-                    $video_url = 'http://'.$result['Location']; //调用接口上传后返回cos地址
+                    $video_url = 'https://'.$result['Location']; //调用接口上传后返回cos地址
                     // 图片入库操作，此处不可以批量直接入库，因为后面我们还要把key返回 便于图片的删除
                     $model->story_id = $id;
                     $model->video_url = $video_url;

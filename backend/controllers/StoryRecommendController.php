@@ -143,7 +143,7 @@ class StoryRecommendController extends Controller
                 // 请求成功
                 //print_r($result);
 
-                $p1[]= '<video width="300" height="auto" controls="controls"><source src="'.'http://'.$result['Location'].'" type="video/mp4"></video>';
+                $p1[]= '<video width="300" height="auto" controls="controls"><source src="'.'https://'.$result['Location'].'" type="video/mp4"></video>';
                 echo json_encode([
                     'initialPreview' => $p1,
                     'video_url'=>'http://'.$result['Location'],
