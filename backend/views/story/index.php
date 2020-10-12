@@ -64,7 +64,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             ]
                         ],
                         'value' => function ($model) {
-                            $pic=strpos($model->record_pic, 'http:') === false ? (\Yii::getAlias('@static') . $model->record_pic) : $model->record_pic;
+                            $pic=strpos($model->record_pic, 'http') === false ? (\Yii::getAlias('@static') . $model->record_pic) : $model->record_pic;
                             return $pic;
                         }
                     ],

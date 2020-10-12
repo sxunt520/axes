@@ -129,7 +129,7 @@ class StoryController extends Controller
         if ($relationBanners) {
             foreach ($relationBanners as $k => $v) {
                 //$p1[$k] = $v['banner_url'];
-                $img_url=strpos($v['img_url'], 'http:') === false ? (Yii::getAlias('@static') . $v['img_url']) : $v['img_url'];
+                $img_url=strpos($v['img_url'], 'http') === false ? (Yii::getAlias('@static') . $v['img_url']) : $v['img_url'];
                 $p1[$k] = '<img src="'.$img_url.'" class="file-preview-image" style="width:auto;height:160px;"><input name="StoryImg_text['.$v['id'].']" type="text" value="'.$v['img_text'].'" style="display: block; width: 100%;margin-top: 10px;"/>';
                 //$p1[$k] = '<img src="'.Yii::getAlias('@static').$v['img_url'].'" class="file-preview-image" style="width:auto;height:160px;">';
                 $p2[$k] = [
@@ -147,7 +147,7 @@ class StoryController extends Controller
         if ($relationBanners_x) {
             foreach ($relationBanners_x as $kk => $vv) {
                 //$p1[$k] = $v['banner_url'];
-                $img_url=strpos($vv['img_url'], 'http:') === false ? (Yii::getAlias('@static') . $vv['img_url']) : $vv['img_url'];
+                $img_url=strpos($vv['img_url'], 'http') === false ? (Yii::getAlias('@static') . $vv['img_url']) : $vv['img_url'];
                 $p1_x[$kk] = '<img src="'.$img_url.'" class="file-preview-image" style="width:auto;height:160px;"><input name="StoryCommentImg_text['.$vv['id'].']" type="text" value="'.$vv['img_text'].'" style="display: block; width: 100%;margin-top: 10px;"/>';
                 //$p1_x[$k] = '<img src="'.Yii::getAlias('@static').$v['img_url'].'" class="file-preview-image" style="width:auto;height:160px;">';
                 $p2_x[$kk] = [
@@ -164,8 +164,7 @@ class StoryController extends Controller
         $p1_v = $p2_v = [];
         if ($relationBanners_v) {
             foreach ($relationBanners_v as $kkk => $vvv) {
-                //$video_url=(strpos($vvv['video_url'], 'http:') === true) || (strpos($vvv['video_url'], 'https:') === true) ? $vvv['video_url'] : (Yii::getAlias('@static') . $vvv['video_url']);
-                $video_url=$vvv['video_url'];
+                $video_url=strpos($vvv['video_url'], 'http') === false ? (Yii::getAlias('@static') . $vvv['video_url']) : $vvv['video_url'];
                 $p1_v[$kkk] ='<video width="300" height="auto" controls="controls"><source src="'.$video_url.'" type="video/mp4"></video><input name="StoryVideo_title['.$vvv['id'].']" type="text" value="'.$vvv['title'].'" style="display: block; width: 100%;margin-top: 10px;"/><a href="/admin/video/update?id='.$vvv['id'].'">更新视频详情</a>';
                 $p2_v[$kkk] = [
                     'url' => \yii\helpers\Url::toRoute('delete-video'),
