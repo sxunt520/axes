@@ -343,6 +343,80 @@ class StoryController extends Controller
         return;
     }
 
+    /**
+     *Time:2020/10/13 10:12
+     *Author:始渲
+     *Remark:故事多图 异步上传到cos
+     * @params:story_id
+     *
+     */
+    public function actionAsyncImageTocos ()
+    {
+        // 商品ID
+        $id = Yii::$app->request->post('story_id');
+        $p1 = $p2 = [];
+        if (empty($_FILES['StoryImg']['name']) || empty($_FILES['StoryImg']['name']['img_url']) || !$id) {
+            echo '{}';
+            return;
+        }
+        for ($i = 0; $i < count($_FILES['StoryImg']['name']['img_url']); $i++) {
+            $url = \yii\helpers\Url::toRoute('deleteimg');
+
+            $model = new \common\models\StoryImg();
+            if (Yii::$app->request->isPost) {
+                $file = UploadedFile::getInstance($model, "img_url");
+
+                $secretId = \Yii::$app->params['tencent_cos']['secretId']; //"云 API 密钥 SecretId";
+                $secretKey = \Yii::$app->params['tencent_cos']['secretKey']; //"云 API 密钥 SecretKey";
+                $region = "ap-guangzhou"; //设置一个默认的存储桶地域
+                $cosClient = new \Qcloud\Cos\Client(
+                    array(
+                        'region' => $region,
+                        'schema' => 'http', //协议头部，默认为http
+                        'credentials'=> array(
+                            'secretId'  => $secretId ,
+                            'secretKey' => $secretKey)));
+                //$local_path = "/Applications/XAMPP/web/demo/jjjj.png";
+                $local_path = $file->tempName;
+                try {
+                    $result = $cosClient->upload(
+                        $bucket = 'axe-video-1257242485', //格式：BucketName-APPID
+                        $key = '/img_static/gameimg_'.date("Ymd").'/'.uniqid().'.'.$file->extension,
+                        $body = fopen($local_path, 'rb')
+                    );
+
+                    // 请求成功
+                    //print_r($result);
+
+                    $imageUrl = 'http://'.$result['Location']; //调用接口上传后返回cos地址
+                    // 图片入库操作，此处不可以批量直接入库，因为后面我们还要把key返回 便于图片的删除
+                    $model->story_id = $id;
+                    $model->img_url = $imageUrl;
+                    $model->updated_at = time();
+                    $key = 0;
+                    if ($model->save(false)) {
+                        $key = $model->id;
+                    }
+                    $p1[$i] ='<img src="'.$imageUrl.'" class="file-preview-image" style="width:auto;height:160px;"><input name="StoryImg_text['.$key.']" type="text" value=" " style="display: block; width: 100%;margin-top: 10px;"/>';
+                    $p2[$i] = ['url' => $url, 'key' => $key,'width' => '120px'];
+
+                } catch (\Exception $e) {
+                    // 请求失败
+                    echo($e);
+                    return;
+                }
+
+            }
+
+        }
+        echo json_encode([
+            'initialPreview' => $p1,
+            'initialPreviewConfig' => $p2,
+            'append' => true,
+        ]);
+        return;
+    }
+
 
     //故事评论多图 异步获取
     public function actionAsyncImageX ()
@@ -391,6 +465,78 @@ class StoryController extends Controller
             //$p1[$i] = $imageUrl;
             $p1_x[$i] ='<img src="'.$imageUrl.'" class="file-preview-image" style="width:auto;height:160px;"><input name="StoryCommentImg_text['.$key.']" type="text" value=" " style="display: block; width: 100%;margin-top: 10px;"/>';
             $p2_x[$i] = ['url' => $url, 'key' => $key,'width' => '120px'];
+        }
+        echo json_encode([
+            'initialPreview' => $p1_x,
+            'initialPreviewConfig' => $p2_x,
+            'append' => true,
+        ]);
+        return;
+    }
+
+    /**
+     *Time:2020/10/13 10:28
+     *Author:始渲
+     *Remark:故事评论多图 异步上传到cos
+     * @params:
+     */
+    public function actionAsyncImageXtoCos ()
+    {
+        // 商品ID
+        $id = Yii::$app->request->post('story_id');
+        $p1_x = $p2_x = [];
+        if (empty($_FILES['StoryCommentImg']['name']) || empty($_FILES['StoryCommentImg']['name']['img_url']) || !$id) {
+            echo '{}';
+            return;
+        }
+        for ($i = 0; $i < count($_FILES['StoryCommentImg']['name']['img_url']); $i++) {
+            $url = \yii\helpers\Url::toRoute('deleteimg-x');
+
+            $model = new \common\models\StoryCommentImg();
+            if (Yii::$app->request->isPost) {
+                $file = UploadedFile::getInstance($model, "img_url");
+
+                $secretId = \Yii::$app->params['tencent_cos']['secretId']; //"云 API 密钥 SecretId";
+                $secretKey = \Yii::$app->params['tencent_cos']['secretKey']; //"云 API 密钥 SecretKey";
+                $region = "ap-guangzhou"; //设置一个默认的存储桶地域
+                $cosClient = new \Qcloud\Cos\Client(
+                    array(
+                        'region' => $region,
+                        'schema' => 'http', //协议头部，默认为http
+                        'credentials'=> array(
+                            'secretId'  => $secretId ,
+                            'secretKey' => $secretKey)));
+                //$local_path = "/Applications/XAMPP/web/demo/jjjj.png";
+                $local_path = $file->tempName;
+                try {
+                    $result = $cosClient->upload(
+                        $bucket = 'axe-video-1257242485', //格式：BucketName-APPID
+                        $key = '/img_static/commentimg_'.date("Ymd").'/'.uniqid().'.'.$file->extension,
+                        $body = fopen($local_path, 'rb')
+                    );
+
+                    // 请求成功
+                    //print_r($result);
+
+                    $imageUrl = 'http://'.$result['Location']; //调用接口上传后返回cos地址
+                    $model->story_id = $id;
+                    $model->img_url = $imageUrl;
+                    $model->updated_at = time();
+                    $key = 0;
+                    if ($model->save(false)) {
+                        $key = $model->id;
+                    }
+                    $p1_x[$i] ='<img src="'.$imageUrl.'" class="file-preview-image" style="width:auto;height:160px;"><input name="StoryCommentImg_text['.$key.']" type="text" value=" " style="display: block; width: 100%;margin-top: 10px;"/>';
+                    $p2_x[$i] = ['url' => $url, 'key' => $key,'width' => '120px'];
+
+                } catch (\Exception $e) {
+                    // 请求失败
+                    echo($e);
+                    return;
+                }
+
+            }
+
         }
         echo json_encode([
             'initialPreview' => $p1_x,
