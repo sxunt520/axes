@@ -296,7 +296,7 @@ class StoryController extends BaseController
 //        }else{
 //            $data['announce_list']=[];
 //        }
-        $announce_model=StoryAnnounce::find()->select(['id','order_by','title','title'])->where(['story_id' => $id])->orderBy(['order_by'=>SORT_DESC,'id'=>SORT_DESC])->limit(2)->asArray()->all();
+        $announce_model=StoryAnnounce::find()->select(['id','order_by','title','title'])->andWhere(['story_id' => $id,'is_show' => 1])->orderBy(['order_by'=>SORT_DESC,'id'=>SORT_DESC])->limit(2)->asArray()->all();
         if(is_array($announce_model)){
             //获取标签名
             foreach ($announce_model as $k=>$v){
