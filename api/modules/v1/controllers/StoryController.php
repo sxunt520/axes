@@ -69,10 +69,10 @@ class StoryController extends BaseController
 
         //'likes','game_title'
         $StoryRecommend_rows=StoryRecommend::find()
-            ->select(['id','title','type','cover_url','video_url','story_id','created_at'])
+            ->select(['id','title','type','cover_url','video_url','story_id','created_at','orderby'])
             ->andWhere(['=', 'is_show', 1])
             //->andWhere(['=', 'type', 1])
-            ->orderBy(['id' => SORT_DESC])
+            ->orderBy(['orderby' => SORT_DESC,'id' => SORT_DESC])
             ->offset($pagenum * ($page - 1))
             ->limit($pagenum)
             ->asArray()
