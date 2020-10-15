@@ -281,19 +281,38 @@ class StoryController extends BaseController
         }
         if($StoryImg_rows) $data['story_details']['iamges']=$StoryImg_rows;
 
+
         ///////////公告标签处
-        $announce_model = StoryAnnounce::find()
-            ->select('{{%story_announce}}.id,{{%story_announce}}.title,{{%story_announce_tag}}.tag_name')
-            ->leftJoin('{{%story_announce_tag}}','{{%story_announce}}.id = {{%story_announce_tag}}.announce_id')
-            ->where(['{{%story_announce}}.story_id' => $id])
-            ->asArray()
-            ->limit(2)
-            ->all();
+//        $announce_model = StoryAnnounce::find()
+//            ->select('{{%story_announce}}.id,{{%story_announce}}.order_by,{{%story_announce}}.title,{{%story_announce_tag}}.tag_name')
+//            ->leftJoin('{{%story_announce_tag}}','{{%story_announce}}.id = {{%story_announce_tag}}.announce_id')
+//            ->where(['{{%story_announce}}.story_id' => $id])
+//            //->orderBy(['{{%story_announce}}.id'=>SORT_ASC])
+//            ->limit(2)
+//            ->asArray()
+//            ->all();
+//        if(is_array($announce_model)){
+//            $data['announce_list']=$announce_model;
+//        }else{
+//            $data['announce_list']=[];
+//        }
+        $announce_model=StoryAnnounce::find()->select(['id','order_by','title','title'])->where(['story_id' => $id])->orderBy(['order_by'=>SORT_DESC,'id'=>SORT_DESC])->limit(2)->asArray()->all();
         if(is_array($announce_model)){
+            //获取标签名
+            foreach ($announce_model as $k=>$v){
+                //排序取第一个标签显示
+                $StoryAnnounceTag=StoryAnnounceTag::find()->where(['announce_id'=>$v['id']])->orderBy(['id'=>SORT_ASC])->limit(1)->asArray()->one();
+                if($StoryAnnounceTag){
+                    $announce_model[$k]['tag_name']=$StoryAnnounceTag['tag_name'];
+                }else{
+                    $announce_model[$k]['tag_name']='';
+                }
+            }
             $data['announce_list']=$announce_model;
         }else{
-            $data['announce_list']=[];
+            $data['announce_list']='';
         }
+
 
         ///////////宣传视频组video_rows
         $StoryVideo_rows=StoryVideo::find()->select(['id','video_url','video_cover','title'])->where(['story_id' => $id])->limit(1)->asArray()->one();

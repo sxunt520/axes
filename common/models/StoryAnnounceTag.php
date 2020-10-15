@@ -27,7 +27,7 @@ class StoryAnnounceTag extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['announce_id', 'tage_name'], 'required'],
+            [['announce_id', 'tag_name'], 'required'],
             [['announce_id'], 'integer'],
             [['tag_name'], 'string', 'max' => 255]
         ];
