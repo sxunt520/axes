@@ -67,7 +67,7 @@ class StoryController extends BaseController
 //            ->asArray()
 //            ->all();
 
-        //'likes','game_title'
+        ///'likes','game_title'
         $StoryRecommend_rows=StoryRecommend::find()
             ->select(['id','title','type','cover_url','video_url','story_id','created_at','orderby'])
             ->andWhere(['=', 'is_show', 1])
