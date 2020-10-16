@@ -32,7 +32,8 @@ class StoryAnnounce extends  \common\models\StoryAnnounce
         return [
             [['admin_id', 'user_id', 'is_show', 'views', 'likes', 'share_num', 'order_by', 'created_at', 'story_id'], 'integer'],
             [['title', 'content', 'story_id'], 'required'],
-            [['title', 'content', 'pic_cover'], 'string', 'max' => 255]
+            [['title', 'pic_cover'], 'string', 'max' => 255],
+            [['content'], 'string'],
         ];
     }
 

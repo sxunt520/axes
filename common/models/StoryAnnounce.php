@@ -41,7 +41,8 @@ class StoryAnnounce extends \yii\db\ActiveRecord
         return [
             [['admin_id', 'user_id', 'is_show', 'views', 'likes', 'share_num', 'order_by', 'created_at', 'story_id'], 'integer'],
             [['title', 'content', 'story_id','is_show'], 'required'],
-            [['title', 'content', 'pic_cover'], 'string', 'max' => 255],
+            [['title', 'pic_cover'], 'string', 'max' => 255],
+            [['content'], 'string'],
             ['created_at', 'default', 'value' => time()],
             ['is_show', 'default', 'value' => 0],
             ['order_by', 'default', 'value' => 100],
