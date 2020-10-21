@@ -38,6 +38,22 @@ class Member extends ActiveRecord implements IdentityInterface, RateLimitInterfa
     }
 
     /**
+     * @inheritdoc
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'username' => '用户名',
+            'created_at' => '创建时间',
+            'mobile' => '手机号',
+            'picture_url' => '用户头像',
+            'nickname' => '昵称',
+            'real_name_status' => '实名认证状态',
+        ];
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function behaviors()
