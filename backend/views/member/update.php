@@ -5,10 +5,10 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model common\models\Member */
 
-$this->title = 'Update Member: ' . ' ' . $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Members', 'url' => ['index']];
+$this->title = '实名认证操作: ' . ' ' . $model->id;
+$this->params['breadcrumbs'][] = ['label' => '会员管理', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->id, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = 'Update';
+$this->params['breadcrumbs'][] = '更新';
 ?>
 <div class="member-update">
 

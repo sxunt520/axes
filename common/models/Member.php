@@ -50,6 +50,8 @@ class Member extends ActiveRecord implements IdentityInterface, RateLimitInterfa
             'picture_url' => '用户头像',
             'nickname' => '昵称',
             'real_name_status' => '实名认证状态',
+            'real_name' => '实名认证名字',
+            'real_idCard' => '实名认证身份证号',
         ];
     }
 

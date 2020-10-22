@@ -88,4 +88,33 @@ class MemberSearch extends Member
 
         return $dataProvider;
     }
+
+    //下拉筛选控制
+    public static function dropDown ($column, $value = null)
+    {
+        $dropDownList = [
+            "real_name_status"=> [
+                "0"=>"未认证",
+                "1"=>"已认证",
+                "2"=>"认证未通过",
+            ],
+            "is_show"=> [
+                "0"=>"否",
+                "1"=>"是",
+            ],
+            "is_show_html"=> [
+                "0"=>'<span class="label label-danger"  style="margin-left:22px;"><i class="fa fa-times"></i></span>',
+                "1"=>'<span class="label label-success"  style="margin-left:22px;"><i class="fa fa-check"></i></span>',
+            ],
+            //有新的字段要实现下拉规则，可像上面这样进行添加
+            // ......
+        ];
+        //根据具体值显示对应的值
+        if ($value !== null)
+            return array_key_exists($column, $dropDownList) ? $dropDownList[$column][$value] : false;
+        //返回关联数组，用户下拉的filter实现
+        else
+            return array_key_exists($column, $dropDownList) ? $dropDownList[$column] : false;
+    }
+
 }
