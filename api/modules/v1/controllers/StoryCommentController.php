@@ -374,6 +374,126 @@ class StoryCommentController extends BaseController
     }
 
     /**
+     *Time:2020/10/28 10:13
+     *Author:始渲
+     *Remark:用户更新评论
+     * @params: comment_id  comment_img_id  title  content  is_plot
+     *
+     */
+    public function actionEdit(){
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+        if(!Yii::$app->request->POST("comment_id")||!Yii::$app->request->POST("comment_img_id")||!Yii::$app->request->POST("title")){
+            return parent::__response('参数错误!',(int)-2);
+        }
+        $comment_id = (int)Yii::$app->request->post('comment_id');//评论id
+        $comment_img_id = (int)Yii::$app->request->post('comment_img_id');//评论图id
+        $from_uid=Yii::$app->user->getId();//登录用户id
+
+
+        //先看评论是否存在
+        $StoryComment_Model=StoryComment::findOne($comment_id);
+        if(!$StoryComment_Model){
+            return parent::__response('评论不存在!',(int)-1);
+        }
+
+        //判断评论是否是登录用户所评论
+        if($StoryComment_Model->from_uid!=$from_uid){
+            return parent::__response('更新失败，此评论不是此登录用户所评论!',(int)-1);
+        }
+
+        //看选择的图片comment_img_id是否故事下面的图片
+        if($StoryComment_Model->story_id > 0){
+            $StoryCommentImg=StoryCommentImg::findOne($comment_img_id);
+            if(!$StoryCommentImg||(int)$StoryCommentImg->story_id!=$StoryComment_Model->story_id){
+                return parent::__response('所传入的图片参数图片不存在，或者参数不是故事所属图片组!',(int)-1);
+            }
+        }else{
+            return parent::__response('评论所属游戏不存在',(int)-1);
+        }
+
+        $StoryComment_Model->comment_img_id = $comment_img_id;//评论图id
+        $StoryComment_Model->title = Yii::$app->request->post('title');//标题
+        $StoryComment_Model->content = Yii::$app->request->post('content');//内容
+        $StoryComment_Model->is_plot = Yii::$app->request->post('is_plot');//是否包含剧透 1是 0否
+        $StoryComment_Model->from_uid = $from_uid;//评论用户id
+        //$StoryComment_Model->created_at=time();
+        $StoryComment_Model->update_at=time();
+
+        //验证保存
+        $isValid = $StoryComment_Model->validate();
+        if ($isValid) {
+            $r=$StoryComment_Model->save();
+            if($r){
+                $comment_id=$StoryComment_Model->id;
+                return parent::__response('修改评论成功',(int)0,['comment_id'=>$comment_id,'update_at'=>$StoryComment_Model->update_at]);
+            }else{
+                return parent::__response('修改评论失败!',(int)-1);
+            }
+        }else{
+            return parent::__response('参数错误!',(int)-2);
+        }
+
+
+    }
+
+    /**
+     *Time:2020/10/28 10:13
+     *Author:始渲
+     *Remark:用户删除隐藏评论
+     * @params: comment_id
+     *
+     */
+    public function actionDel(){
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+        if(!Yii::$app->request->POST("comment_id")){
+            return parent::__response('参数错误!',(int)-2);
+        }
+        $comment_id = (int)Yii::$app->request->post('comment_id');//评论id
+        $from_uid=Yii::$app->user->getId();//登录用户id
+
+        //先看评论是否存在
+        $StoryComment_Model=StoryComment::findOne($comment_id);
+        if(!$StoryComment_Model){
+            return parent::__response('评论不存在!',(int)-1);
+        }
+
+        //判断评论是否是登录用户所评论
+        if($StoryComment_Model->from_uid!=$from_uid){
+            return parent::__response('删除失败，此评论不是此登录用户所评论!',(int)-1);
+        }
+
+        //判断评论是否已经隐藏删除
+        if($StoryComment_Model->is_show==0){
+            return parent::__response('操作失败，此评论已经删除!',(int)-1);
+        }
+
+        $StoryComment_Model->is_show = 0;//是否隐藏删除 1是 0否
+        $StoryComment_Model->from_uid = $from_uid;//评论用户id
+        $StoryComment_Model->update_at=time();
+
+        //验证保存
+        $isValid = $StoryComment_Model->validate();
+        if ($isValid) {
+            $r=$StoryComment_Model->save();
+            if($r){
+                $comment_id=$StoryComment_Model->id;
+                return parent::__response('删除评论成功',(int)0,['comment_id'=>$comment_id]);
+            }else{
+                return parent::__response('删除评论失败!',(int)-1);
+            }
+        }else{
+            return parent::__response('参数错误!',(int)-2);
+        }
+
+    }
+
+    /**
      * 获取评论图片组
      */
     public function actionGetCommentImg(){

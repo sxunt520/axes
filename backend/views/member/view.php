@@ -47,30 +47,30 @@ $this->params['breadcrumbs'][] = $this->title;
             'mobile',
             'picture_url:url',
 //            [
-//                'attribute' => 'picture_url',
-//                'label' => '用户头像',
-//                'format' => ['image',['width'=>'40','height'=>'40',]],//这个不确定能不能用
-//                //'value'  => Html::a(Html::img($model->picture_url),$model->picture_url),
-//                'value' => function($model) {
-//                    //$sex = ['保密', '男', '女'];
-//                    //return '1111';
-//                }
-//            ],
-
-//            [
-//                'label' => '用户头像',
-//                'format' => [
-//                    'image',
-//                    [
-//                        'width'=>'50',
-//                        'height'=>'auto'
-//                    ]
-//                ],
-//                'value' => function ($model) {
-//                    $pic=strpos($model->picture_url, 'http') === false ? (\Yii::getAlias('@static') . $model->picture_url) : $model->picture_url;
-//                    return $pic;
-//                }
-//            ],
+////                'attribute' => 'picture_url',
+////                'label' => '用户头像',
+////                'format' => ['image',['width'=>'40','height'=>'40',]],//这个不确定能不能用
+////                //'value'  => Html::a(Html::img($model->picture_url),$model->picture_url),
+////                'value' => function($model) {
+////                    //$sex = ['保密', '男', '女'];
+////                    //return '1111';
+////                }
+////            ],
+//
+////            [
+////                'label' => '用户头像',
+////                'format' => [
+////                    'image',
+////                    [
+////                        'width'=>'50',
+////                        'height'=>'auto'
+////                    ]
+////                ],
+////                'value' => function ($model) {
+////                    $pic=strpos($model->picture_url, 'http') === false ? (\Yii::getAlias('@static') . $model->picture_url) : $model->picture_url;
+////                    return $pic;
+////                }
+////            ],
 
             'nickname',
             'signature',

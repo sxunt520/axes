@@ -13,6 +13,7 @@ use Yii;
  * @property string $content
  * @property integer $from_uid
  * @property integer $created_at
+ * @property integer $update_at
  * @property string $comment_img
  */
 class StoryComment extends \common\models\StoryComment
@@ -25,10 +26,11 @@ class StoryComment extends \common\models\StoryComment
     {
         return [
             [['title','story_id','comment_img_id','from_uid'],'required'],
-            [['id','story_id', 'comment_type', 'from_uid', 'created_at','comment_img_id','heart_val','is_plot','likes','is_show','is_choiceness','is_top','views','share_num','status'], 'integer'],
+            [['id','story_id', 'comment_type', 'from_uid', 'created_at', 'update_at','comment_img_id','heart_val','is_plot','likes','is_show','is_choiceness','is_top','views','share_num','status'], 'integer'],
             [['title'], 'string', 'max' => 50],
             [['content'], 'string'],
             ['created_at', 'default','value' => time()],
+            ['update_at', 'default','value' => time()],
         ];
     }
 

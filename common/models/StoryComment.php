@@ -13,6 +13,7 @@ use Yii;
  * @property string $content
  * @property integer $from_uid
  * @property integer $created_at
+ * @property integer $update_at
  * @property string $comment_img
  */
 class StoryComment extends \yii\db\ActiveRecord
@@ -31,7 +32,7 @@ class StoryComment extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['story_id', 'comment_type', 'from_uid', 'created_at','comment_img_id','heart_val','is_plot','likes','is_show','is_choiceness','is_top','views','share_num'], 'integer'],
+            [['story_id', 'comment_type', 'from_uid', 'created_at', 'update_at','comment_img_id','heart_val','is_plot','likes','is_show','is_choiceness','is_top','views','share_num'], 'integer'],
             [['title'], 'string', 'max' => 50],
             [['content'], 'string'],
         ];
@@ -50,6 +51,7 @@ class StoryComment extends \yii\db\ActiveRecord
             'from_uid' => 'From Uid',
             'created_at' => 'Created At',
             'comment_img' => 'Comment Img',
+            'update_at' => '更新时间',
         ];
     }
 }

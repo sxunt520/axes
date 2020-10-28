@@ -130,6 +130,7 @@ class MemberController extends BaseController
                 ->select(['{{%story_comment}}.id','{{%story_comment}}.title','{{%story_comment_img}}.img_url'])
                 ->leftJoin('{{%story_comment_img}}','{{%story_comment}}.comment_img_id={{%story_comment_img}}.id')
                 ->andWhere(['=', '{{%story_comment}}.from_uid', $user_id])
+                ->andWhere(['=', '{{%story_comment}}.is_show', 1])
                 ->orderBy(['{{%story_comment}}.id'=>SORT_DESC])
                 ->asArray()
                 ->one();
@@ -193,6 +194,7 @@ class MemberController extends BaseController
                     ->select(['{{%story_comment}}.id','{{%story_comment}}.title','{{%story_comment_img}}.img_url'])
                     ->leftJoin('{{%story_comment_img}}','{{%story_comment}}.comment_img_id={{%story_comment_img}}.id')
                     ->andWhere(['=', '{{%story_comment}}.from_uid', $user->id])
+                    ->andWhere(['=', '{{%story_comment}}.is_show', 1])
                     ->orderBy(['{{%story_comment}}.id'=>SORT_DESC])
                     ->asArray()
                     ->one();
