@@ -30,7 +30,7 @@ class StoryComment extends \common\models\StoryComment
             [['title'], 'string', 'max' => 50],
             [['content'], 'string'],
             ['created_at', 'default','value' => time()],
-            ['update_at', 'default','value' => time()],
+            ['update_at', 'default','value' => 0],
         ];
     }
 
