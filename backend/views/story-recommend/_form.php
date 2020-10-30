@@ -26,7 +26,7 @@ use kartik\file\FileInput;
             'domain_url' => Yii::getAlias('@static'),////图片域名
             'serverUrl' => yii\helpers\Url::to(['upload_one','action'=>'uploadimage','is_thumb'=>true,'adv_width'=>720,'adv_height'=>1280]),  //上传服务器地址 is_thumb就否返回生成缩略图
         ]
-    ])->label('推荐封面图(720*1280px|9:16 文件格式jpg、png 500k以下') ?>
+    ])->label('封面图(720*1280px | 9:16 文件格式jpg、png 500k以下,<span style="color: red;">需传入</span>)') ?>
 
     <?= $form->field($model,'video_url')->textInput()->hiddenInput(['value'=>$model->video_url])->label(false);?>
     <?php

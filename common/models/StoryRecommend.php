@@ -38,7 +38,7 @@ class StoryRecommend extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['title','story_id','type','is_show'], 'required'],
+            [['title','story_id','type','is_show','cover_url'], 'required'],
             [['type', 'story_id', 'created_at', 'is_show', 'orderby', 'likes', 'views', 'share_num'], 'integer'],
             [['title', 'cover_url', 'video_url'], 'string', 'max' => 255],
             ['created_at', 'default', 'value' => time()],
