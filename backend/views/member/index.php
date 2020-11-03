@@ -27,7 +27,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                         "attribute" => "id",
                         "value" => "id",
-                        "headerOptions" => ["width" => "60"],
+                        "headerOptions" => ["width" => "100"],
                     ],
                     [
                         "attribute" => "username",

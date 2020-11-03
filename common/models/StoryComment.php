@@ -45,13 +45,25 @@ class StoryComment extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'story_id' => 'Story ID',
-            'comment_type' => 'Comment Type',
-            'content' => 'Content',
-            'from_uid' => 'From Uid',
-            'created_at' => 'Created At',
-            'comment_img' => 'Comment Img',
+            'story_id' => '游戏id',
+            'comment_type' => '评论类型',
+            'content' => '评论内容',
+            'from_uid' => '评论用户旅人号id',
+            'created_at' => '评论时间',
+            'comment_img' => '评论图',
             'update_at' => '更新时间',
+
+           'comment_img_id' => '评论图id',
+            'heart_val' => '热度值',
+            'is_plot' => '是否包含剧透',
+            'likes' => '点赞数',
+            'is_show' => '是否删除隐藏',
+            'is_choiceness' => '是否是精选',
+            'is_top' => '是否置顶',
+            'views' => '浏览数',
+            'share_num' => '分享数',
+            'title' => '评论标题',
+            'status' => '状态',
         ];
     }
 }
