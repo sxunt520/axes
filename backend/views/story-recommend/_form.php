@@ -20,13 +20,24 @@ use kartik\file\FileInput;
 
     <?= $form->field($model, 'type')->dropDownList(['1'=>'图片','2'=>'视频'], ['prompt'=>'未选择','style'=>'width:120px']) ?>
 
-    <?= $form->field($model, 'cover_url')->widget('common\widgets\file_upload\FileUpload',[
-        'config'=>[
-            //图片上传的一些配置，不写调用默认配置
-            'domain_url' => Yii::getAlias('@static'),////图片域名
-            'serverUrl' => yii\helpers\Url::to(['upload_one','action'=>'uploadimage','is_thumb'=>true,'adv_width'=>720,'adv_height'=>1280]),  //上传服务器地址 is_thumb就否返回生成缩略图
-        ]
-    ])->label('封面图(720*1280px | 9:16 文件格式jpg、png 500k以下,<span style="color: red;">需传入</span>)') ?>
+    <?php
+//    $form->field($model, 'cover_url')->widget('common\widgets\file_upload\FileUpload',[
+//        'config'=>[
+//            //图片上传的一些配置，不写调用默认配置
+//            'domain_url' => Yii::getAlias('@static'),////图片域名
+//            'serverUrl' => yii\helpers\Url::to(['upload_one','action'=>'uploadimage','is_thumb'=>true,'adv_width'=>720,'adv_height'=>1280]),  //上传服务器地址 is_thumb就否返回生成缩略图
+//        ]
+//    ])->label('封面图(720*1280px | 9:16 文件格式jpg、png 500k以下,<span style="color: red;">需传入</span>)')
+    ?>
+
+    <div class="form-group field-storyrecommend-cover_url required">
+        <label class="control-label" for="storyrecommend-cover_url">封面图(图片尺寸>720*1280px,大小<2M)</label>
+
+        <div class="avatar-view" style=" margin-bottom:10px; background: #fff;">
+            <img src="<?php echo !empty($model->cover_url)?$model->cover_url:'';?>" alt="上传封面图">
+        </div>
+        <input type="hidden" value="<?php echo !empty($model->cover_url)?$model->cover_url:'';?>" id="xxx-upimg" name="StoryRecommend[cover_url]">
+    </div>
 
     <?= $form->field($model,'video_url')->textInput()->hiddenInput(['value'=>$model->video_url])->label(false);?>
     <?php
@@ -75,5 +86,7 @@ use kartik\file\FileInput;
     </div>
 
     <?php ActiveForm::end(); ?>
+
+    <?= common\widgets\avatar\AvatarWidget::widget(['imageUrl'=>'']); ?>
 
 </div>

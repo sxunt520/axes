@@ -14,11 +14,13 @@
   'use strict';
 
   var console = window.console || { log: function () {} };
+  var flag=true;
 
   function CropAvatar($element) {
     this.$container = $element;
 
-    this.$avatarView = this.$container.find('.avatar-view');
+    //this.$avatarView = this.$container.find('.avatar-view');
+    this.$avatarView = $('.avatar-view');
     this.$avatar = this.$avatarView.find('img');
     this.$avatarModal = this.$container.find('#avatar-modal');
     this.$loading = this.$container.find('.loading');
@@ -133,6 +135,7 @@
     change: function () {
       var files;
       var file;
+      flag=true;
 
       if (this.support.datauri) {
         files = this.$avatarInput.prop('files');
@@ -162,9 +165,12 @@
       if (!this.$avatarSrc.val() && !this.$avatarInput.val()) {
         return false;
       }
-
-      if (this.support.formData) {
+      //console.log(flag);
+      if (this.support.formData&&flag==true) {
         this.ajaxUpload();
+        flag=false;
+        return false;
+      }else{
         return false;
       }
     },
@@ -198,7 +204,7 @@
         this.$img = $('<img src="' + this.url + '">');
         this.$avatarWrapper.empty().html(this.$img);
         this.$img.cropper({
-          aspectRatio: 1,
+          aspectRatio: 9 / 16,//纵横比
           preview: this.$avatarPreview.selector,
           crop: function (e) {
             var json = [
@@ -234,7 +240,7 @@
       var url = this.$avatarForm.attr('action');
       var data = new FormData(this.$avatarForm[0]);
       var _this = this;
-
+      
       $.ajax(url, {
         type: 'post',
         data: data,
@@ -273,6 +279,7 @@
       if ($.isPlainObject(data) && data.state === 200) {
         if (data.result) {
           this.url = data.result;
+          $("#xxx-upimg").val(data.result);
 
           if (this.support.datauri || this.uploaded) {
             this.uploaded = false;

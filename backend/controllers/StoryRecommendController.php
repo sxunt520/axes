@@ -38,18 +38,19 @@ class StoryRecommendController extends Controller
                 ]
             ],
 
-            //裁剪图上传
+            //截图上传
             'crop'=>[
                 'class' => 'common\widgets\avatar\CropAction',
                 'config'=>[
-                    'bigImageWidth' => '200',     //大图默认宽度
-                    'bigImageHeight' => '200',    //大图默认高度
-                    'middleImageWidth'=> '100',   //中图默认宽度
-                    'middleImageHeight'=> '100',  //中图图默认高度
-                    'smallImageWidth' => '50',    //小图默认宽度
-                    'smallImageHeight' => '50',   //小图默认高度
+                    //main.js 中改 aspectRatio: 9 / 16,//纵横比
+                    'bigImageWidth' => '720',     //大图默认宽度
+                    'bigImageHeight' => '1280',    //大图默认高度
+                    'middleImageWidth'=> '360',   //中图默认宽度
+                    'middleImageHeight'=> '640',  //中图图默认高度
+                    'smallImageWidth' => '180',    //小图默认宽度
+                    'smallImageHeight' => '320',   //小图默认高度
                     //头像上传目录（注：目录前不能加"/"）
-                    'uploadPath' => 'uploads/avatar',
+                    'uploadPath' => '../../api/web/uploads',
                 ]
             ]
 

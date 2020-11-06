@@ -36,7 +36,9 @@ class UploadForm extends Model
     {
         try{
             $userId = isset(Yii::$app->user->identity->id)?Yii::$app->user->identity->id:"000000";
-            $path = $this->config['uploadPath'].'/'.$userId;
+            $file_dir=date("Ymd");
+            //$path = $this->config['uploadPath'].'/'.$userId;
+            $path = $this->config['uploadPath'].'/'.$file_dir;
     
             if(!$this->mkDirs($path)){
                 throw new \Exception('上传目录生成失败！');
@@ -45,20 +47,25 @@ class UploadForm extends Model
             //图片裁剪
             $bigImage = $this->crop();
             //配置大中小图上传路径
-            $bigImageUrl = $path.'/'.date("YmdHis") . '_big'.'.'.$this->imageFile->extension;
-            $middleImageUrl = $path.'/'.date("YmdHis") . '_middle'.'.'.$this->imageFile->extension;
-            $smallImageUrl = $path.'/'.date("YmdHis") . '_small'.'.'.$this->imageFile->extension;
+
+            $file_name=uniqid() . '_thumb'.'.'.$this->imageFile->extension;
+            $bigImageUrl = $path.'/'.$file_name;
+            //$middleImageUrl = $path.'/'.date("YmdHis") . '_middle'.'.'.$this->imageFile->extension;
+            //$smallImageUrl = $path.'/'.date("YmdHis") . '_small'.'.'.$this->imageFile->extension;
+           
             //生成缩略中小图
-            $middleImage = imagecreatetruecolor($this->config['middleImageWidth'], $this->config['middleImageHeight']);
-            $smallImage = imagecreatetruecolor($this->config['smallImageWidth'], $this->config['smallImageHeight']);            
-            imagecopyresampled($middleImage, $bigImage, 0, 0, 0, 0, $this->config['middleImageWidth'], $this->config['middleImageHeight'], $this->config['bigImageWidth'], $this->config['bigImageHeight']);
-            imagecopyresampled($smallImage, $bigImage, 0, 0, 0, 0, $this->config['smallImageWidth'], $this->config['smallImageHeight'], $this->config['bigImageWidth'], $this->config['bigImageHeight']);
+            //$middleImage = imagecreatetruecolor($this->config['middleImageWidth'], $this->config['middleImageHeight']);
+            //$smallImage = imagecreatetruecolor($this->config['smallImageWidth'], $this->config['smallImageHeight']);            
+            //imagecopyresampled($middleImage, $bigImage, 0, 0, 0, 0, $this->config['middleImageWidth'], $this->config['middleImageHeight'], $this->config['bigImageWidth'], $this->config['bigImageHeight']);
+            // imagecopyresampled($smallImage, $bigImage, 0, 0, 0, 0, $this->config['smallImageWidth'], $this->config['smallImageHeight'], $this->config['bigImageWidth'], $this->config['bigImageHeight']);
+            
             //图片移动到对应目录
-            if (!imagepng($bigImage, $bigImageUrl)||!imagepng($middleImage, $middleImageUrl) ||!imagepng($smallImage, $smallImageUrl)) {
+            //if (!imagepng($bigImage, $bigImageUrl)||!imagepng($middleImage, $middleImageUrl) ||!imagepng($smallImage, $smallImageUrl)) {
+            if (!imagepng($bigImage, $bigImageUrl)) {
                 throw new \Exception('上传失败！');
             }
             
-            $this->imageUrl = '/'.$bigImageUrl;
+            $this->imageUrl = Yii::getAlias('@static').'/uploads/'.$file_dir.'/'.$file_name;
             return true;
         }catch (\Exception $e){
             $this->_lastError = $e->getMessage();

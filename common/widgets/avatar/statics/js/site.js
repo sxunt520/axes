@@ -2,7 +2,7 @@
  * 
  */
 $('#image').cropper({
-  aspectRatio: 1 / 1,
+  aspectRatio: 9 / 16,
   crop: function(e) {
     // Output the result data for cropping image.
     console.log(e.x);

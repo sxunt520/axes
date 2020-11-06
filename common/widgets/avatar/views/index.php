@@ -4,9 +4,9 @@ use yii\bootstrap\ActiveForm;
 use yii\bootstrap\Html;
 ?>
 <div id="crop-avatar">
-    <div class="avatar-view">
+    <!-- <div class="avatar-view">
       <img src="<?=$this->context->imageUrl?>" alt="Avatar">
-    </div>
+    </div> -->
     
     <!-- Cropping modal -->
     <div class="modal fade" id="avatar-modal" aria-hidden="true" aria-labelledby="avatar-modal-label" role="dialog" tabindex="-1">
@@ -16,7 +16,7 @@ use yii\bootstrap\Html;
           <?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data', 'class'=>'avatar-form'],'action'=>['crop']]) ?>
           <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h4 class="modal-title" id="avatar-modal-label">图片上传</h4>
+              <h4 class="modal-title" id="avatar-modal-label">封面图上传 <span style="color:red; font-size:14px;">( 裁剪图片尺寸>720 *1280px,大小<2M )</span></h4>
           </div>
           <div class="modal-body">
               <div class="avatar-body">
@@ -36,8 +36,8 @@ use yii\bootstrap\Html;
                   </div>
                   <div class="col-md-3">
                     <div class="avatar-preview preview-lg"></div>
-                    <div class="avatar-preview preview-md"></div>
-                    <div class="avatar-preview preview-sm"></div>
+                    <!-- <div class="avatar-preview preview-md"></div>
+                    <div class="avatar-preview preview-sm"></div> -->
                   </div>
                 </div>
 
