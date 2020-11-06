@@ -31,7 +31,7 @@ use kartik\file\FileInput;
     ?>
 
     <div class="form-group field-storyrecommend-cover_url required">
-        <label class="control-label" for="storyrecommend-cover_url">封面图(图片尺寸>720*1280px,大小<2M)</label>
+        <label class="control-label" for="storyrecommend-cover_url">封面图(上传的图片尺寸>720*1280px,大小<1M)</label>
 
         <div class="avatar-view" style=" margin-bottom:10px; background: #fff;">
             <img src="<?php echo !empty($model->cover_url)?$model->cover_url:'';?>" alt="上传封面图">
