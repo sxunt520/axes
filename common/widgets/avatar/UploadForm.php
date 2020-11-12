@@ -59,14 +59,44 @@ class UploadForm extends Model
             //imagecopyresampled($middleImage, $bigImage, 0, 0, 0, 0, $this->config['middleImageWidth'], $this->config['middleImageHeight'], $this->config['bigImageWidth'], $this->config['bigImageHeight']);
             // imagecopyresampled($smallImage, $bigImage, 0, 0, 0, 0, $this->config['smallImageWidth'], $this->config['smallImageHeight'], $this->config['bigImageWidth'], $this->config['bigImageHeight']);
             
-            //图片移动到对应目录
+            //图片移动到本地对应目录
             //if (!imagepng($bigImage, $bigImageUrl)||!imagepng($middleImage, $middleImageUrl) ||!imagepng($smallImage, $smallImageUrl)) {
             if (!imagepng($bigImage, $bigImageUrl)) {
                 throw new \Exception('上传失败！');
             }
-            
-            $this->imageUrl = Yii::getAlias('@static').'/uploads/'.$file_dir.'/'.$file_name;
-            return true;
+
+            //本地地址： $this->imageUrl = Yii::getAlias('@static').'/uploads/'.$file_dir.'/'.$file_name;
+
+            //////////////////上传到cos////////////////
+                $secretId = \Yii::$app->params['tencent_cos']['secretId']; //"云 API 密钥 SecretId";
+                $secretKey = \Yii::$app->params['tencent_cos']['secretKey']; //"云 API 密钥 SecretKey";
+                $region = "ap-guangzhou"; //设置一个默认的存储桶地域
+                $cosClient = new \Qcloud\Cos\Client(
+                    array(
+                        'region' => $region,
+                        'schema' => 'http', //协议头部，默认为http
+                        'credentials'=> array(
+                            'secretId'  => $secretId ,
+                            'secretKey' => $secretKey)));
+                //$local_path = "/Applications/XAMPP/web/demo/jjjj.png";
+                $local_path = $bigImageUrl;
+                try {
+                    $result = $cosClient->upload(
+                        $bucket = 'axe-video-1257242485', //格式：BucketName-APPID
+                        $key = '/img_static/'.$file_dir.'/'.$file_name,
+                        $body = fopen($local_path, 'rb')
+                    );
+                    // 请求成功
+                    //print_r($result);
+                    $this->imageUrl = 'http://'.$result['Location'];
+                    return true;
+                } catch (\Exception $e) {
+                    // 请求失败
+                    echo($e);
+                    return false;
+                }
+            //////////////////上传到cos////////////////
+
         }catch (\Exception $e){
             $this->_lastError = $e->getMessage();
             return false;
@@ -88,18 +118,18 @@ class UploadForm extends Model
     }
     
     /**
-     * bool imagecopyresampled ( resource $dst_image , resource $src_image , int $dst_x , int $dst_y , int $src_x , int $src_y , int $dst_w , int $dst_h , int $src_w , int $src_h )
-     * $dst_image：新建的图片
-     * $src_image：需要载入的图片
-     * $dst_x：设定需要载入的图片在新图中的x坐标
-     * $dst_y：设定需要载入的图片在新图中的y坐标
-     * $src_x：设定载入图片要载入的区域x坐标
-     * $src_y：设定载入图片要载入的区域y坐标
-     * $dst_w：设定载入的原图的宽度（在此设置缩放）
-     * $dst_h：设定载入的原图的高度（在此设置缩放）
-     * $src_w：原图要载入的宽度
-     * $src_h：原图要载入的高度
-     */
+ * bool imagecopyresampled ( resource $dst_image , resource $src_image , int $dst_x , int $dst_y , int $src_x , int $src_y , int $dst_w , int $dst_h , int $src_w , int $src_h )
+ * $dst_image：新建的图片
+ * $src_image：需要载入的图片
+ * $dst_x：设定需要载入的图片在新图中的x坐标
+ * $dst_y：设定需要载入的图片在新图中的y坐标
+ * $src_x：设定载入图片要载入的区域x坐标
+ * $src_y：设定载入图片要载入的区域y坐标
+ * $dst_w：设定载入的原图的宽度（在此设置缩放）
+ * $dst_h：设定载入的原图的高度（在此设置缩放）
+ * $src_w：原图要载入的宽度
+ * $src_h：原图要载入的高度
+ */
     
     public function crop()
     {     
