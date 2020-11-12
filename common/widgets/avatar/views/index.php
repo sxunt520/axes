@@ -16,7 +16,7 @@ use yii\bootstrap\Html;
           <?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data', 'class'=>'avatar-form'],'action'=>['crop']]) ?>
           <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h4 class="modal-title" id="avatar-modal-label">封面图上传 <span style="color:red; font-size:14px;">( 上传的图片尺寸>720 *1280px,大小<1M )</span></h4>
+              <h4 class="modal-title" id="avatar-modal-label">图片上传 <span style="color:red; font-size:14px;"></span></h4>
           </div>
           <div class="modal-body">
               <div class="avatar-body">
