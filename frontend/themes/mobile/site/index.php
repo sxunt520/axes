@@ -29,7 +29,7 @@ $this->title = '超S级互动故事阅读平台';
             <div class="button-box">
                 <p class="download-ios"><a class="btn-download" href="javascript:void(0);"><i class="icon-apple"></i>iPhone</a></p>
                 <p class="download-android"><a class="btn-download" href="javascript:void(0);"><i class="icon-android"></i>Android</a></p>
-                <p class="download-combo"><a class="btn-download" href="javascript:void(0);">立即下载</a></p>
+                <p class="download-combo"><a class="btn-download" href="javascript:void(0);" onClick="return confirm('即将上线，敬请期待！');">立即下载</a></p>
             </div>
         </div>
     </div>
