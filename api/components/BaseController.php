@@ -48,7 +48,8 @@ class BaseController extends ActiveController
                     'third-login',
                     'follower-list',
                     'fans-list',
-                    //'signup-test'
+                    'splash-pic',
+                    //'signup-test',
                 ],
             ]
         ] );
