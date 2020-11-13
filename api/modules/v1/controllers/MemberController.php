@@ -118,6 +118,24 @@ class MemberController extends BaseController
                 $data['user_profile']=$user_profile;
             }
 
+
+            //如果用户登录的，显示关注相关的状态 关注类型 0无状态 1关注 2拉黑
+            if(!empty($this->Token)){
+                $login_user_id = (int)Yii::$app->user->getId();//登录用户id
+                //echo $user_id.'-----'.$StoryComment_row['from_uid'];exit;
+                $follower_model=Follower::find()->where(['from_user_id'=>$login_user_id,'to_user_id'=>$user_id,'follower_type'=>1])->one();//看一下登录用户有没有关注他
+                if($follower_model){
+                    $data['user_profile']['follower_text']='已关注';
+                    $data['user_profile']['follower_type']=1;
+                }else{
+                    $data['user_profile']['follower_text']='未关注';
+                    $data['user_profile']['follower_type']=0;
+                }
+            }else{
+                $data['user_profile']['follower_text']='未关注';
+                $data['user_profile']['follower_type']=0;
+            }
+
             //关注数
             $data['follower_count']=(int)Follower::find()->where(['from_user_id'=>$user_id,'follower_type'=>1])->count();
             //热度值
@@ -181,6 +199,10 @@ class MemberController extends BaseController
                     'real_name_status'=>!empty($user->real_name_status)?$user->real_name_status:0,
                     'mobile'=>!empty($user->mobile)?$user->mobile:'',
                 ];
+
+                //先返回 自己关注自己情况
+                $data['user_profile']['follower_text']='已关注';
+                $data['user_profile']['follower_type']=1;
 
                 //关注数
                 $data['follower_count']=(int)Follower::find()->where(['from_user_id'=>$user->id,'follower_type'=>1])->count();
