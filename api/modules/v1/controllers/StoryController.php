@@ -93,9 +93,9 @@ class StoryController extends BaseController
                 if(array_key_exists($j + 1,$StoryRecommend_rows)&&array_key_exists($j + 2,$StoryRecommend_rows)){
 
                     if ($StoryRecommend_rows[$j]['story_id'] == $StoryRecommend_rows[$j + 1]['story_id']) {
-                        $temp = $StoryRecommend_rows[$j+1]['story_id'];
-                        $StoryRecommend_rows[$j+1]['story_id'] = $StoryRecommend_rows[$j + 2]['story_id'];
-                        $StoryRecommend_rows[$j + 2]['story_id'] = $temp;
+                        $temp = $StoryRecommend_rows[$j+1];
+                        $StoryRecommend_rows[$j+1] = $StoryRecommend_rows[$j + 2];
+                        $StoryRecommend_rows[$j + 2] = $temp;
                     }
                 }
 
