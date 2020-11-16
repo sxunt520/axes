@@ -81,6 +81,28 @@ class StoryController extends BaseController
             return parent::__response('暂无数据',0);
         }
 
+
+        ////////////////故事游戏交叉排序处理///////////////
+        $count = count($StoryRecommend_rows);
+        $temp = 0;
+        // 外层控制排序轮次
+        for ($i = 0; $i < $count - 1; $i ++) {
+            // 内层控制每轮比较次数
+            for ($j = 0; $j < $count - 1 - $i; $j ++) {
+
+                if(array_key_exists($j + 1,$StoryRecommend_rows)&&array_key_exists($j + 2,$StoryRecommend_rows)){
+
+                    if ($StoryRecommend_rows[$j]['story_id'] == $StoryRecommend_rows[$j + 1]['story_id']) {
+                        $temp = $StoryRecommend_rows[$j+1]['story_id'];
+                        $StoryRecommend_rows[$j+1]['story_id'] = $StoryRecommend_rows[$j + 2]['story_id'];
+                        $StoryRecommend_rows[$j + 2]['story_id'] = $temp;
+                    }
+                }
+
+            }
+        }
+
+
         //操作其它
         foreach ($StoryRecommend_rows as $k=>$v){
             //游戏点赞数、游戏标题
