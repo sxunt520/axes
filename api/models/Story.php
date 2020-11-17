@@ -31,8 +31,8 @@ class Story extends \common\models\Story
     {
         return [
             [['intro'], 'string'],
-            [['type', 'created_at', 'updated_at', 'admin_id', 'next_updated_at', 'current_chapters', 'total_chapters', 'is_show','views','share_num'], 'integer'],
-            [['title','game_title'], 'string', 'max' => 50],
+            [['type', 'created_at', 'updated_at', 'admin_id', 'next_updated_at', 'current_chapters', 'total_chapters', 'is_show','views','share_num','collect_num'], 'integer'],
+            [['title','game_title','slogan_title'], 'string', 'max' => 50],
             [['cover_url', 'video_url','record_pic'], 'string', 'max' => 255]
         ];
     }

@@ -44,8 +44,8 @@ class Story extends \yii\db\ActiveRecord
         return [
             [['game_title', 'intro','is_show'], 'required'],
             [['intro'], 'string'],
-            [['type', 'created_at', 'updated_at', 'admin_id', 'current_chapters', 'total_chapters', 'is_show'], 'integer'],
-            [['title','game_title'], 'string', 'max' => 50],
+            [['type', 'created_at', 'updated_at', 'admin_id', 'current_chapters', 'total_chapters', 'is_show','collect_num'], 'integer'],
+            [['title','game_title','slogan_title'], 'string', 'max' => 50],
             [['cover_url', 'video_url','record_pic','game_title'], 'string', 'max' => 255],
             [['next_updated_at'], 'filter', 'filter' => 'strtotime', 'skipOnEmpty' => true],
             ['created_at', 'default', 'value' => time()],
@@ -81,6 +81,8 @@ class Story extends \yii\db\ActiveRecord
             'record_pic'=>'旅行记录图',
             'game_title'=>'游戏名称',
             'tagNames' => '标签',
+            'collect_num' => '订阅收藏数',
+            'slogan_title' => '宣传标语',
         ];
     }
 

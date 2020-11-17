@@ -233,7 +233,7 @@ class StoryController extends BaseController
         $id = (int)Yii::$app->request->post('id');
 
         $story_details=Story::find()
-            ->select(['id','title','intro','type','cover_url','video_url','created_at','updated_at','next_updated_at','current_chapters','total_chapters','likes','views','share_num','game_title'])
+            ->select(['id','title','intro','type','cover_url','video_url','created_at','updated_at','next_updated_at','current_chapters','total_chapters','likes','views','share_num','game_title','collect_num','slogan_title'])
             ->asArray()->where(['=', 'id', $id])->one();
 
         //先看故事是否存在
@@ -469,7 +469,7 @@ class StoryController extends BaseController
 
      /*
       *
-      * 收藏、取消收藏操作
+      * 订阅收藏、取消订阅收藏操作
       * @params story_id user_id  type=1收藏操作|2取消收藏操作
       */
      public function actionCollect(){
@@ -492,25 +492,77 @@ class StoryController extends BaseController
          $collect_model=StoryCollect::find()->where(['story_id'=>$story_id,'user_id'=>$user_id])->one();
          if ($collect_model){//数据库里有数据记录了12 01     10 11 20 21
              if($type==1&&$collect_model->status==0){//要收藏、状态是已取消收藏
-                 $collect_model->status=1;
-                 $r=$collect_model->save();
-                 if($r){
-                     return parent::__response('收藏成功',(int)0);
-                 }else{
-                     return parent::__response('收藏失败',(int)-1);
+
+//                 $collect_model->status=1;
+//                 $r=$collect_model->save();
+//                 if($r){
+//                     return parent::__response('收藏成功',(int)0);
+//                 }else{
+//                     return parent::__response('收藏失败',(int)-1);
+//                 }
+
+                 //开启事务
+                 $transaction=Yii::$app->db->beginTransaction();
+                 try{
+                     //先更新状态
+                     $collect_model->status=1;
+                     $collect_model->save();
+                     //锁定行
+                     $sql="select collect_num from {{%story}} where id={$story_id} for update";
+                     $data=Yii::$app->db->createCommand($sql)->query()->read();
+                     $sql="update {{%story}} set collect_num=collect_num+1 where id={$story_id}";
+                     Yii::$app->db->createCommand($sql)->execute();
+                     $transaction->commit();//提交
+                     //Yii::$app->cache->set('story_collect_num:'.$story_id,$data['collect_num']+1);
+                     return parent::__response('订阅收藏成功',(int)0,['collect_num'=>$data['collect_num']+1]);
+                 }catch (Exception $e){
+//                     Yii::error($e->getMessage());
+//                     $this->error=json_encode($e->getMessage());
+                     $transaction->rollBack();//回滚
+                     return parent::__response('订阅收藏失败',(int)-1);
                  }
+
              }elseif($type==2&&$collect_model->status==1){//要取消收藏、状态是已收藏
-                 $collect_model->status=0;
-                 $r=$collect_model->save();
-                 if($r){
-                     return parent::__response('取消收藏成功',(int)0);
-                 }else{
-                     return parent::__response('取消收藏失败',(int)-1);
+//                 $collect_model->status=0;
+//                 $r=$collect_model->save();
+//                 if($r){
+//                     return parent::__response('取消收藏成功',(int)0);
+//                 }else{
+//                     return parent::__response('取消收藏失败',(int)-1);
+//                 }
+
+                 //开启事务
+                 $transaction=Yii::$app->db->beginTransaction();
+                 try{
+                     //先更新状态
+                     $collect_model->status=0;
+                     $collect_model->save();
+                     //锁定行
+                     $sql="select collect_num from {{%story}} where id={$story_id} for update";
+                     $data=Yii::$app->db->createCommand($sql)->query()->read();
+
+                     if($data['collect_num']>0){//判断一下库里的收藏数是否大于0,在去做减法操作
+                         $sql="update {{%story}} set collect_num=collect_num-1 where id={$story_id}";
+                         Yii::$app->db->createCommand($sql)->execute();
+                         $collect_num=$data['collect_num']-1;//更新后的值
+                     }else{
+                         $collect_num=0;
+                     }
+
+                     $transaction->commit();//提交
+                     //Yii::$app->cache->set('story_collect_num:'.$story_id,$data['collect_num']-1);
+                     return parent::__response('取消订阅收藏成功',(int)0,['collect_num'=>$collect_num]);
+                 }catch (Exception $e){
+//                     Yii::error($e->getMessage());
+//                     $this->error=json_encode($e->getMessage());
+                     $transaction->rollBack();//回滚
+                     return parent::__response('取消订阅收藏失败',(int)-1);
                  }
+
              }elseif($type==1&&$collect_model->status==1){//要收藏状态为已收藏
-                 return parent::__response('操作失败！故事已收藏',(int)-1);
+                 return parent::__response('操作失败！故事已订阅收藏',(int)-1);
              }elseif($type==2&&$collect_model->status==0){//要取消收藏状态为已取消收藏
-                 return parent::__response('操作失败！已取消收藏',(int)-1);
+                 return parent::__response('操作失败！已取消订阅收藏',(int)-1);
              }else{
                  return parent::__response('操作失败',(int)-1);
              }
@@ -523,17 +575,38 @@ class StoryController extends BaseController
                  //$cColect_Model->created_at=time();
                  $isValid = $cColect_Model->validate();
                  if($isValid){
-                     $r=$cColect_Model->save();
-                     if($r){
-                         return parent::__response('收藏成功',(int)0);
-                     }else{
-                         return parent::__response('收藏失败',(int)-1);
+
+//                     $r=$cColect_Model->save();
+//                     if($r){
+//                         return parent::__response('收藏成功',(int)0);
+//                     }else{
+//                         return parent::__response('收藏失败',(int)-1);
+//                     }
+
+                     //开启事务
+                     $transaction=Yii::$app->db->beginTransaction();
+                     try{
+                         $cColect_Model->save();
+                         //锁定行
+                         $sql="select collect_num from {{%story}} where id={$story_id} for update";
+                         $data=Yii::$app->db->createCommand($sql)->query()->read();
+                         $sql="update {{%story}} set collect_num=collect_num+1 where id={$story_id}";
+                         Yii::$app->db->createCommand($sql)->execute();
+                         $transaction->commit();//提交
+                         //Yii::$app->cache->set('story_collect_num:'.$story_id,$data['collect_num']+1);
+                         return parent::__response('订阅收藏成功',(int)0,['collect_num'=>$data['collect_num']+1]);
+                     }catch (Exception $e){
+//                     Yii::error($e->getMessage());
+//                     $this->error=json_encode($e->getMessage());
+                         $transaction->rollBack();//回滚
+                         return parent::__response('订阅收藏失败',(int)-1);
                      }
+
                  }else{
                      return parent::__response('参数错误收藏失败',(int)-1);
                  }
              }else{//有收藏记录，不能取消收藏
-                 return parent::__response('你没有收藏记录，不能取消收藏',(int)-1);
+                 return parent::__response('你没有订阅收藏记录，不能取消订阅收藏',(int)-1);
              }
 
          }
