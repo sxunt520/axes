@@ -22,6 +22,8 @@ use kartik\file\FileInput;
     <div class="tab-pane <?php echo $flag==0?'active':'';?>" id="tab_1">
         <?= $form->field($model, 'game_title')->textInput(['maxlength' => true]) ?>
 
+        <?= $form->field($model, 'slogan_title')->textInput(['maxlength' => true]) ?>
+
         <?= $form->field($model, 'intro')->textarea(['rows' => 6]) ?>
 
         <?php // $form->field($model, 'type')->dropDownList(['1'=>'图片','2'=>'视频'], ['prompt'=>'未选择','style'=>'width:120px']) ?>
