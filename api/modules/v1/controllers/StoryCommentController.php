@@ -588,5 +588,43 @@ class StoryCommentController extends BaseController
         return parent::__response('ok',0,['likes'=>(int)$content['likes']]);
     }
 
+
+    /**
+     *Time:2020/11/18 9:48
+     *Author:始渲
+     *Remark:更新评论分享数 share_num
+     * @params:comment_id
+     *
+     */
+    public function actionShare(){
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+        if(!Yii::$app->request->POST("comment_id")){
+            return parent::__response('参数错误!',(int)-2);
+        }
+        $comment_id=Yii::$app->request->POST("comment_id");
+        //$user_id=Yii::$app->user->getId();
+
+        //先看故事是否存在
+        $StoryComment=StoryComment::findOne($comment_id);
+        if(!$StoryComment){
+            return parent::__response('评论不存在!',(int)-1);
+        }
+
+        //锁定行,更新
+        $sql="select share_num from {{%story_comment}} where id={$comment_id} for update";
+        $data=Yii::$app->db->createCommand($sql)->query()->read();
+        $sql="update {{%story_comment}} set share_num=share_num+1 where id={$comment_id}";
+        $r=Yii::$app->db->createCommand($sql)->execute();
+        if($r){
+            return parent::__response('分享成功',(int)0,['share_num'=>$data['share_num']+1]);
+        }else{
+            return parent::__response('分享失败',(int)-1);
+        }
+
+    }
+
     
 }
