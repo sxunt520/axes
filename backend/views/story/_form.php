@@ -122,6 +122,7 @@ use kartik\file\FileInput;
     <div class="tab-pane" id="tab_2">
         <?php // $form->field($model, 'other')->widget('kucha\ueditor\UEditor', ['options' => ['style' => 'height:200px']]) ?>
         <?php // $form->field($model, 'game_title')->textInput(['maxlength' => true]) ?>
+        <?= $form->field($model, 'free_game_link')->textInput(['maxlength' => true]) ?>
         <?= $form->field($model, 'current_chapters')->textInput() ?>
         <?= $form->field($model, 'total_chapters')->textInput() ?>
         <?= $form->field($model, 'next_updated_at')->widget(
