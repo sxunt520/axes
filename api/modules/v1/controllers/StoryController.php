@@ -106,13 +106,15 @@ class StoryController extends BaseController
         //操作其它
         foreach ($StoryRecommend_rows as $k=>$v){
             //游戏点赞数、游戏标题
-            $Story_rows=Story::find()->select(['likes','game_title'])->where(['id' => $v['story_id']])->asArray()->one();
+            $Story_rows=Story::find()->select(['likes','game_title','free_game_link'])->where(['id' => $v['story_id']])->asArray()->one();
             if($Story_rows){
                 $StoryRecommend_rows[$k]['likes']=$Story_rows['likes'];
                 $StoryRecommend_rows[$k]['game_title']=$Story_rows['game_title'];
+                $StoryRecommend_rows[$k]['free_game_link']=$Story_rows['free_game_link'];
             }else{
                 $StoryRecommend_rows[$k]['likes']=0;
                 $StoryRecommend_rows[$k]['game_title']=0;
+                $StoryRecommend_rows[$k]['free_game_link']='';
             }
 
             //评论数
