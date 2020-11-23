@@ -134,7 +134,7 @@ public function actionAsyncImage ()
     return;
 }
 
-public function actionDelete ()
+    public function actionDelete ()
     {
         if ($id = Yii::$app->request->post('key')) {
             
@@ -149,6 +149,68 @@ public function actionDelete ()
         }else{
             return ['success' => false];
         }    
+    }
+
+    /**
+     *Time:2020/11/23 15:40
+     *Author:始渲
+     *Remark:ffmpe生成视频第一秒为封面截图
+     * @params:
+     */
+    public function actionVideoCover()
+    {
+        $savePath=Yii::getAlias('@staticroot').'/uploads/';
+        $file_dir='video_cover_'.date("Ymd");
+        $fileName='videoimg_'.uniqid().'.jpg';
+
+        $path = $savePath.$file_dir;
+
+        //创建目录
+        if(!is_dir($path)){
+            mkdir($path,0777);
+        }
+
+        //ffmpeg配置
+        if (YII_ENV=='dev') {//本地win
+            $ffmpeg_config_arr=[
+                //绑定插件
+                'ffmpeg.binaries'  => 'D:\down\ffmpeg-N-99973-g0066bf4d1a-win64-gpl-shared-vulkan\bin\ffmpeg.exe',
+                'ffprobe.binaries' => 'D:\down\ffmpeg-N-99973-g0066bf4d1a-win64-gpl-shared-vulkan\bin\ffprobe.exe'
+            ];
+            $host='http://api.axes.com';
+            $video_url='D:\NEXT\test\xxxx.mp4';
+        } else {//线上linux
+            $ffmpeg_config_arr=[
+                //绑定插件
+                'ffmpeg.binaries'  => '/usr/local/ffmpeg/bin/ffmpeg',
+                'ffprobe.binaries' => '/usr/local/ffmpeg/bin/ffprobe',
+                //'timeout'          => 3600, // The timeout for the underlying process
+                //'ffmpeg.threads'   => 12,   // The number of threads that FFMpeg should use
+            ];
+            $host='http://81.71.11.205:8000';
+            $video_url='/data/site/axes/api/web/uploads/video_20200924/20200924043502_5f6c5a3630ed7.mp4';
+        }
+
+        $ffmpeg = \FFMpeg\FFMpeg::create(
+            $ffmpeg_config_arr
+        );
+        $video = $ffmpeg->open($video_url);
+        $video
+            ->filters()
+            ->resize(new \FFMpeg\Coordinate\Dimension(720, 1280))
+            ->synchronize();
+        //生成视频截图
+        $r=$video
+            ->frame(\FFMpeg\Coordinate\TimeCode::fromSeconds(1))
+            ->save($path.'/'.$fileName);
+
+        if($r){
+            echo $path.'/'.$fileName;
+            echo '<br />';
+            echo $host.'/uploads/'.$file_dir.'/'.$fileName;
+        }else{
+            echo '生成失败';
+        }
     }
 
 }
