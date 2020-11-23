@@ -2,7 +2,7 @@
 
 /* @var $this yii\web\View */
 
-$this->title = '超S级互动故事阅读平台';
+$this->title = '超S级互动故事阅读APP';
 ?>
 <header class="page-header">
     <div class="qrcode-box">
