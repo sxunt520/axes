@@ -30,15 +30,6 @@ use kartik\file\FileInput;
 //    ])->label('封面图(720*1280px | 9:16 文件格式jpg、png 500k以下,<span style="color: red;">需传入</span>)')
     ?>
 
-    <div class="form-group field-storyrecommend-cover_url required">
-        <label class="control-label" for="storyrecommend-cover_url">封面图(上传的图片尺寸>720*1280px,大小<1M)</label>
-
-        <div class="avatar-view" style=" margin-bottom:10px; background: #fff;">
-            <img src="<?php echo !empty($model->cover_url)?$model->cover_url:'';?>" alt="上传封面图">
-        </div>
-        <input type="hidden" value="<?php echo !empty($model->cover_url)?$model->cover_url:'';?>" id="xxx-upimg" name="StoryRecommend[cover_url]">
-    </div>
-
     <?= $form->field($model,'video_url')->textInput()->hiddenInput(['value'=>$model->video_url])->label(false);?>
     <?php
     if($model->video_url){
@@ -71,11 +62,24 @@ use kartik\file\FileInput;
                                     console.log(data);
                                     //console.log(data.response.initialPreview[0]);
                                     //console.log($('input[StoryRecommend][video_url]'));
-                                    $(\"input[name='StoryRecommend[video_url]']\").val(data.response.video_url)
+                                    $(\"input[name='StoryRecommend[video_url]']\").val(data.response.video_url);
+                                    if(data.response.video_cover_flag==true){//如果有视频封面图
+                                        $(\"#video_cover_img\").attr('src',data.response.video_cover_url); 
+                                        $(\"#xxx-upimg\").val(data.response.video_cover_url);
+                                    }
                                 }",
                     ],
                     //'pluginLoading'=>false,
     ]);?>
+
+    <div class="form-group field-storyrecommend-cover_url required">
+        <label class="control-label" for="storyrecommend-cover_url">封面图(上传的图片尺寸>720*1280px,大小<1M)</label>
+
+        <div class="avatar-view" style=" margin-bottom:10px; background: #fff;">
+            <img id="video_cover_img" src="<?php echo !empty($model->cover_url)?$model->cover_url:'';?>" alt="上传封面图">
+        </div>
+        <input type="hidden" value="<?php echo !empty($model->cover_url)?$model->cover_url:'';?>" id="xxx-upimg" name="StoryRecommend[cover_url]">
+    </div>
 
     <?= $form->field($model, 'is_show')->dropDownList([0=>'否',1=>'是'], ['prompt'=>'未选择','style'=>'width:120px']) ?>
 

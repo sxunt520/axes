@@ -9,6 +9,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\UploadedFile;
+use backend\components\Ffmpeg;
 
 /**
  * StoryRecommendController implements the CRUD actions for StoryRecommend model.
@@ -159,11 +160,21 @@ class StoryRecommendController extends Controller
                 // 请求成功
                 //print_r($result);
 
+                //生成一个视频封面，然后上传到COS
+                $video_cover_url=Ffmpeg::getVideoCover('http://'.$result['Location'],0);
+                if($video_cover_url){
+                    $video_cover_flag=true;
+                }else{
+                    $video_cover_flag=false;
+                }
+
                 $p1[]= '<video width="300" height="auto" controls="controls"><source src="'.'http://'.$result['Location'].'" type="video/mp4"></video>';
                 echo json_encode([
                     'initialPreview' => $p1,
                     'video_url'=>'http://'.$result['Location'],
                     'append' => false,//控制不追回，只传一个
+                    'video_cover_url'=>$video_cover_url,//视频封面
+                    'video_cover_flag'=>$video_cover_flag,//是否有视频封面
                 ]);
                 return;
 

@@ -6,6 +6,8 @@ use yii\web\Controller;
 
 use backend\models\Upload;
 use yii\web\UploadedFile;
+use backend\components\Ffmpeg;
+
 class ToolsController extends Controller{
     
 /**
@@ -178,6 +180,7 @@ public function actionAsyncImage ()
                 'ffprobe.binaries' => 'D:\down\ffmpeg-N-99973-g0066bf4d1a-win64-gpl-shared-vulkan\bin\ffprobe.exe'
             ];
             $host='http://api.axes.com';
+            //$video_url='http://axe-video-1257242485.cos.ap-guangzhou.myqcloud.com/axe_uploads/video_20201119/5fb64e250e1ad.mp4';
             $video_url='D:\NEXT\test\xxxx.mp4';
         } else {//线上linux
             $ffmpeg_config_arr=[
@@ -210,6 +213,29 @@ public function actionAsyncImage ()
             echo $host.'/uploads/'.$file_dir.'/'.$fileName;
         }else{
             echo '生成失败';
+        }
+    }
+
+    /**
+     *Time:2020/11/23 17:31
+     *Author:始渲
+     *Remark:设置视频封面demo
+     */
+    public function actionSetVideoCover()
+    {
+        $fromSeconds = (int)Yii::$app->request->get('fromSeconds');
+        if($fromSeconds>0){
+            $_fromSeconds=$fromSeconds;
+        }else{
+            $_fromSeconds=1;
+        }
+
+        $video_cover_url=Ffmpeg::getVideoCover('https://axe-video-1257242485.cos.ap-guangzhou.myqcloud.com/axe_uploads/video_20201009/20201009064135_5f803e5f91c65.mp4',$_fromSeconds);
+        if($video_cover_url){
+            echo '<img width="500" src="'.$video_cover_url.'" />';
+            //echo $video_cover_url;
+        }else{
+            echo '获取视频封面失败';
         }
     }
 
