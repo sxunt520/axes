@@ -52,7 +52,16 @@ $this->params['breadcrumbs'][] = $this->title;
                     ],
                     //'comment_type',
                     'title',
-                    'content:ntext',
+                    //'content:ntext',
+                    [
+                        'attribute'=>'content',
+                        //'label'=>'内容',
+                        'format'=>'raw',
+                        'value'=>function($model){
+                            return "<div style=\"width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis\">".$model->content."</div>";
+                            //
+                        },
+                    ],
                     'from_uid',
                      //'created_at',
                     [
