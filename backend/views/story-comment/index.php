@@ -52,7 +52,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     ],
                     //'comment_type',
                     'title',
-                    //'content:ntext',
+                    ///'content:ntext',
                     [
                         'attribute'=>'content',
                         //'label'=>'内容',
