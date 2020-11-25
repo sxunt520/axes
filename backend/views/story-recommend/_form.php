@@ -21,13 +21,13 @@ use kartik\file\FileInput;
     <?= $form->field($model, 'type')->dropDownList(['1'=>'图片','2'=>'视频'], ['prompt'=>'未选择','style'=>'width:120px']) ?>
 
     <?php
-//    $form->field($model, 'cover_url')->widget('common\widgets\file_upload\FileUpload',[
-//        'config'=>[
-//            //图片上传的一些配置，不写调用默认配置
-//            'domain_url' => Yii::getAlias('@static'),////图片域名
-//            'serverUrl' => yii\helpers\Url::to(['upload_one','action'=>'uploadimage','is_thumb'=>true,'adv_width'=>720,'adv_height'=>1280]),  //上传服务器地址 is_thumb就否返回生成缩略图
-//        ]
-//    ])->label('封面图(720*1280px | 9:16 文件格式jpg、png 500k以下,<span style="color: red;">需传入</span>)')
+    //    $form->field($model, 'cover_url')->widget('common\widgets\file_upload\FileUpload',[
+    //        'config'=>[
+    //            //图片上传的一些配置，不写调用默认配置
+    //            'domain_url' => Yii::getAlias('@static'),////图片域名
+    //            'serverUrl' => yii\helpers\Url::to(['upload_one','action'=>'uploadimage','is_thumb'=>true,'adv_width'=>720,'adv_height'=>1280]),  //上传服务器地址 is_thumb就否返回生成缩略图
+    //        ]
+    //    ])->label('封面图(720*1280px | 9:16 文件格式jpg、png 500k以下,<span style="color: red;">需传入</span>)')
     ?>
 
     <?= $form->field($model,'video_url')->textInput()->hiddenInput(['value'=>$model->video_url])->label(false);?>
@@ -39,37 +39,37 @@ use kartik\file\FileInput;
         $video_url=null;
     }
     echo $form->field($model,'_video_url')->label('推荐视频')->widget(FileInput::classname(), [
-                'options' => ['accept' => 'video/*'],
-                'pluginOptions' => [
-                    // 需要预览的文件格式
-                    'previewFileType' => 'video',
-                    // 预览的文件
-                    'initialPreview' => [$video_url],
-                    // 异步上传的接口地址设置
-                    'uploadUrl' => \yii\helpers\Url::toRoute(['async-upcos']),
-                    //'uploadUrl' => \yii\helpers\Url::toRoute(['async-video']),
-                    'uploadAsync' => true,
-                    // 最少上传的文件个数限制
-                    'minFileCount' => 1,
-                    // 最多上传的文件个数限制
-                    'maxFileCount' => 1,
-                    //'showPreview'=>false,//是否显示整个文件区，自然就无法拖曳文件进行上传了
-                ],
-                // 一些事件行为
-                    'pluginEvents' => [
-                        // 上传成功后的回调方法，需要的可查看data后再做具体操作，一般不需要设置
-                        "fileuploaded" => "function (event, data, id, index) {
-                                    console.log(data);
-                                    //console.log(data.response.initialPreview[0]);
-                                    //console.log($('input[StoryRecommend][video_url]'));
-                                    $(\"input[name='StoryRecommend[video_url]']\").val(data.response.video_url);
-                                    if(data.response.video_cover_flag==true){//如果有视频封面图
-                                        $(\"#video_cover_img\").attr('src',data.response.video_cover_url); 
-                                        $(\"#xxx-upimg\").val(data.response.video_cover_url);
-                                    }
-                                }",
-                    ],
-                    //'pluginLoading'=>false,
+        //                'options' => ['accept' => 'video/*'],
+        //                'pluginOptions' => [
+        //                    // 需要预览的文件格式
+        //                    'previewFileType' => 'video',
+        //                    // 预览的文件
+        //                    'initialPreview' => [$video_url],
+        //                    // 异步上传的接口地址设置
+        //                    'uploadUrl' => \yii\helpers\Url::toRoute(['async-upcos']),
+        //                    //'uploadUrl' => \yii\helpers\Url::toRoute(['async-video']),
+        //                    'uploadAsync' => true,
+        //                    // 最少上传的文件个数限制
+        //                    'minFileCount' => 1,
+        //                    // 最多上传的文件个数限制
+        //                    'maxFileCount' => 1,
+        //                    //'showPreview'=>false,//是否显示整个文件区，自然就无法拖曳文件进行上传了
+        //                ],
+        //                // 一些事件行为
+        //                    'pluginEvents' => [
+        //                        // 上传成功后的回调方法，需要的可查看data后再做具体操作，一般不需要设置
+        //                        "fileuploaded" => "function (event, data, id, index) {
+        //                                    console.log(data);
+        //                                    //console.log(data.response.initialPreview[0]);
+        //                                    //console.log($('input[StoryRecommend][video_url]'));
+        //                                    $(\"input[name='StoryRecommend[video_url]']\").val(data.response.video_url);
+        //                                    if(data.response.video_cover_flag==true){//如果有视频封面图
+        //                                        $(\"#video_cover_img\").attr('src',data.response.video_cover_url);
+        //                                        $(\"#xxx-upimg\").val(data.response.video_cover_url);
+        //                                    }
+        //                                }",
+        //                    ],
+        //                    //'pluginLoading'=>false,
     ]);?>
 
     <div class="form-group field-storyrecommend-cover_url required">

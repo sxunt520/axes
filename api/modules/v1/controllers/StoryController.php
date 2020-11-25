@@ -364,12 +364,14 @@ class StoryController extends BaseController
                 $StoryCommentImg=StoryCommentImg::find()->select(['id','img_url','img_text'])->where(['id' => $v['comment_img_id']])->asArray()->one();
                 if($StoryCommentImg)$StoryComment_rows[$k]['comment_img']=$StoryCommentImg['img_url'];
 
-                $member_arr=Member::find()->select(['username','picture_url'])->where(['id' => $v['from_uid']])->asArray()->one();
+                $member_arr=Member::find()->select(['username','picture_url','nickname'])->where(['id' => $v['from_uid']])->asArray()->one();
                 if($member_arr){
                     $StoryComment_rows[$k]['user_name']=$member_arr['username'];
+                    $StoryComment_rows[$k]['nickname']=$member_arr['nickname'];
                     $StoryComment_rows[$k]['user_picture']=$member_arr['picture_url'];
                 }else{
                     $StoryComment_rows[$k]['user_name']='';
+                    $StoryComment_rows[$k]['nickname']='';
                     $StoryComment_rows[$k]['user_picture']='';
                 }
 
