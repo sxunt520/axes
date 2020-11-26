@@ -95,6 +95,7 @@ return [
                             'POST story-comment-replys' => 'story-comment-reply/reply-list',
                             'POST story-comment-replys' => 'story-comment-reply/reply-details',
                             'POST story-comment-replys' => 'story-comment-reply/reply-details-list',
+                            'POST members' => 'member/report-add',
                      ],
           ],
 //            'response' => [
