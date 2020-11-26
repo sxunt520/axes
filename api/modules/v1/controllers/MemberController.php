@@ -3,6 +3,7 @@
 namespace api\modules\v1\controllers;
 
 use api\models\Report;
+use api\models\Shield;
 use api\models\Story;
 use api\models\StoryCommentLikeLog;
 use api\models\StoryCommentReplyLikeLog;
@@ -1363,6 +1364,71 @@ class MemberController extends BaseController
                 return parent::__response('举报成功',(int)0,['report_id'=>$report_id]);
             }else{
                 return parent::__response('举报失败!',(int)-1);
+            }
+        }else{
+            return parent::__response('参数错误!',(int)-2);
+        }
+
+    }
+
+    /**
+     *Time:2020/11/26 11:40
+     *Author:始渲
+     *Remark:屏蔽添加，需验证Token登录
+     * @params:
+     * shield_to_uid 被屏蔽用户id
+     */
+    public function actionShieldAdd(){
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+        if(!Yii::$app->request->POST("shield_to_uid")){
+            return parent::__response('参数错误!',(int)-2);
+        }
+
+        $shield_from_uid=Yii::$app->user->getId();//操作屏蔽用户id
+        $shield_to_uid = (int)Yii::$app->request->post('shield_to_uid');//被屏蔽用户id
+
+        //先看被屏蔽用户是否存在
+        $Member_Model=Member::findOne($shield_to_uid);
+        if(!$Member_Model){
+            return parent::__response('屏蔽用户不存在!',(int)-1);
+        }
+
+        //检测是否有屏蔽操作
+        $Shield_Model=Shield::find()->andWhere(['shield_from_uid'=>$shield_from_uid,'shield_to_uid'=>$shield_to_uid])->one();
+        if($Shield_Model){
+            if($Shield_Model->status==1){
+                return parent::__response('已经屏蔽操作过了!',(int)-1);
+            }else{
+                $Shield_Model->status = 1;
+                $r=$Shield_Model->save(false);
+                if($r){
+                    $shield_id=$Shield_Model->id;
+                    return parent::__response('屏蔽成功',(int)0,['shield_id'=>$shield_id]);
+                }else{
+                    return parent::__response('屏蔽失败!',(int)-1);
+                }
+            }
+        }
+
+        //否则创建新的屏蔽操作记录
+        $_Shield_model=new Shield();
+        $_Shield_model->shield_from_uid = $shield_from_uid;//操作屏蔽用户id
+        $_Shield_model->shield_to_uid = $shield_to_uid;//被屏蔽用户id
+        $_Shield_model->status = 1;//屏蔽状态 0已取消屏蔽 1已屏蔽
+        $_Shield_model->created_at=time();//创建时间
+
+        //验证保存
+        $isValid = $_Shield_model->validate();
+        if ($isValid) {
+            $r=$_Shield_model->save();
+            if($r){
+                $shield_id=$_Shield_model->id;
+                return parent::__response('屏蔽成功',(int)0,['shield_id'=>$shield_id]);
+            }else{
+                return parent::__response('屏蔽失败!',(int)-1);
             }
         }else{
             return parent::__response('参数错误!',(int)-2);
