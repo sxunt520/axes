@@ -47,14 +47,14 @@ class Report extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'report_from_uid' => 'Report From Uid',
-            'report_to_uid' => 'Report To Uid',
-            'type' => 'Type',
-            'event_id' => 'Event ID',
-            'title' => 'Title',
-            'content' => 'Content',
-            'created_at' => 'Created At',
-            'status' => 'Status',
+            'report_from_uid' => '举报人id',
+            'report_to_uid' => '被举报人id',
+            'type' => '举报来源类型',
+            'event_id' => '事件业务id',
+            'title' => '标题',
+            'content' => '举报内容',
+            'created_at' => '举报时间',
+            'status' => '审核状态',
         ];
     }
 }
