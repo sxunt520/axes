@@ -90,6 +90,8 @@ return [
                             'POST story-comments' => 'story-comment/like',
                             'POST story-comments' => 'story-comment/get-likes',
                             'POST story-comments' => 'story-comment/share',
+                            'POST story-comments' => 'story-comment/add-screen-comment',
+                            'POST story-comments' => 'story-comment/screen-comment-list',
                             'POST story-comment-replys' => 'story-comment-reply/like',
                             'POST story-comment-replys' => 'story-comment-reply/get-likes',
                             'POST story-comment-replys' => 'story-comment-reply/add',

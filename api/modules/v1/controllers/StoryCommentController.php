@@ -11,6 +11,7 @@ use api\models\StoryComment;
 use api\models\StoryCommentImg;
 use api\models\StoryCommentLikeLog;
 use api\models\member;
+use api\models\StoryScreenComment;
 
 class StoryCommentController extends BaseController
 {
@@ -626,5 +627,101 @@ class StoryCommentController extends BaseController
 
     }
 
+
+    /**
+     *Time:2020/12/11 13:48
+     *Author:始渲
+     *Remark:添加弹幕
+     * @params:
+     * story_id 故事游戏id
+     * text 弹幕文字
+     */
+    public function actionAddScreenComment(){
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+        if(!Yii::$app->request->POST("story_id")||!Yii::$app->request->POST("text")){
+            return parent::__response('参数错误!',(int)-2);
+        }
+        $story_id = (int)Yii::$app->request->post('story_id');//故事游戏id
+        $text = Yii::$app->request->post('text');//弹幕文字
+
+        //先看故事是否存在
+        $Story_Model=Story::findOne($story_id);
+        if(!$Story_Model){
+            return parent::__response('故事游戏不存在!',(int)-1);
+        }
+
+        $StoryScreenComment_model=new StoryScreenComment();
+        $StoryScreenComment_model->story_id = $story_id;//故事id
+        $StoryScreenComment_model->text = $text;//评论图id
+        $StoryScreenComment_model->from_uid = Yii::$app->user->getId();//评论用户id
+        $StoryScreenComment_model->created_at=time();
+        $StoryScreenComment_model->is_show=1;
+
+        //验证保存
+        $isValid = $StoryScreenComment_model->validate();
+        if ($isValid) {
+            $r=$StoryScreenComment_model->save();
+            if($r){
+                $screen_comment_id=$StoryScreenComment_model->id;
+                return parent::__response('添加弹幕成功',(int)0,['screen_comment_id'=>$screen_comment_id]);
+            }else{
+                return parent::__response('添加弹幕失败!',(int)-1);
+            }
+        }else{
+            return parent::__response('参数错误!',(int)-2);
+        }
+
+    }
+
+    /**
+     *Time:2020/12/11 14:10
+     *Author:始渲
+     *Remark:故事游戏_弹幕列表
+     * @params:
+     * story_id 故事游戏id
+     * page 当前页
+     * pagenum 一页显示多少
+     */
+    public function actionScreenCommentList(){
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+
+        if(!Yii::$app->request->POST("story_id")){
+            return parent::__response('参数错误!',(int)-2);
+        }
+        $story_id = (int)Yii::$app->request->post('story_id');//故事游戏id
+
+        //先看故事是否存在
+        $Story_Model=Story::findOne($story_id);
+        if(!$Story_Model){
+            return parent::__response('故事游戏不存在!',(int)-1);
+        }
+
+        $page = (int)Yii::$app->request->post('page');//当前页
+        $pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少
+        if ($page < 1) $page = 1;
+        if ($pagenum < 1) $pagenum = 10;
+
+        $StoryScreenComment_rows=StoryScreenComment::find()
+            //->select(['id','title','img_url','order_by'])
+            ->andWhere(['=', 'story_id', $story_id])
+            ->andWhere(['=', 'is_show', 1])
+            ->orderBy(['id' => SORT_DESC])
+            ->offset($pagenum * ($page - 1))
+            ->limit($pagenum)
+            ->asArray()
+            ->all();
+        if($StoryScreenComment_rows){
+            return parent::__response('ok',0,$StoryScreenComment_rows);
+        }else{
+            return parent::__response('暂无数据',0);
+        }
+
+    }
     
 }
