@@ -1212,6 +1212,62 @@ class MemberController extends BaseController
 
 
     /**
+     *Time:2020/12/11 9:26
+     *Author:始渲
+     *Remark:个人中心 我的评论列表/Ta的评论列表
+     * @params:
+     * user_id  如果传入user_id查看指定用户的评论列表，不传则看登录用户的
+     * page 当前页
+     * pagenum 一页显示多少
+     */
+    public function actionMyCommentList(){
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+
+        $to_user_id = (int)Yii::$app->request->post('user_id');//指定用户的user_id
+        if($to_user_id>0){//如果有传入指定用户的user_id
+            $user_id=$to_user_id;
+        }else{//否则看登录用户的 user_id
+            $user_id = (int)Yii::$app->user->getId();//已登录的用户，Token判断
+        }
+
+        if(!isset($user_id)) {
+            throw new \yii\web\UnauthorizedHttpException("Token无效.请重新登录!");
+        }
+
+        //先看目标用户是否存在
+        $Member_Model=Member::findOne($user_id);
+        if(!$Member_Model){
+            return parent::__response('用户不存在!',(int)-1);
+        }
+
+        $page = (int)Yii::$app->request->post('page');//当前页
+        $pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少
+        if ($page < 1) $page = 1;
+        if ($pagenum < 1) $pagenum = 10;
+
+        $StoryComment_rows=StoryComment::find()
+            ->select(['{{%story_comment}}.*','{{%member}}.username','{{%member}}.picture_url'])
+            ->leftJoin('{{%member}}','{{%story_comment}}.from_uid={{%member}}.id')
+            ->andWhere(['=', '{{%story_comment}}.from_uid', $user_id])
+            ->andWhere(['=', '{{%story_comment}}.is_show', 1])
+            ->orderBy(['id'=>SORT_DESC])
+            ->offset($pagenum * ($page - 1))
+            ->limit($pagenum)
+            ->asArray()
+            ->all();
+        if(!$StoryComment_rows){
+            return parent::__response('暂无评论',(int)0,[]);
+        }
+
+        return parent::__response('ok',0,$StoryComment_rows);
+
+    }
+
+
+    /**
      *Time:2020/9/27 11:07
      *Author:始渲
      *Remark: 实名认证

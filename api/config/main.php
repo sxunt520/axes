@@ -72,6 +72,7 @@ return [
                             'POST members' => 'member/real-authentication',
                             'POST members' => 'member/third-bind-mobile',
                             'POST members' => 'member/mobile-bind-third',
+                            'POST members' => 'member/my-comment-list',
                             'POST storys' => 'story/home',
                             'POST storys' => 'story/like',
                             'POST storys' => 'story/get-likes',
