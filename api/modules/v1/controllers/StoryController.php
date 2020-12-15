@@ -4,6 +4,7 @@ namespace api\modules\v1\controllers;
 
 use api\models\Follower;
 use api\models\StoryCommentLikeLog;
+use api\models\StoryScreenComment;
 use Yii;
 use api\components\BaseController;
 use api\models\Member;
@@ -19,6 +20,7 @@ use api\models\StoryAnnounce;
 use api\models\StoryAnnounceTag;
 use api\models\TravelRecord;
 use api\models\StoryRecommend;
+use api\models\StoryCommentReply;
 
 //use yii\web\NotFoundHttpException;
 //use api\components\library\UserException;
@@ -30,6 +32,181 @@ class StoryController extends BaseController
     }
     
     public $modelClass = 'api\models\Story';
+
+    /**
+     *Time:2020/12/15 11:10
+     *Author:始渲
+     *Remark:首页推荐， 根据故事 => 精选评论&视频推荐专题 ，三个首页滑动推荐
+     * @params:
+     */
+    public function actionIndexHot(){
+        $page = (int)Yii::$app->request->post('page');//当前页
+        $pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少
+        if ($page < 1) $page = 1;
+        if ($pagenum < 1) $pagenum = 1;
+
+        $StoryRecommend_rows=StoryRecommend::find()
+            ->select(['id','title','type','cover_url','video_url','story_id','created_at','orderby'])
+            ->andWhere(['=', 'is_show', 1])
+            //->andWhere(['=', 'type', 1])
+            ->orderBy(['orderby' => SORT_DESC,'id' => SORT_DESC])
+            ->offset($pagenum * ($page - 1))
+            ->limit($pagenum)
+            ->asArray()
+            ->all();
+        if(!is_array($StoryRecommend_rows)){
+            return parent::__response('暂无数据',0);
+        }
+
+        ////////////////故事游戏交叉排序处理///////////////
+        $count = count($StoryRecommend_rows);
+        $temp = 0;
+        // 外层控制排序轮次
+        for ($i = 0; $i < $count - 1; $i ++) {
+            // 内层控制每轮比较次数
+            for ($j = 0; $j < $count - 1 - $i; $j ++) {
+
+                if(array_key_exists($j + 1,$StoryRecommend_rows)&&array_key_exists($j + 2,$StoryRecommend_rows)){
+
+                    if ($StoryRecommend_rows[$j]['story_id'] == $StoryRecommend_rows[$j + 1]['story_id']) {
+                        $temp = $StoryRecommend_rows[$j+1];
+                        $StoryRecommend_rows[$j+1] = $StoryRecommend_rows[$j + 2];
+                        $StoryRecommend_rows[$j + 2] = $temp;
+                    }
+                }
+
+            }
+        }
+
+
+        //操作推荐出相关评论、视频其它
+        $data=array();
+        $comment_rows=array();
+        $video_rows=array();
+        foreach ($StoryRecommend_rows as $k=>$v){
+            //游戏点赞数、游戏标题、游戏试玩链接
+            $Story_rows=Story::find()->select(['likes','game_title','free_game_link'])->where(['id' => $v['story_id']])->asArray()->one();
+            if($Story_rows){
+                $StoryRecommend_rows[$k]['likes']=$Story_rows['likes'];
+                $StoryRecommend_rows[$k]['game_title']=$Story_rows['game_title'];
+                $StoryRecommend_rows[$k]['free_game_link']=$Story_rows['free_game_link'];
+            }else{
+                $StoryRecommend_rows[$k]['likes']=0;
+                $StoryRecommend_rows[$k]['game_title']=0;
+                $StoryRecommend_rows[$k]['free_game_link']='';
+            }
+
+            //评论数
+//            $comment_num=StoryComment::find()->where(['story_id' => $v['story_id']])->count();
+//            if($comment_num>0){
+//                $StoryRecommend_rows[$k]['comment_num']=(int)$comment_num;
+//            }else{
+//                $StoryRecommend_rows[$k]['comment_num']=0;
+//            }
+
+            //如果登录判断是否点赞
+//            if(!empty($this->Token)){
+//                $user_id = (int)Yii::$app->user->getId();//登录用户id
+//                //echo $v['id'].'---'.$user_id.'------'.ip2long(Yii::$app->request->getUserIP());exit;
+//                //$like_r=StoryLikeLog::find()->where(['story_id' => $v['id'],'user_id' => $user_id,'ip'=>ip2long(Yii::$app->request->getUserIP())])->orderBy(['create_at' => SORT_DESC])->one();
+//                $like_r=StoryLikeLog::find()->where(['story_id' => $v['story_id'],'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
+//                if ($like_r && time()-($like_r->create_at) < Yii::$app->params['user.liketime']){
+//                    $StoryRecommend_rows[$k]['is_like']=1;
+//                }else{
+//                    $StoryRecommend_rows[$k]['is_like']=0;
+//                }
+//            }else{
+//                $StoryRecommend_rows[$k]['is_like']=0;
+//            }
+
+            //标签
+            $StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $v['story_id']])->asArray()->all();
+            if($StoryTag_rows) $StoryRecommend_rows[$k]['tags']=$StoryTag_rows;
+
+            /////////本条故事装箱////////
+            $StoryRecommend_rows[$k]['list_type']=1;
+            $data[]=$StoryRecommend_rows[$k];
+
+            //获取该故事相关热度评论取前20条,
+            if(!array_key_exists($v['story_id'],$comment_rows)){
+                //$StoryComment_rows=StoryComment::find()->andWhere(['story_id' => $v['story_id'],'is_choiceness'=>1,'is_show'=>1])->orderBy(['heart_val' => SORT_DESC,'id' => SORT_DESC])->asArray()->all();
+                $StoryComment_rows=StoryComment::find()
+                    ->select(['{{%story_comment}}.id','{{%story_comment}}.story_id','{{%story_comment}}.content','{{%story_comment}}.from_uid','{{%story_comment}}.comment_img_id','{{%story_comment}}.heart_val','{{%story_comment}}.title','{{%story_comment}}.likes','{{%story_comment}}.views','{{%story_comment}}.share_num','{{%member}}.nickname','{{%story_comment_img}}.img_url as comment_img_url'])
+                    ->leftJoin('{{%member}}','{{%story_comment}}.from_uid={{%member}}.id')
+                    ->leftJoin('{{%story_comment_img}}','{{%story_comment}}.comment_img_id={{%story_comment_img}}.id')
+                    ->andWhere(['=', '{{%story_comment}}.story_id', $v['story_id']])
+                    ->andWhere(['=', '{{%story_comment}}.comment_type', 0])//0评论故事，1评论公告
+                    ->andWhere(['=', '{{%story_comment}}.is_choiceness', 1])
+                    ->andWhere(['=', '{{%story_comment}}.is_show', 1])
+                    ->orderBy(['{{%story_comment}}.heart_val' => SORT_DESC,'{{%story_comment}}.id'=>SORT_DESC])
+                    //->offset($pagenum * ($page - 1))
+                    ->limit(20)
+                    ->asArray()
+                    ->all();
+
+                if($StoryComment_rows&&is_array($StoryComment_rows)){
+
+                    //每条评论的回复数，每条评论是否有点赞过
+                    foreach($StoryComment_rows as $k=>$v){
+                        $StoryComment_rows[$k]['reply_num']=(int)StoryCommentReply::find()->andWhere(['comment_id'=>$v['id'],'parent_reply_id'=>$v['id']])->andWhere(['in' , 'reply_type' , [2,3]])->count();
+                        //如果登录判断评论是否点赞
+                        if(!empty($this->Token)){
+                            $user_id = (int)Yii::$app->user->getId();//登录用户id
+                            $like_r=StoryCommentLikeLog::find()->where(['comment_id' => $v['id'],'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
+                            if ($like_r && time()-($like_r->create_at) < Yii::$app->params['user.liketime']){
+                                $StoryComment_rows[$k]['is_like']=1;
+                            }else{
+                                $StoryComment_rows[$k]['is_like']=0;
+                            }
+                        }else{
+                            $StoryComment_rows[$k]['is_like']=0;
+                        }
+                    }
+
+                    //装入comment_rows，后面优化放入缓存中
+                    $comment_rows[$v['story_id']]=$StoryComment_rows;
+                }else{
+                    $comment_rows[$v['story_id']]='';
+                }
+            }
+            //随机匹配一条
+            if(is_array($comment_rows[$v['story_id']])){
+                $rand_key=array_rand($comment_rows[$v['story_id']],1);//随机匹配一条的key
+                $rand_row=$comment_rows[$v['story_id']][$rand_key];//随机一条评论的详细
+
+                if($Story_rows){//试玩链接
+                    $rand_row['free_game_link']=$Story_rows['free_game_link'];
+                }else{
+                    $rand_row['free_game_link']='';
+                }
+
+                //////游戏相关弹幕列表/////
+                $StoryScreenComment_rows=StoryScreenComment::find()
+                    //->select(['id','title','img_url','order_by'])
+                    ->andWhere(['=', 'story_id', $v['story_id']])
+                    ->andWhere(['=', 'is_show', 1])
+                    ->orderBy(['id' => SORT_DESC])
+                    //->offset($pagenum * ($page - 1))
+                    ->limit(20)
+                    ->asArray()
+                    ->all();
+                if($StoryScreenComment_rows&&is_array($StoryScreenComment_rows)){
+                    $rand_row['screen_comment']=$StoryScreenComment_rows;
+                }else{
+                    $rand_row['screen_comment']='';
+                }
+
+                $rand_row['list_type']=2;//评论类型 1故事 2评论 3视频
+
+                $data[]=$rand_row;
+            }
+
+        }
+
+        return parent::__response('ok',0,$data);
+
+
+    }
 
     /**
      *Time:2020/9/27 16:46

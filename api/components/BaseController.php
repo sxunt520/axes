@@ -50,6 +50,7 @@ class BaseController extends ActiveController
                     'fans-list',
                     'splash-pic',
                     'screen-comment-list',
+                    'index-hot',
                     //'signup-test',
                 ],
             ]
