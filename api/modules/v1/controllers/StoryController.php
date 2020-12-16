@@ -224,10 +224,16 @@ class StoryController extends BaseController
                 //随机匹配两条视频给当前专题
                 if(is_array($video_rows_rand[$v['story_id']])) {
                     //var_dump($video_rows_rand[$v['story_id']]);exit;
-                    $rand_key_arr = array_rand($video_rows_rand[$v['story_id']], 2);//随机匹配一条的key_arr
-                    //var_dump($rand_key_arr);exit;
-                    foreach ($rand_key_arr as $video_k=>$video_v){
-                        $video_topic_rand_rows['video_list'][] = $video_rows_rand[$v['story_id']][$video_v];//随机一条评论的详细
+                    $video_rows_count=count($video_rows_rand[$v['story_id']]);
+                    if($video_rows_count>=2){//如果游戏有两个以上视频
+                        $rand_key_arr = array_rand($video_rows_rand[$v['story_id']], 2);//随机匹配两条的key_arr
+                        //var_dump($rand_key_arr);exit;
+                        foreach ($rand_key_arr as $video_k=>$video_v){
+                            $video_topic_rand_rows['video_list'][] = $video_rows_rand[$v['story_id']][$video_v];//随机两条评论的详细
+                        }
+                    }else if($video_rows_count==1){//如果游戏只有一个视频
+                        $rand_key_0 = array_rand($video_rows_rand[$v['story_id']], 1);//随机匹配一条的key
+                        $video_topic_rand_rows['video_list'][] = $video_rows_rand[$v['story_id']][$rand_key_0];//随机两条评论的详细
                     }
                 }
                 /////////////////////故事相关视频两个随机推荐end////////////////////
