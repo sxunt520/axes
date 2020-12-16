@@ -39,13 +39,16 @@ class StoryController extends BaseController
      *Author:始渲
      *Remark:首页推荐， 根据故事 => 精选评论&视频推荐专题 ，三个首页滑动推荐
      * @params:
+     * page 当前页(默认不传为1)
+     * pagenum 一页显示多少条故事(默认不传为1)，一条故事对应生成一个热点评论和一个故事游戏视频专题
      */
     public function actionIndexHot(){
         $page = (int)Yii::$app->request->post('page');//当前页
-        $pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少
+        $pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少条故事，一条故事对应生成一个热点评论和一个故事游戏视频专题
         if ($page < 1) $page = 1;
         if ($pagenum < 1) $pagenum = 1;
 
+        //获取故事
         $StoryRecommend_rows=StoryRecommend::find()
             ->select(['id','title','type','cover_url','video_url','story_id','created_at','orderby'])
             ->andWhere(['=', 'is_show', 1])
@@ -58,6 +61,7 @@ class StoryController extends BaseController
         if(!is_array($StoryRecommend_rows)){
             return parent::__response('暂无数据',0);
         }
+        //shuffle($StoryRecommend_rows);//打乱排序
 
         ////////////////故事游戏交叉排序处理///////////////
         $count = count($StoryRecommend_rows);
@@ -98,29 +102,6 @@ class StoryController extends BaseController
                 $StoryRecommend_rows[$k]['free_game_link']='';
             }
 
-            //评论数
-//            $comment_num=StoryComment::find()->where(['story_id' => $v['story_id']])->count();
-//            if($comment_num>0){
-//                $StoryRecommend_rows[$k]['comment_num']=(int)$comment_num;
-//            }else{
-//                $StoryRecommend_rows[$k]['comment_num']=0;
-//            }
-
-            //如果登录判断是否点赞
-//            if(!empty($this->Token)){
-//                $user_id = (int)Yii::$app->user->getId();//登录用户id
-//                //echo $v['id'].'---'.$user_id.'------'.ip2long(Yii::$app->request->getUserIP());exit;
-//                //$like_r=StoryLikeLog::find()->where(['story_id' => $v['id'],'user_id' => $user_id,'ip'=>ip2long(Yii::$app->request->getUserIP())])->orderBy(['create_at' => SORT_DESC])->one();
-//                $like_r=StoryLikeLog::find()->where(['story_id' => $v['story_id'],'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
-//                if ($like_r && time()-($like_r->create_at) < Yii::$app->params['user.liketime']){
-//                    $StoryRecommend_rows[$k]['is_like']=1;
-//                }else{
-//                    $StoryRecommend_rows[$k]['is_like']=0;
-//                }
-//            }else{
-//                $StoryRecommend_rows[$k]['is_like']=0;
-//            }
-
             //标签
             $StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $v['story_id']])->asArray()->all();
             if($StoryTag_rows) $StoryRecommend_rows[$k]['tags']=$StoryTag_rows;
@@ -130,7 +111,7 @@ class StoryController extends BaseController
             $data[]=$StoryRecommend_rows[$k];
 
          /////////////////////故事相关评论推荐action////////////////////
-            //获取该故事相关热度评论取前20条,
+            //获取该故事相关热度评论取前20条,存入缓存
             if(!array_key_exists($v['story_id'],$comment_rows)){
                 //$StoryComment_rows=StoryComment::find()->andWhere(['story_id' => $v['story_id'],'is_choiceness'=>1,'is_show'=>1])->orderBy(['heart_val' => SORT_DESC,'id' => SORT_DESC])->asArray()->all();
                 $StoryComment_rows=StoryComment::find()
@@ -147,25 +128,24 @@ class StoryController extends BaseController
                     ->asArray()
                     ->all();
 
+                //每条评论处理下，把每条评论的回复数统计出来、每条评论是否点赞状态，在对应story_id存入comment_rows缓存中待用
                 if($StoryComment_rows&&is_array($StoryComment_rows)){
-
                     //每条评论的回复数，每条评论是否有点赞过
-                    foreach($StoryComment_rows as $k=>$v){
-                        $StoryComment_rows[$k]['reply_num']=(int)StoryCommentReply::find()->andWhere(['comment_id'=>$v['id'],'parent_reply_id'=>$v['id']])->andWhere(['in' , 'reply_type' , [2,3]])->count();
+                    foreach($StoryComment_rows as $comment_k=>$comment_v){
+                        $StoryComment_rows[$comment_k]['reply_num']=(int)StoryCommentReply::find()->andWhere(['comment_id'=>$comment_v['id'],'parent_reply_id'=>$comment_v['id']])->andWhere(['in' , 'reply_type' , [2,3]])->count();
                         //如果登录判断评论是否点赞
                         if(!empty($this->Token)){
                             $user_id = (int)Yii::$app->user->getId();//登录用户id
-                            $like_r=StoryCommentLikeLog::find()->where(['comment_id' => $v['id'],'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
+                            $like_r=StoryCommentLikeLog::find()->where(['comment_id' => $comment_v['id'],'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
                             if ($like_r && time()-($like_r->create_at) < Yii::$app->params['user.liketime']){
-                                $StoryComment_rows[$k]['is_like']=1;
+                                $StoryComment_rows[$comment_k]['is_like']=1;
                             }else{
-                                $StoryComment_rows[$k]['is_like']=0;
+                                $StoryComment_rows[$comment_k]['is_like']=0;
                             }
                         }else{
-                            $StoryComment_rows[$k]['is_like']=0;
+                            $StoryComment_rows[$comment_k]['is_like']=0;
                         }
                     }
-
                     //装入comment_rows，后面优化放入缓存中
                     $comment_rows[$v['story_id']]=$StoryComment_rows;
                 }else{
@@ -215,20 +195,20 @@ class StoryController extends BaseController
                     $video_topic_rand[$v['story_id']]='';
                 }
             }
-            //随机匹配一条视频专题给当前故事
+            //随机匹配一条视频专题给当前故事,然后又随机匹配 两条视频 给 视频专题
             if(is_array($video_topic_rand[$v['story_id']])){
-                $rand_key2=array_rand($video_topic_rand[$v['story_id']],1);//随机匹配一条的key
-                $rand_row2=$video_topic_rand[$v['story_id']][$rand_key2];//随机一条评论的详细
+                $video_topic_rand_key=array_rand($video_topic_rand[$v['story_id']],1);//随机匹配一条的key
+                $video_topic_rand_rows=$video_topic_rand[$v['story_id']][$video_topic_rand_key];//对应生成的随机一条视频专题的详细
 
                 if($Story_rows){//试玩链接
-                    $rand_row2['game_title']=$Story_rows['game_title'];
-                    $rand_row2['free_game_link']=$Story_rows['free_game_link'];
+                    $video_topic_rand_rows['game_title']=$Story_rows['game_title'];
+                    $video_topic_rand_rows['free_game_link']=$Story_rows['free_game_link'];
                 }else{
-                    $rand_row2['game_title']='';
-                    $rand_row2['free_game_link']='';
+                    $video_topic_rand_rows['game_title']='';
+                    $video_topic_rand_rows['free_game_link']='';
                 }
 
-                if($StoryTag_rows) $rand_row2['tags']=$StoryTag_rows;
+                if($StoryTag_rows) $video_topic_rand_rows['tags']=$StoryTag_rows;
 
                 /////////////////////故事相关视频两个随机推荐action////////////////////
                     //获取该故事相关 精彩视频专题 最新前20条,
@@ -247,13 +227,13 @@ class StoryController extends BaseController
                     $rand_key_arr = array_rand($video_rows_rand[$v['story_id']], 2);//随机匹配一条的key_arr
                     //var_dump($rand_key_arr);exit;
                     foreach ($rand_key_arr as $video_k=>$video_v){
-                        $rand_row2['video_list'][] = $video_rows_rand[$v['story_id']][$video_v];//随机一条评论的详细
+                        $video_topic_rand_rows['video_list'][] = $video_rows_rand[$v['story_id']][$video_v];//随机一条评论的详细
                     }
                 }
                 /////////////////////故事相关视频两个随机推荐end////////////////////
 
-                $rand_row2['list_type']=3;//评论类型 1故事 2评论 3视频
-                $data[]=$rand_row2;
+                $video_topic_rand_rows['list_type']=3;//评论类型 1故事 2评论 3视频
+                $data[]=$video_topic_rand_rows;
             }
          /////////////////////故事相关视频专题推荐end////////////////////
 
