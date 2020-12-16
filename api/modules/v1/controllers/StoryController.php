@@ -21,6 +21,7 @@ use api\models\StoryAnnounceTag;
 use api\models\TravelRecord;
 use api\models\StoryRecommend;
 use api\models\StoryCommentReply;
+use api\models\StoryVideoTopic;
 
 //use yii\web\NotFoundHttpException;
 //use api\components\library\UserException;
@@ -81,8 +82,9 @@ class StoryController extends BaseController
 
         //操作推荐出相关评论、视频其它
         $data=array();
-        $comment_rows=array();
-        $video_rows=array();
+        $comment_rows=array();//随机评论数据
+        $video_topic_rand=array();//随机视频主题数据
+        $video_rows_rand=array();//随机视频数据
         foreach ($StoryRecommend_rows as $k=>$v){
             //游戏点赞数、游戏标题、游戏试玩链接
             $Story_rows=Story::find()->select(['likes','game_title','free_game_link'])->where(['id' => $v['story_id']])->asArray()->one();
@@ -127,6 +129,7 @@ class StoryController extends BaseController
             $StoryRecommend_rows[$k]['list_type']=1;
             $data[]=$StoryRecommend_rows[$k];
 
+         /////////////////////故事相关评论推荐action////////////////////
             //获取该故事相关热度评论取前20条,
             if(!array_key_exists($v['story_id'],$comment_rows)){
                 //$StoryComment_rows=StoryComment::find()->andWhere(['story_id' => $v['story_id'],'is_choiceness'=>1,'is_show'=>1])->orderBy(['heart_val' => SORT_DESC,'id' => SORT_DESC])->asArray()->all();
@@ -169,7 +172,7 @@ class StoryController extends BaseController
                     $comment_rows[$v['story_id']]='';
                 }
             }
-            //随机匹配一条
+            //随机匹配一条评论给当前故事
             if(is_array($comment_rows[$v['story_id']])){
                 $rand_key=array_rand($comment_rows[$v['story_id']],1);//随机匹配一条的key
                 $rand_row=$comment_rows[$v['story_id']][$rand_key];//随机一条评论的详细
@@ -182,7 +185,7 @@ class StoryController extends BaseController
 
                 //////游戏相关弹幕列表/////
                 $StoryScreenComment_rows=StoryScreenComment::find()
-                    //->select(['id','title','img_url','order_by'])
+                    ->select(['id','story_id','text','from_uid'])
                     ->andWhere(['=', 'story_id', $v['story_id']])
                     ->andWhere(['=', 'is_show', 1])
                     ->orderBy(['id' => SORT_DESC])
@@ -197,9 +200,63 @@ class StoryController extends BaseController
                 }
 
                 $rand_row['list_type']=2;//评论类型 1故事 2评论 3视频
-
                 $data[]=$rand_row;
             }
+        /////////////////////故事相关评论推荐end////////////////////
+
+        /////////////////////故事相关视频专题推荐action////////////////////
+            //获取该故事相关 精彩视频专题 最新前20条,
+            if(!array_key_exists($v['story_id'],$video_topic_rand)){
+                $StoryVideoTopic_rows=StoryVideoTopic::find()->select(['id','story_id','topic_title','topic_cover'])->andWhere(['story_id' => $v['story_id'],'is_show'=>1])->orderBy(['id' => SORT_DESC])->limit(20)->asArray()->all();
+                if($StoryVideoTopic_rows&&is_array($StoryVideoTopic_rows)){
+                    //装入video_rows，后面优化放入缓存中
+                    $video_topic_rand[$v['story_id']]=$StoryVideoTopic_rows;
+                }else{
+                    $video_topic_rand[$v['story_id']]='';
+                }
+            }
+            //随机匹配一条视频专题给当前故事
+            if(is_array($video_topic_rand[$v['story_id']])){
+                $rand_key2=array_rand($video_topic_rand[$v['story_id']],1);//随机匹配一条的key
+                $rand_row2=$video_topic_rand[$v['story_id']][$rand_key2];//随机一条评论的详细
+
+                if($Story_rows){//试玩链接
+                    $rand_row2['game_title']=$Story_rows['game_title'];
+                    $rand_row2['free_game_link']=$Story_rows['free_game_link'];
+                }else{
+                    $rand_row2['game_title']='';
+                    $rand_row2['free_game_link']='';
+                }
+
+                if($StoryTag_rows) $rand_row2['tags']=$StoryTag_rows;
+
+                /////////////////////故事相关视频两个随机推荐action////////////////////
+                    //获取该故事相关 精彩视频专题 最新前20条,
+                    if(!array_key_exists($v['story_id'],$video_rows_rand)){
+                        $StoryVideo_rows=StoryVideo::find()->select(['id','story_id','title','video_url','video_cover'])->andWhere(['story_id' => $v['story_id'],'is_show'=>1])->orderBy(['id' => SORT_DESC])->limit(20)->asArray()->all();
+                        if($StoryVideo_rows&&is_array($StoryVideo_rows)){
+                            //装入video_rows，后面优化放入缓存中
+                            $video_rows_rand[$v['story_id']]=$StoryVideo_rows;
+                        }else{
+                            $video_rows_rand[$v['story_id']]='';
+                        }
+                    }
+                //随机匹配两条视频给当前专题
+                if(is_array($video_rows_rand[$v['story_id']])) {
+                    //var_dump($video_rows_rand[$v['story_id']]);exit;
+                    $rand_key_arr = array_rand($video_rows_rand[$v['story_id']], 2);//随机匹配一条的key_arr
+                    //var_dump($rand_key_arr);exit;
+                    foreach ($rand_key_arr as $video_k=>$video_v){
+                        $rand_row2['video_list'][] = $video_rows_rand[$v['story_id']][$video_v];//随机一条评论的详细
+                    }
+                }
+                /////////////////////故事相关视频两个随机推荐end////////////////////
+
+                $rand_row2['list_type']=3;//评论类型 1故事 2评论 3视频
+                $data[]=$rand_row2;
+            }
+         /////////////////////故事相关视频专题推荐end////////////////////
+
 
         }
 
