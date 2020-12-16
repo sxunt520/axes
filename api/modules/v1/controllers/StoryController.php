@@ -51,7 +51,7 @@ class StoryController extends BaseController
 
         //获取故事
         $StoryRecommend_rows=StoryRecommend::find()
-            ->select(['id','title','type','cover_url','video_url','story_id','created_at','orderby'])
+            ->select(['id as recommend_id','title','type','cover_url','video_url','story_id','created_at','orderby'])
             ->andWhere(['=', 'is_show', 1])
             //->andWhere(['=', 'type', 1])
             ->orderBy(['orderby' => SORT_DESC,'id' => SORT_DESC])
@@ -116,7 +116,7 @@ class StoryController extends BaseController
             if(!array_key_exists($v['story_id'],$comment_rows)){
                 //$StoryComment_rows=StoryComment::find()->andWhere(['story_id' => $v['story_id'],'is_choiceness'=>1,'is_show'=>1])->orderBy(['heart_val' => SORT_DESC,'id' => SORT_DESC])->asArray()->all();
                 $StoryComment_rows=StoryComment::find()
-                    ->select(['{{%story_comment}}.id','{{%story_comment}}.story_id','{{%story_comment}}.content','{{%story_comment}}.from_uid','{{%story_comment}}.comment_img_id','{{%story_comment}}.heart_val','{{%story_comment}}.likes','{{%story_comment}}.views','{{%story_comment}}.share_num','{{%member}}.nickname','{{%story_comment_img}}.img_url as comment_img_url','{{%story_comment}}.title','{{%story_comment_img}}.img_url as choice_img_url','{{%story_comment}}.title as choice_content'])
+                    ->select(['{{%story_comment}}.id as comment_id','{{%story_comment}}.story_id','{{%story_comment}}.content','{{%story_comment}}.from_uid','{{%story_comment}}.comment_img_id','{{%story_comment}}.heart_val','{{%story_comment}}.likes','{{%story_comment}}.views','{{%story_comment}}.share_num','{{%member}}.nickname','{{%story_comment_img}}.img_url as comment_img_url','{{%story_comment}}.title','{{%story_comment_img}}.img_url as choice_img_url','{{%story_comment}}.title as choice_content'])
                     ->leftJoin('{{%member}}','{{%story_comment}}.from_uid={{%member}}.id')
                     ->leftJoin('{{%story_comment_img}}','{{%story_comment}}.comment_img_id={{%story_comment_img}}.id')
                     ->andWhere(['=', '{{%story_comment}}.story_id', $v['story_id']])
@@ -133,11 +133,11 @@ class StoryController extends BaseController
                 if($StoryComment_rows&&is_array($StoryComment_rows)){
                     //每条评论的回复数，每条评论是否有点赞过
                     foreach($StoryComment_rows as $comment_k=>$comment_v){
-                        $StoryComment_rows[$comment_k]['reply_num']=(int)StoryCommentReply::find()->andWhere(['comment_id'=>$comment_v['id'],'parent_reply_id'=>$comment_v['id']])->andWhere(['in' , 'reply_type' , [2,3]])->count();
+                        $StoryComment_rows[$comment_k]['reply_num']=(int)StoryCommentReply::find()->andWhere(['comment_id'=>$comment_v['comment_id'],'parent_reply_id'=>$comment_v['comment_id']])->andWhere(['in' , 'reply_type' , [2,3]])->count();
                         //如果登录判断评论是否点赞
                         if(!empty($this->Token)){
                             $user_id = (int)Yii::$app->user->getId();//登录用户id
-                            $like_r=StoryCommentLikeLog::find()->where(['comment_id' => $comment_v['id'],'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
+                            $like_r=StoryCommentLikeLog::find()->where(['comment_id' => $comment_v['comment_id'],'user_id' => $user_id])->orderBy(['create_at' => SORT_DESC])->one();
                             if ($like_r && time()-($like_r->create_at) < Yii::$app->params['user.liketime']){
                                 $StoryComment_rows[$comment_k]['is_like']=1;
                             }else{
@@ -188,7 +188,7 @@ class StoryController extends BaseController
         /////////////////////故事相关视频专题推荐action////////////////////
             //获取该故事相关 精彩视频专题 最新前20条,
             if(!array_key_exists($v['story_id'],$video_topic_rand)){
-                $StoryVideoTopic_rows=StoryVideoTopic::find()->select(['id','story_id','topic_title','topic_cover'])->andWhere(['story_id' => $v['story_id'],'is_show'=>1])->orderBy(['id' => SORT_DESC])->limit(20)->asArray()->all();
+                $StoryVideoTopic_rows=StoryVideoTopic::find()->select(['id as video_topic_id','story_id','topic_title','topic_cover'])->andWhere(['story_id' => $v['story_id'],'is_show'=>1])->orderBy(['id' => SORT_DESC])->limit(20)->asArray()->all();
                 if($StoryVideoTopic_rows&&is_array($StoryVideoTopic_rows)){
                     //装入video_rows，后面优化放入缓存中
                     $video_topic_rand[$v['story_id']]=$StoryVideoTopic_rows;
@@ -214,7 +214,7 @@ class StoryController extends BaseController
                 /////////////////////故事相关视频两个随机推荐action////////////////////
                     //获取该故事相关 精彩视频专题 最新前20条,
                     if(!array_key_exists($v['story_id'],$video_rows_rand)){
-                        $StoryVideo_rows=StoryVideo::find()->select(['id','story_id','title','video_url','video_cover'])->andWhere(['story_id' => $v['story_id'],'is_show'=>1])->orderBy(['id' => SORT_DESC])->limit(20)->asArray()->all();
+                        $StoryVideo_rows=StoryVideo::find()->select(['id as video_id','story_id','title','video_url','video_cover'])->andWhere(['story_id' => $v['story_id'],'is_show'=>1])->orderBy(['id' => SORT_DESC])->limit(20)->asArray()->all();
                         if($StoryVideo_rows&&is_array($StoryVideo_rows)){
                             //装入video_rows，后面优化放入缓存中
                             $video_rows_rand[$v['story_id']]=$StoryVideo_rows;
