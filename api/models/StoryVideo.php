@@ -30,7 +30,7 @@ class StoryVideo extends \common\models\StoryVideo
         return [
             [['story_id', 'video_type', 'is_show', 'views', 'likes', 'share_num', 'created_at'], 'integer'],
             [['title', 'video_url', 'video_cover'], 'required'],
-            [['title', 'video_url', 'video_cover'], 'string', 'max' => 255]
+            [['title', 'video_url', 'video_cover','content'], 'string', 'max' => 255]
         ];
     }
 
