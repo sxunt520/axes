@@ -41,6 +41,7 @@ class StoryController extends BaseController
      * @params:
      * page 当前页(默认不传为1)
      * pagenum 一页显示多少条故事(默认不传为1)，一条故事对应生成一个热点评论和一个故事游戏视频专题
+     * @return list_type 1为故事游戏详情 2为游戏热评 3为游戏相关视频,根据判断渲染 故事、热评、视频
      */
     public function actionIndexHot(){
         $page = (int)Yii::$app->request->post('page');//当前页
@@ -115,7 +116,7 @@ class StoryController extends BaseController
             if(!array_key_exists($v['story_id'],$comment_rows)){
                 //$StoryComment_rows=StoryComment::find()->andWhere(['story_id' => $v['story_id'],'is_choiceness'=>1,'is_show'=>1])->orderBy(['heart_val' => SORT_DESC,'id' => SORT_DESC])->asArray()->all();
                 $StoryComment_rows=StoryComment::find()
-                    ->select(['{{%story_comment}}.id','{{%story_comment}}.story_id','{{%story_comment}}.content','{{%story_comment}}.from_uid','{{%story_comment}}.comment_img_id','{{%story_comment}}.heart_val','{{%story_comment}}.title','{{%story_comment}}.likes','{{%story_comment}}.views','{{%story_comment}}.share_num','{{%member}}.nickname','{{%story_comment_img}}.img_url as comment_img_url'])
+                    ->select(['{{%story_comment}}.id','{{%story_comment}}.story_id','{{%story_comment}}.content','{{%story_comment}}.from_uid','{{%story_comment}}.comment_img_id','{{%story_comment}}.heart_val','{{%story_comment}}.likes','{{%story_comment}}.views','{{%story_comment}}.share_num','{{%member}}.nickname','{{%story_comment_img}}.img_url as comment_img_url','{{%story_comment}}.title','{{%story_comment_img}}.img_url as choice_img_url','{{%story_comment}}.title as choice_content'])
                     ->leftJoin('{{%member}}','{{%story_comment}}.from_uid={{%member}}.id')
                     ->leftJoin('{{%story_comment_img}}','{{%story_comment}}.comment_img_id={{%story_comment_img}}.id')
                     ->andWhere(['=', '{{%story_comment}}.story_id', $v['story_id']])
