@@ -82,6 +82,7 @@ return [
                             'POST storys' => 'story/video-list',
                             'POST storys' => 'story/announce-details',
                             'POST storys' => 'story/share',
+                            'POST storys' => 'story/search',
                             'POST story-comments' => 'story-comment/home',
                             'POST story-comments' => 'story-comment/list',
                             'POST story-comments' => 'story-comment/details',
