@@ -51,6 +51,7 @@ class BaseController extends ActiveController
                     'splash-pic',
                     'screen-comment-list',
                     'index-hot',
+                    'search',
                     //'signup-test',
                 ],
             ]

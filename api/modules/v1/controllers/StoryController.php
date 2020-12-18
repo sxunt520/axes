@@ -4,6 +4,7 @@ namespace api\modules\v1\controllers;
 
 use api\models\Follower;
 use api\models\StoryCommentLikeLog;
+use api\models\StoryCommentSearch;
 use api\models\StoryScreenComment;
 use Yii;
 use api\components\BaseController;
@@ -22,6 +23,9 @@ use api\models\TravelRecord;
 use api\models\StoryRecommend;
 use api\models\StoryCommentReply;
 use api\models\StoryVideoTopic;
+use api\models\StoryRecommendSearch;
+use api\models\StoryVideoSearch;
+use yii\data\Pagination;
 
 //use yii\web\NotFoundHttpException;
 //use api\components\library\UserException;
@@ -995,6 +999,92 @@ class StoryController extends BaseController
         }else{
             return parent::__response('分享失败',(int)-1);
         }
+
+    }
+
+    /**
+     *Time:2020/12/17 13:46
+     *Author:始渲
+     *Remark:搜索 / 关键词目前主要是根据 游戏名、故事标题、视频标题、视频描述、评论标题、评论内容来检索出 故事(story_list)、评论(comment_list)、视频(video_list)
+     * @params:
+     *      keyword 关键词
+     *      page  搜索出的页数
+     *      pagenum 搜索出一页的条数（故事、评论、视频）
+     * @return:
+     *      story_list  检索的故事列表
+     *      comment_list 检索的评论列表
+     *      video_list 检索的视频列表
+     */
+    public function actionSearch(){
+
+        if(!Yii::$app->request->isPost){//如果不是post请求
+            return parent::__response('Request Error!',(int)-1);
+        }
+        if(!Yii::$app->request->POST("keyword")){
+            return parent::__response('请输入关键词!',(int)-2);
+        }
+        $keyword=Yii::$app->request->POST("keyword");
+        $page = (int)Yii::$app->request->post('page');//当前页
+        $pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少条故事 评论 视频
+        if ($page < 1) $page = 1;
+        if ($pagenum < 1) $pagenum = 10;
+
+        $data=array();
+
+        ////////////搜索出的故事//////////////
+        $searchModel = new StoryRecommendSearch();
+        $query = $searchModel->search_story(['keyword'=>$keyword]);
+        $StoryRecommend_rows = $query
+                                ->offset($pagenum * ($page - 1))
+                                ->limit($pagenum)
+                                ->orderBy(['{{%story_recommend}}.orderby' => SORT_DESC,'{{%story_recommend}}.id' => SORT_DESC])
+                                ->asArray()
+                                ->all();
+        if($StoryRecommend_rows&&is_array($StoryRecommend_rows)){
+            //标签
+            foreach ($StoryRecommend_rows as $Recommend_k=>$Recommend_v){
+                $StoryTag_rows=StoryTag::find()->select(['id','tag_name'])->where(['story_id' => $Recommend_v['story_id']])->asArray()->all();
+                if($StoryTag_rows) $StoryRecommend_rows[$Recommend_k]['tags']=$StoryTag_rows;
+
+            }
+            $data['story_list']=$StoryRecommend_rows;
+        }else{
+            $data['story_list']='';
+        }
+
+        /////////////搜索出的视频///////////
+        //$data['video_list']='';
+        $StoryVideoSearchModel = new StoryVideoSearch();
+        $query_video = $StoryVideoSearchModel->search_video(['keyword'=>$keyword]);
+        $StoryVideo_rows = $query_video
+            ->offset($pagenum * ($page - 1))
+            ->limit($pagenum)
+            ->orderBy(['{{%story_video}}.id' => SORT_DESC])
+            ->asArray()
+            ->all();
+        if($StoryVideo_rows&&is_array($StoryVideo_rows)){
+            $data['video_list']=$StoryVideo_rows;
+        }else{
+            $data['video_list']='';
+        }
+
+        /////////////搜索出的评论///////////
+        //$data['comment_list']='';
+        $StoryCommentSearchModel = new StoryCommentSearch();
+        $query_comment = $StoryCommentSearchModel->search_comment(['keyword'=>$keyword]);
+        $StoryComment_rows = $query_comment
+            ->offset($pagenum * ($page - 1))
+            ->limit($pagenum)
+            ->orderBy(['{{%story_comment}}.id' => SORT_DESC])
+            ->asArray()
+            ->all();
+        if($StoryComment_rows&&is_array($StoryComment_rows)){
+            $data['comment_list']=$StoryComment_rows;
+        }else{
+            $data['comment_list']='';
+        }
+
+        return parent::__response('ok',0,$data);
 
     }
 
