@@ -1249,8 +1249,10 @@ class MemberController extends BaseController
         if ($pagenum < 1) $pagenum = 10;
 
         $StoryComment_rows=StoryComment::find()
-            ->select(['{{%story_comment}}.*','{{%member}}.username','{{%member}}.picture_url'])
+            ->select(['{{%story_comment}}.*','{{%member}}.picture_url','{{%story_comment_img}}.img_url as comment_img_url','{{%story}}.game_title'])
             ->leftJoin('{{%member}}','{{%story_comment}}.from_uid={{%member}}.id')
+            ->leftJoin('{{%story_comment_img}}','{{%story_comment}}.comment_img_id={{%story_comment_img}}.id')
+            ->leftJoin('{{%story}}','{{%story_comment}}.story_id={{%story}}.id')
             ->andWhere(['=', '{{%story_comment}}.from_uid', $user_id])
             ->andWhere(['=', '{{%story_comment}}.is_show', 1])
             ->orderBy(['id'=>SORT_DESC])

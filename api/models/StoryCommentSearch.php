@@ -28,9 +28,10 @@ class StoryCommentSearch extends StoryComment
     public function search_comment($params)
     {
         $query = self::find()
-            ->select(['{{%story_comment}}.id as comment_id','{{%story_comment}}.story_id','{{%story_comment}}.title','{{%story_comment}}.content','{{%story_comment}}.from_uid','{{%story_comment}}.from_uid','{{%story_comment}}.likes','{{%member}}.username','{{%member}}.nickname','{{%member}}.picture_url','{{%story}}.game_title'])
+            ->select(['{{%story_comment}}.id as comment_id','{{%story_comment}}.story_id','{{%story_comment}}.title','{{%story_comment}}.content','{{%story_comment}}.from_uid','{{%story_comment}}.from_uid','{{%story_comment}}.likes','{{%story_comment}}.comment_img_id','{{%story_comment_img}}.img_url as comment_img_url','{{%member}}.username','{{%member}}.nickname','{{%member}}.picture_url','{{%story}}.game_title'])
             ->leftJoin('{{%member}}','{{%story_comment}}.from_uid={{%member}}.id')
             ->leftJoin('{{%story}}','{{%story_comment}}.story_id={{%story}}.id')
+            ->leftJoin('{{%story_comment_img}}','{{%story_comment}}.comment_img_id={{%story_comment_img}}.id')
         ;
 
         //
