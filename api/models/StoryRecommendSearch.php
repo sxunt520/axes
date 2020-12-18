@@ -97,11 +97,19 @@ class StoryRecommendSearch extends StoryRecommend
         //
         $story_id_arr=array();//筛选story_id
 
+        $query->andFilterWhere(['=' , '{{%story_recommend}}.is_show' ,1]);//是否显示1是0否
+
         //匹配故事、游戏关键词
         if(!empty($params['keyword'])){
             $this->keyword=$params['keyword'];
-            $query->orFilterWhere(['like', '{{%story_recommend}}.title', $this->keyword]);
-            $query->orFilterWhere(['like', '{{%story}}.game_title', $this->keyword]);
+            //$query->orFilterWhere(['like', '{{%story_recommend}}.title', $this->keyword]);
+            //$query->orFilterWhere(['like', '{{%story}}.game_title', $this->keyword]);
+            $query->andFilterWhere(
+                ['or' ,
+                    ['like' , '{{%story_recommend}}.title' , $this->keyword] ,
+                    ['like' , '{{%story}}.game_title' , $this->keyword],
+                ]
+            );
         }
 
         if($story_id_arr){

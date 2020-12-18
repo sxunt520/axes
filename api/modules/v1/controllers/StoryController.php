@@ -1005,7 +1005,7 @@ class StoryController extends BaseController
     /**
      *Time:2020/12/17 13:46
      *Author:始渲
-     *Remark:搜索 故事、评论、视频
+     *Remark:搜索 / 关键词目前主要是根据 游戏名、故事标题、视频标题、视频描述、评论标题、评论内容来检索出 故事(story_list)、评论(comment_list)、视频(video_list)
      * @params:
      *      keyword 关键词
      *      page  搜索出的页数
