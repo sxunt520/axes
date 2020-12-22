@@ -179,7 +179,7 @@ class StoryController extends BaseController
             if(!array_key_exists($v['story_id'],$comment_rows)){
                 //$StoryComment_rows=StoryComment::find()->andWhere(['story_id' => $v['story_id'],'is_choiceness'=>1,'is_show'=>1])->orderBy(['heart_val' => SORT_DESC,'id' => SORT_DESC])->asArray()->all();
                 $StoryComment_rows=StoryComment::find()
-                    ->select(['{{%story_comment}}.id as comment_id','{{%story_comment}}.story_id','{{%story_comment}}.content','{{%story_comment}}.from_uid','{{%story_comment}}.comment_img_id','{{%story_comment}}.heart_val','{{%story_comment}}.likes','{{%story_comment}}.views','{{%story_comment}}.share_num','{{%member}}.nickname','{{%story_comment_img}}.img_url as comment_img_url','{{%story_comment}}.title','{{%story_comment_img}}.img_url as choice_img_url','{{%story_comment}}.title as choice_content'])
+                    ->select(['{{%story_comment}}.id as comment_id','{{%story_comment}}.story_id','{{%story_comment}}.content','{{%story_comment}}.from_uid','{{%story_comment}}.comment_img_id','{{%story_comment}}.heart_val','{{%story_comment}}.likes','{{%story_comment}}.views','{{%story_comment}}.share_num','{{%member}}.nickname','{{%story_comment_img}}.img_url as comment_img_url','{{%story_comment}}.title','{{%story_comment}}.choice_img_url','{{%story_comment}}.choice_content'])
                     ->leftJoin('{{%member}}','{{%story_comment}}.from_uid={{%member}}.id')
                     ->leftJoin('{{%story_comment_img}}','{{%story_comment}}.comment_img_id={{%story_comment_img}}.id')
                     ->andWhere(['=', '{{%story_comment}}.story_id', $v['story_id']])
