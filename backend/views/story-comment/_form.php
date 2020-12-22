@@ -39,9 +39,21 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'is_show')->dropDownList([0=>'否',1=>'是'], ['prompt'=>'未选择','style'=>'width:120px']) ?>
 
-    <?= $form->field($model, 'is_choiceness')->dropDownList([0=>'否',1=>'是'], ['prompt'=>'未选择','style'=>'width:120px']) ?>
-
     <?= $form->field($model, 'is_top')->dropDownList([0=>'否',1=>'是'], ['prompt'=>'未选择','style'=>'width:120px']) ?>
+
+    <?= $form->field($model, 'is_choiceness')->label('是否是精选<span style="color:#DD4B39;"> (精选了以后，将会在首页推荐中根据故事游戏推荐出现!)</span>')->dropDownList([0=>'否',1=>'是'], ['prompt'=>'未选择','style'=>'width:120px']) ?>
+    <div id="choice_box">
+        <?= $form->field($model, 'choice_content')->label('精选内容文案<span style="color:#DD4B39;"> (可以根据上面用户评论的内容，复制编辑添加!)</span>')->textInput(['maxlength' => 50]) ?>
+
+        <div class="form-group field-storycomment-choice_img_url">
+            <label class="control-label" for="storycomment-choice_img_url">精选推荐图<span style="color:#DD4B39;"> (上传的图片尺寸>720*720px,大小<1M)</span></label>
+
+            <div class="avatar-view" style=" margin-bottom:10px; background: #fff;">
+                <img id="video_cover_img" src="<?php echo !empty($model->choice_img_url)?$model->choice_img_url:'';?>" alt="上传精选图">
+            </div>
+            <input type="hidden" value="<?php echo !empty($model->choice_img_url)?$model->choice_img_url:'';?>" id="xxx-upimg" name="StoryComment[choice_img_url]">
+        </div>
+    </div>
 
     <?php // $form->field($model, 'update_at')->textInput(['maxlength' => true]) ?>
 
@@ -51,4 +63,31 @@ use yii\widgets\ActiveForm;
 
     <?php ActiveForm::end(); ?>
 
+    <?= common\widgets\avatar_square\AvatarWidget::widget(['imageUrl'=>'']); ?>
+
 </div>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function(){
+
+        var lode_is_choiceness=$("#storycomment-is_choiceness").val();
+        if(lode_is_choiceness==0){
+            $("#choice_box").hide();
+        }
+
+        $("#storycomment-is_choiceness").on("change", function(){
+            //alert($(this).val());
+            var is_choiceness=$(this).val();
+            console.log(is_choiceness);
+            if(is_choiceness==1){
+                $("#choice_box").show("slow");
+            }else{
+                $("#choice_box").hide("slow");
+            }
+            //window.location.href = "/admin/adv/<?php echo Yii::$app->controller->action->id;?>?type_id="+ $(this).val();
+        });
+
+    });
+</script>

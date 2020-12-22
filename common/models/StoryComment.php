@@ -33,7 +33,8 @@ class StoryComment extends \yii\db\ActiveRecord
     {
         return [
             [['story_id', 'comment_type', 'from_uid', 'created_at', 'update_at','comment_img_id','heart_val','is_plot','likes','is_show','is_choiceness','is_top','views','share_num'], 'integer'],
-            [['title'], 'string', 'max' => 50],
+            [['title','choice_content'], 'string', 'max' => 50],
+            [['choice_img_url'], 'string', 'max' => 255],
             [['content'], 'string'],
         ];
     }
@@ -64,6 +65,8 @@ class StoryComment extends \yii\db\ActiveRecord
             'share_num' => '分享数',
             'title' => '评论标题',
             'status' => '状态',
+            'choice_content' => '精选内容',
+            'choice_img_url' => '精选图片',
         ];
     }
 }

@@ -26,6 +26,36 @@ class StoryCommentController extends Controller
         ];
     }
 
+    public function actions() {
+        return [
+
+            //单图上传
+            'upload_one'=>[
+                'class' => 'common\widgets\file_upload\UploadAction',     //这里扩展地址别写错
+                'config' => [
+                    'imagePathFormat' => "/uploads/upload_one/{yyyy}{mm}{dd}/{time}{rand:6}",
+                ]
+            ],
+
+            //截图上传
+            'crop'=>[
+                'class' => 'common\widgets\avatar_square\CropAction',
+                'config'=>[
+                    //main.js 中改 aspectRatio: 9 / 16,//纵横比
+                    'bigImageWidth' => '720',     //大图默认宽度
+                    'bigImageHeight' => '720',    //大图默认高度
+                    'middleImageWidth'=> '360',   //中图默认宽度
+                    'middleImageHeight'=> '360',  //中图图默认高度
+                    'smallImageWidth' => '180',    //小图默认宽度
+                    'smallImageHeight' => '180',   //小图默认高度
+                    //头像上传目录（注：目录前不能加"/"）
+                    'uploadPath' => '../../api/web/uploads',
+                ]
+            ]
+
+        ];
+    }
+
     /**
      * Lists all StoryComment models.
      * @return mixed
@@ -82,7 +112,8 @@ class StoryCommentController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            Yii::$app->session->setFlash('success', '操作成功');
+            return $this->redirect(['index']);
         } else {
             return $this->render('update', [
                 'model' => $model,
