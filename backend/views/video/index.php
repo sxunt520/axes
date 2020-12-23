@@ -36,6 +36,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         "headerOptions" => ["width" => "60"],
                     ],
                     'title',
+                    'content',
                     //'video_url:url',
                     [
                         'label' => '游戏视频',

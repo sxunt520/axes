@@ -16,6 +16,8 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
 
+    <?= $form->field($model, 'content')->textarea(['rows' => 6]) ?>
+
     <?= $form->field($model, 'video_url')->textInput(['maxlength' => true]) ?>
 
     <?php // $form->field($model, 'video_cover')->textInput(['maxlength' => true]) ?>

@@ -58,6 +58,7 @@ class StoryVideo extends \yii\db\ActiveRecord
             'likes' => '点赞数',
             'share_num' => '分享数',
             'created_at' => '创建时间',
+            'content' => '视频描述内容',
         ];
     }
 }
