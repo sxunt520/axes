@@ -742,7 +742,7 @@ class MemberController extends BaseController
             return parent::__response('参数错误，不支持此发送类型',(int)-2);
         }
 
-       if (!preg_match("/^[1][358][0-9]{9}$/", $mobile)) {
+       if (!preg_match("/^[1][34589][0-9]{9}$/", $mobile)) {
            return parent::__response('手机号格式错误，请重新输入！',(int)-2);
        }
 
@@ -813,7 +813,7 @@ class MemberController extends BaseController
         $mobile =Yii::$app->request->post('mobile')+0;
         $code =(int)Yii::$app->request->post('code');
 
-        if (!preg_match("/^[1][358][0-9]{9}$/", $mobile)) {
+        if (!preg_match("/^[1][34589][0-9]{9}$/", $mobile)) {
             return parent::__response('手机号格式错误，请重新输入！',(int)-2);
         }
 
@@ -1007,7 +1007,7 @@ class MemberController extends BaseController
         $code =(int)Yii::$app->request->post('code');
         $third_type =(int)Yii::$app->request->post('third_type');
 
-        if (!preg_match("/^[1][358][0-9]{9}$/", $mobile)) {
+        if (!preg_match("/^[1][34589][0-9]{9}$/", $mobile)) {
             return parent::__response('手机号格式错误，请重新输入！',(int)-2);
         }
 
