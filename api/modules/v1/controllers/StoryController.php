@@ -26,6 +26,7 @@ use api\models\StoryVideoTopic;
 use api\models\StoryRecommendSearch;
 use api\models\StoryVideoSearch;
 use yii\data\Pagination;
+use api\models\SearchLog;
 
 //use yii\web\NotFoundHttpException;
 //use api\components\library\UserException;
@@ -1028,6 +1029,15 @@ class StoryController extends BaseController
         $pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少条故事 评论 视频
         if ($page < 1) $page = 1;
         if ($pagenum < 1) $pagenum = 10;
+
+        //获取登录用户的user_id
+        if(!empty($this->Token)) {
+            $user_id = (int)Yii::$app->user->getId();//登录用户id
+        }else{
+            $user_id=0;//游客
+        }
+        //搜索记录日志
+        SearchLog::search_log($keyword,$user_id);
 
         $data=array();
 
