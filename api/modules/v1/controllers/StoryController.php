@@ -66,7 +66,7 @@ class StoryController extends BaseController
         if(!is_array($StoryRecommend_rows)){
             return parent::__response('暂无数据',0);
         }
-        //shuffle($StoryRecommend_rows);//打乱排序
+        shuffle($StoryRecommend_rows);//打乱排序
 
         ////////////////故事游戏交叉排序处理///////////////
         $count = count($StoryRecommend_rows);
