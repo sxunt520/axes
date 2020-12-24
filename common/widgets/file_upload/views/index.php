@@ -8,7 +8,7 @@
  
 use yii\helpers\Html;
 
-$inputValue=strpos($inputValue, 'http:') === false ? (\Yii::getAlias('@static') . $inputValue) : $inputValue;
+$inputValue=strpos($inputValue, 'http') === false&&!empty($inputValue) ? (\Yii::getAlias('@static') . $inputValue) : $inputValue;
 ?>
 <div class="per_upload_con" data-url="<?=$config['serverUrl']?>">
     <div class="per_real_img <?=$attribute?>" domain-url = "<?=$config['domain_url']?>">

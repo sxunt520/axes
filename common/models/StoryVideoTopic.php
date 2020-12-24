@@ -31,10 +31,12 @@ class StoryVideoTopic extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            [['story_id','topic_title','is_show'], 'required'],
             [['story_id', 'is_show', 'created_at'], 'integer'],
             [['content'], 'string'],
             [['topic_title'], 'string', 'max' => 150],
-            [['topic_cover'], 'string', 'max' => 255]
+            [['topic_cover'], 'string', 'max' => 255],
+            ['created_at', 'default', 'value' => time()],
         ];
     }
 
@@ -45,12 +47,12 @@ class StoryVideoTopic extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'story_id' => 'Story ID',
-            'topic_title' => 'Topic Title',
-            'topic_cover' => 'Topic Cover',
-            'content' => 'Content',
-            'is_show' => 'Is Show',
-            'created_at' => 'Created At',
+            'story_id' => '故事游戏id',
+            'topic_title' => '主题标题',
+            'topic_cover' => '主题封面',
+            'content' => '主题内容',
+            'is_show' => '是否显示',
+            'created_at' => '创建时间',
         ];
     }
 }

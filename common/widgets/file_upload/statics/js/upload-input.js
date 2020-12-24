@@ -26,21 +26,26 @@
  			url     : thisUrl,
  			maxSize : maxSize,
  			img : {
-				img : ['jpg','JPG','jpeg','JPEG','gif','GIF','png','PNG']
+				img : ['jpg','JPG','jpeg','JPEG','gif','GIF','png','PNG','webp']
 			},
  			sucFn   : function(json){
  				var from=$('#upfile').attr('from');
  				var domainUrl = $('.'+from).attr('domain-url');
  				json = $.parseJSON(json);
  				if(json.state == 'SUCCESS'){
-
-					if(json.is_thumb ==true){//是否返回生成缩略图
-						$('input[up-id='+ from+']').val(domainUrl+json.thumb_url);
-						$('.'+ from).html($('<img />').attr('src', domainUrl+json.thumb_url));
-					}else{
-						$('input[up-id='+ from+']').val(domainUrl+json.url);
-						$('.'+ from).html($('<img />').attr('src', domainUrl+json.url));
-					}
+ 					console.log(json);
+ 					if(json.is_to_cos ==true){
+ 						$('input[up-id='+ from+']').val(json.cos_url);
+						$('.'+ from).html($('<img />').attr('src', json.cos_url));
+ 					}else{
+ 						if(json.is_thumb ==true){//是否返回生成缩略图
+							$('input[up-id='+ from+']').val(domainUrl+json.thumb_url);
+							$('.'+ from).html($('<img />').attr('src', domainUrl+json.thumb_url));
+						}else{
+							$('input[up-id='+ from+']').val(domainUrl+json.url);
+							$('.'+ from).html($('<img />').attr('src', domainUrl+json.url));
+						}
+ 					}
 
  				}else{
                     alert(json.state);

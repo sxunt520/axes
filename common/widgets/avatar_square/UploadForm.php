@@ -64,7 +64,7 @@ class UploadForm extends Model
             if (!imagepng($bigImage, $bigImageUrl)) {
                 throw new \Exception('上传失败！');
             }
-
+            
             //本地地址： $this->imageUrl = Yii::getAlias('@static').'/uploads/'.$file_dir.'/'.$file_name;
 
             //////////////////上传到cos////////////////

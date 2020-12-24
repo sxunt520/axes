@@ -98,7 +98,7 @@ class UploadAction extends Action
         $uparr=$up->getFileInfo();
 
 
-        if($_GET['is_thumb']&&$_GET['adv_width']>0&&$_GET['adv_height']>0){//是否生成缩略图
+        if($uparr['state']=='SUCCESS'&&$_GET['is_thumb']&&$_GET['adv_width']>0&&$_GET['adv_height']>0){//是否生成缩略图
 
             //$dir=str_replace('backend', 'app', $_SERVER['DOCUMENT_ROOT']);
             $dir=Yii::getAlias('@staticroot');
@@ -122,6 +122,57 @@ class UploadAction extends Action
             $uparr['is_thumb']=true;
         }else{
             $uparr['is_thumb']=false;
+        }
+
+
+        $is_to_cos=true;//是否上传到cos
+        if($is_to_cos&&$uparr['state']=='SUCCESS'){//上传到cos
+
+                if($uparr['is_thumb']){//是否有生成缩略图
+                    $img_local_url=$uparr['thumb_url'];
+                }else{
+                    $img_local_url=$uparr['url'];
+                }
+
+                $local_img_all_url=Yii::getAlias('@staticroot').$img_local_url;//本地文件路径
+        
+                //判断本地上传的图片是否存在
+                if(file_exists($local_img_all_url)) {
+
+                        //////////////////上传到cos////////////////
+                        $x_file_dir=date("Ymd");
+                        $x_file_name=uniqid().$uparr['type'];
+                        $secretId = \Yii::$app->params['tencent_cos']['secretId']; //"云 API 密钥 SecretId";
+                        $secretKey = \Yii::$app->params['tencent_cos']['secretKey']; //"云 API 密钥 SecretKey";
+                        $region = "ap-guangzhou"; //设置一个默认的存储桶地域
+                        $cosClient = new \Qcloud\Cos\Client(
+                            array(
+                                'region' => $region,
+                                'schema' => 'http', //协议头部，默认为http
+                                'credentials'=> array(
+                                    'secretId'  => $secretId ,
+                                    'secretKey' => $secretKey)));
+                        //$local_path = "/Applications/XAMPP/web/demo/jjjj.png";
+                        $local_path = $local_img_all_url;
+                        try {
+                            $result = $cosClient->upload(
+                                $bucket = 'axe-video-1257242485', //格式：BucketName-APPID
+                                $key = '/img_static/'.$x_file_dir.'/'.$x_file_name,
+                                $body = fopen($local_path, 'rb')
+                            );
+                            // 请求成功
+                            //print_r($result);
+                            $uparr['cos_url'] = 'http://'.$result['Location'];
+                            $uparr['is_to_cos']=true;
+                        } catch (\Exception $e) {
+                            // 请求失败
+                            echo($e);
+                            return false;
+                        }
+                    //////////////////上传到cos////////////////
+                 }
+        }else{
+                $uparr['is_to_cos']=false;
         }
 
 
