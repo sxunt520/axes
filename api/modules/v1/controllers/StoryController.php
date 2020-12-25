@@ -27,6 +27,7 @@ use api\models\StoryRecommendSearch;
 use api\models\StoryVideoSearch;
 use yii\data\Pagination;
 use api\models\SearchLog;
+use api\models\SearchKeyword;
 
 //use yii\web\NotFoundHttpException;
 //use api\components\library\UserException;
@@ -1096,6 +1097,41 @@ class StoryController extends BaseController
 
         return parent::__response('ok',0,$data);
 
+    }
+
+    /**
+     *Time:2020/12/25 9:16
+     *Author:始渲
+     *Remark:热搜Top
+     * @params:
+     * page 当前页 默认1
+     * pagenum 一页多少条 默认10
+     * @return:
+     */
+    public function actionSearchTop()
+    {
+
+        if (!Yii::$app->request->isPost) {//如果不是post请求
+            return parent::__response('Request Error!', (int)-1);
+        }
+
+        $page = (int)Yii::$app->request->post('page');//当前页
+        $pagenum = (int)Yii::$app->request->post('pagenum');//一页显示多少
+        if ($page < 1) $page = 1;
+        if ($pagenum < 1) $pagenum = 10;
+
+        $SearchKeyword_rows = SearchKeyword::find()
+            ->select(['id', 'keyword', 'total_num'])
+            ->orderBy(['total_num' => SORT_DESC])
+            ->offset($pagenum * ($page - 1))
+            ->limit($pagenum)
+            ->asArray()
+            ->all();
+        if ($SearchKeyword_rows) {
+            return parent::__response('ok', 0, $SearchKeyword_rows);
+        } else {
+            return parent::__response('暂无数据', 0);
+        }
     }
 
 }
