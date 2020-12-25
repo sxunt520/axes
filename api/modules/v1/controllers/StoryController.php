@@ -198,7 +198,7 @@ class StoryController extends BaseController
                 if($StoryComment_rows&&is_array($StoryComment_rows)){
                     //每条评论的回复数，每条评论是否有点赞过
                     foreach($StoryComment_rows as $comment_k=>$comment_v){
-                        $StoryComment_rows[$comment_k]['reply_num']=(int)StoryCommentReply::find()->andWhere(['comment_id'=>$comment_v['comment_id'],'parent_reply_id'=>$comment_v['comment_id']])->andWhere(['in' , 'reply_type' , [2,3]])->count();
+                        $StoryComment_rows[$comment_k]['reply_num']=(int)StoryCommentReply::find()->andWhere(['comment_id'=>$comment_v['comment_id'],'parent_reply_id'=>$comment_v['comment_id']])->andWhere(['in' , 'reply_type' , [1,2,3]])->count();
                         //如果登录判断评论是否点赞
                         if(!empty($this->Token)){
                             $user_id = (int)Yii::$app->user->getId();//登录用户id
