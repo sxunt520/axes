@@ -242,7 +242,7 @@ class StoryController extends BaseController
                 if($StoryScreenComment_rows&&is_array($StoryScreenComment_rows)){
                     $rand_row['screen_comment']=$StoryScreenComment_rows;
                 }else{
-                    $rand_row['screen_comment']='';
+                    $rand_row['screen_comment']=[];
                 }
 
                 $rand_row['list_type']=3;//评论类型 1故事 2视频 3评论
