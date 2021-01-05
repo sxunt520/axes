@@ -12,6 +12,7 @@ use api\models\StoryCommentImg;
 use api\models\StoryCommentLikeLog;
 use api\models\member;
 use api\models\StoryScreenComment;
+use api\models\SensitiveWords;
 
 class StoryCommentController extends BaseController
 {
@@ -336,6 +337,16 @@ class StoryCommentController extends BaseController
         }
         $story_id = (int)Yii::$app->request->post('story_id');//故事id
         $comment_img_id = (int)Yii::$app->request->post('comment_img_id');//评论图id
+        $title=Yii::$app->request->post('title');//标题
+        $content=Yii::$app->request->post('content');//内容
+
+        //敏感关键词过滤
+        $sensitive_str=$title.$content;//过滤内容字符串
+        $SensitiveWords_r=SensitiveWords::matching_sensitive_one($sensitive_str);//匹配结果
+        if($SensitiveWords_r){
+            return parent::__response('评论失败!包含敏感词.',(int)-2);
+        }
+
 
         //先看故事是否存在
         $Story_Model=Story::findOne($story_id);
@@ -351,8 +362,8 @@ class StoryCommentController extends BaseController
         $story_comment_model=new StoryComment();
         $story_comment_model->story_id = $story_id;//故事id
         $story_comment_model->comment_img_id = $comment_img_id;//评论图id
-        $story_comment_model->title = Yii::$app->request->post('title');//标题
-        $story_comment_model->content = Yii::$app->request->post('content');//内容
+        $story_comment_model->title = $title;//标题
+        $story_comment_model->content = $content;//内容
         $story_comment_model->is_plot = Yii::$app->request->post('is_plot');//是否包含剧透 1是 0否
         $story_comment_model->from_uid = Yii::$app->user->getId();//评论用户id
         //$story_comment_model->created_at=time();
@@ -646,6 +657,12 @@ class StoryCommentController extends BaseController
         }
         $story_id = (int)Yii::$app->request->post('story_id');//故事游戏id
         $text = Yii::$app->request->post('text');//弹幕文字
+
+        //敏感关键词过滤
+        $SensitiveWords_r=SensitiveWords::matching_sensitive_one($text);//匹配结果
+        if($SensitiveWords_r){
+            return parent::__response('发送弹幕失败!包含敏感词.',(int)-2);
+        }
 
         //先看故事是否存在
         $Story_Model=Story::findOne($story_id);

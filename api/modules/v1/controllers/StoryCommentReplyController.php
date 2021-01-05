@@ -3,6 +3,7 @@
 namespace api\modules\v1\controllers;
 
 use api\models\Member;
+use api\models\SensitiveWords;
 use Yii;
 use api\components\BaseController;
 use api\models\Story;
@@ -239,6 +240,12 @@ class StoryCommentReplyController extends BaseController
             $parent_reply_id=$reply_id;
         }else{
             $parent_reply_id=$comment_id;
+        }
+
+        //敏感关键词过滤
+        $SensitiveWords_r=SensitiveWords::matching_sensitive_one($reply_content);//匹配结果
+        if($SensitiveWords_r){
+            return parent::__response('回复失败!包含敏感词.',(int)-2);
         }
 
         if($reply_type==1){//对评论发布回复
