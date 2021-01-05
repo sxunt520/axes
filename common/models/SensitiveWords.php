@@ -39,7 +39,7 @@ class SensitiveWords extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'word' => 'Word',
+            'word' => '敏感词',
         ];
     }
 }
