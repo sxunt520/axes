@@ -98,7 +98,7 @@ class StoryController extends BaseController
         $video_rows_rand=array();//随机视频数据
         foreach ($StoryRecommend_rows as $k=>$v){
             //游戏点赞数、游戏标题、游戏试玩链接
-            $Story_rows=Story::find()->select(['likes','game_title','free_game_link'])->where(['id' => $v['story_id']])->asArray()->one();
+            $Story_rows=Story::find()->select(['likes','game_title','free_game_link','official_score','publisher','selling_points','current_chapters','total_chapters'])->where(['id' => $v['story_id']])->asArray()->one();
             if($Story_rows){
                 $StoryRecommend_rows[$k]['likes']=$Story_rows['likes'];
                 $StoryRecommend_rows[$k]['game_title']=$Story_rows['game_title'];
@@ -136,9 +136,19 @@ class StoryController extends BaseController
                 if($Story_rows){//试玩链接
                     $video_topic_rand_rows['game_title']=$Story_rows['game_title'];
                     $video_topic_rand_rows['free_game_link']=$Story_rows['free_game_link'];
+                    $video_topic_rand_rows['official_score']=$Story_rows['official_score'];
+                    $video_topic_rand_rows['publisher']=!empty($Story_rows['publisher'])?$Story_rows['publisher']:'';
+                    $video_topic_rand_rows['selling_points']=!empty($Story_rows['selling_points'])?$Story_rows['selling_points']:'';
+                    $video_topic_rand_rows['current_chapters']=$Story_rows['current_chapters'];
+                    $video_topic_rand_rows['total_chapters']=$Story_rows['total_chapters'];
                 }else{
                     $video_topic_rand_rows['game_title']='';
                     $video_topic_rand_rows['free_game_link']='';
+                    $video_topic_rand_rows['official_score']='';
+                    $video_topic_rand_rows['publisher']='';
+                    $video_topic_rand_rows['selling_points']='';
+                    $video_topic_rand_rows['current_chapters']='';
+                    $video_topic_rand_rows['total_chapters']='';
                 }
 
                 if($StoryTag_rows) $video_topic_rand_rows['tags']=$StoryTag_rows;

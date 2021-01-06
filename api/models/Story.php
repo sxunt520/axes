@@ -32,7 +32,8 @@ class Story extends \common\models\Story
         return [
             [['intro'], 'string'],
             [['type', 'created_at', 'updated_at', 'admin_id', 'next_updated_at', 'current_chapters', 'total_chapters', 'is_show','views','share_num','collect_num'], 'integer'],
-            [['title','game_title','slogan_title'], 'string', 'max' => 50],
+            [['official_score'], 'number'],
+            [['title','game_title','slogan_title', 'publisher', 'selling_points'], 'string', 'max' => 50],
             [['cover_url', 'video_url','record_pic','free_game_link'], 'string', 'max' => 255]
         ];
     }

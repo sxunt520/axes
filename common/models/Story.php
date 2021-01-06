@@ -45,7 +45,8 @@ class Story extends \yii\db\ActiveRecord
             [['game_title', 'intro','is_show'], 'required'],
             [['intro'], 'string'],
             [['type', 'created_at', 'updated_at', 'admin_id', 'current_chapters', 'total_chapters', 'is_show','collect_num'], 'integer'],
-            [['title','game_title','slogan_title'], 'string', 'max' => 50],
+            [['official_score'], 'number'],
+            [['title','game_title','slogan_title', 'publisher', 'selling_points'], 'string', 'max' => 50],
             [['cover_url', 'video_url','record_pic','game_title','free_game_link'], 'string', 'max' => 255],
             [['next_updated_at'], 'filter', 'filter' => 'strtotime', 'skipOnEmpty' => true],
             ['created_at', 'default', 'value' => time()],
@@ -84,6 +85,9 @@ class Story extends \yii\db\ActiveRecord
             'collect_num' => '订阅收藏数',
             'slogan_title' => '宣传标语',
             'free_game_link'=>'免费试玩游戏链接',
+            'official_score' => '官方评分',
+            'publisher' => '游戏发行商',
+            'selling_points' => '卖点描述',
         ];
     }
 
