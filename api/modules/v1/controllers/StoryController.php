@@ -235,8 +235,10 @@ class StoryController extends BaseController
 
                 if($Story_rows){//试玩链接
                     $rand_row['free_game_link']=$Story_rows['free_game_link'];
+                    $rand_row['game_title']=$Story_rows['game_title'];
                 }else{
                     $rand_row['free_game_link']='';
+                    $rand_row['game_title']='';
                 }
 
                 //////游戏相关弹幕列表/////
