@@ -46,6 +46,7 @@ class Story extends \yii\db\ActiveRecord
             [['intro'], 'string'],
             [['type', 'created_at', 'updated_at', 'admin_id', 'current_chapters', 'total_chapters', 'is_show','collect_num'], 'integer'],
             [['official_score'], 'number'],
+            ['official_score', 'compare', 'compareValue' => 10, 'operator' => '<='],
             [['title','game_title','slogan_title', 'publisher', 'selling_points'], 'string', 'max' => 50],
             [['cover_url', 'video_url','record_pic','game_title','free_game_link'], 'string', 'max' => 255],
             [['next_updated_at'], 'filter', 'filter' => 'strtotime', 'skipOnEmpty' => true],

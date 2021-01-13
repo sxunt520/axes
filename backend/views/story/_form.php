@@ -122,7 +122,7 @@ use kartik\file\FileInput;
     <div class="tab-pane" id="tab_2">
         <?php // $form->field($model, 'other')->widget('kucha\ueditor\UEditor', ['options' => ['style' => 'height:200px']]) ?>
         <?php // $form->field($model, 'game_title')->textInput(['maxlength' => true]) ?>
-        <?= $form->field($model, 'official_score')->label('官方评分 <span style="color: #DD4B39;">(0~10 之间的数 如:9.8)</span>')->textInput(['maxlength' => true]) ?>
+        <?= $form->field($model, 'official_score')->label('官方评分 <span style="color: #DD4B39;">(0~10 之间的数 如:9.8)</span>')->textInput(['maxlength' => 3]) ?>
         <?= $form->field($model, 'publisher')->textInput(['maxlength' => true]) ?>
         <?= $form->field($model, 'selling_points')->textInput(['maxlength' => true]) ?>
 
