@@ -175,13 +175,22 @@ class VideoTopicController extends Controller
                 //print_r($result);
 
                 //生成一个视频封面，然后上传到COS
-                $video_cover_url='';
+                //$video_cover_url='';
                 //$video_cover_url=Ffmpeg::getVideoCover('http://'.$result['Location'],0);
                 //if($video_cover_url){
                 //    $video_cover_flag=true;
                 //}else{
-                    $video_cover_flag=false;
+                //    $video_cover_flag=false;
                 //}
+
+                //通过视频生成gif图,0~2秒的gif图
+                $video_cover_url=Ffmpeg::getVideoCovergif('http://'.$result['Location'],0,2);
+                if($video_cover_url){
+                    $video_cover_flag=true;
+                }else{
+                    $video_cover_url='';
+                    $video_cover_flag=false;
+                }
 
                 $p1[]= '<video width="300" height="auto" controls="controls"><source src="'.'http://'.$result['Location'].'" type="video/mp4"></video>';
                 echo json_encode([
@@ -189,7 +198,7 @@ class VideoTopicController extends Controller
                     'video_url'=>'http://'.$result['Location'],
                     'append' => false,//控制不追回，只传一个
                     'video_cover_url'=>$video_cover_url,//视频封面
-                    'video_cover_flag'=>$video_cover_flag,//是否有视频封面
+                    'video_cover_flag'=>$video_cover_flag,//是否有视频gif封面
                 ]);
                 return;
 
