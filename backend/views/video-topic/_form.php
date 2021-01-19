@@ -54,10 +54,10 @@ use kartik\file\FileInput;
                                             //console.log($('input[StoryVideoTopic][video_url]'));
                                             $(\"input[name='StoryVideoTopic[topic_video_url]']\").val(data.response.video_url);
                                             
-                                                //if(data.response.video_cover_flag==true){//如果有视频封面图
-                                                //    $(\"#video_cover_img\").attr('src',data.response.video_cover_url);
-                                                //    $(\"#xxx-upimg\").val(data.response.video_cover_url);
-                                                //}
+                                            if(data.response.video_cover_flag==true){//如果有生成视频封面gif图
+                                                $(\".per_real_img\").html('<img src=\"'+data.response.video_cover_url+'\"/>');
+                                                $(\"input[name='StoryVideoTopic[topic_cover]']\").val(data.response.video_cover_url);
+                                            }
                                                 
                                         }",
         ],
