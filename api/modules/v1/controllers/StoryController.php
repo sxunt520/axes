@@ -178,9 +178,10 @@ class StoryController extends BaseController
                         $rand_key_0 = array_rand($video_rows_rand[$v['story_id']], 1);//随机匹配一条的key
                         $video_topic_rand_rows['video_list'][] = $video_rows_rand[$v['story_id']][$rand_key_0];//随机两条评论的详细
                     }
-                }else{
-                    $video_topic_rand_rows['video_list']=[];
                 }
+//                else{
+//                    $video_topic_rand_rows['video_list']=[];
+//                }
                 /////////////////////故事相关视频两个随机推荐end////////////////////
 
                 $video_topic_rand_rows['list_type']=2;//评论类型 1故事 2视频 3评论
