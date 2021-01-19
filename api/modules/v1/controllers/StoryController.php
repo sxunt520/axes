@@ -120,7 +120,7 @@ class StoryController extends BaseController
             /////////////////////故事相关视频专题推荐action////////////////////
             //获取该故事相关 精彩视频专题 最新前20条,
             if(!array_key_exists($v['story_id'],$video_topic_rand)){
-                $StoryVideoTopic_rows=StoryVideoTopic::find()->select(['id as video_topic_id','story_id','topic_title','content as topic_content','topic_cover'])->andWhere(['story_id' => $v['story_id'],'is_show'=>1])->orderBy(['id' => SORT_DESC])->limit(20)->asArray()->all();
+                $StoryVideoTopic_rows=StoryVideoTopic::find()->select(['id as video_topic_id','story_id','topic_title','content as topic_content','topic_cover','topic_video_url'])->andWhere(['story_id' => $v['story_id'],'is_show'=>1])->orderBy(['id' => SORT_DESC])->limit(20)->asArray()->all();
                 if($StoryVideoTopic_rows&&is_array($StoryVideoTopic_rows)){
                     //装入video_rows，后面优化放入缓存中
                     $video_topic_rand[$v['story_id']]=$StoryVideoTopic_rows;
@@ -178,6 +178,8 @@ class StoryController extends BaseController
                         $rand_key_0 = array_rand($video_rows_rand[$v['story_id']], 1);//随机匹配一条的key
                         $video_topic_rand_rows['video_list'][] = $video_rows_rand[$v['story_id']][$rand_key_0];//随机两条评论的详细
                     }
+                }else{
+                    $video_topic_rand_rows['video_list']=[];
                 }
                 /////////////////////故事相关视频两个随机推荐end////////////////////
 
