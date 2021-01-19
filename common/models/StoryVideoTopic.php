@@ -17,6 +17,8 @@ use Yii;
  */
 class StoryVideoTopic extends \yii\db\ActiveRecord
 {
+    public $_topic_video_url;
+
     /**
      * @inheritdoc
      */
@@ -35,7 +37,7 @@ class StoryVideoTopic extends \yii\db\ActiveRecord
             [['story_id', 'is_show', 'created_at'], 'integer'],
             [['content'], 'string'],
             [['topic_title'], 'string', 'max' => 150],
-            [['topic_cover'], 'string', 'max' => 255],
+            [['topic_cover','topic_video_url'], 'string', 'max' => 255],
             ['created_at', 'default', 'value' => time()],
         ];
     }
@@ -53,6 +55,7 @@ class StoryVideoTopic extends \yii\db\ActiveRecord
             'content' => '主题内容',
             'is_show' => '是否显示',
             'created_at' => '创建时间',
+            'topic_video_url'=>'主题视频',
         ];
     }
 }

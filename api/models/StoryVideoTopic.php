@@ -27,7 +27,7 @@ class StoryVideoTopic extends \common\models\StoryVideoTopic
             [['story_id', 'is_show', 'created_at'], 'integer'],
             [['content'], 'string'],
             [['topic_title'], 'string', 'max' => 150],
-            [['topic_cover'], 'string', 'max' => 255]
+            [['topic_cover','topic_video_url'], 'string', 'max' => 255]
         ];
     }
 
