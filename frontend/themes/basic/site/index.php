@@ -85,7 +85,7 @@ $this->title = '旅人计划 超S级互动故事阅读APP';
 
 <div id="down_float_r" style="display: none;"><a href="javascript:void(0);"></a><div class="float_qrcode"><img src="/images/down_float.png" width="103" height="110"></div></div>
 
-<footer class="footer" id="footer" style=" display:none;"><span> © 2020 www.233i.com All rights reserved 蜀ICP备<a href="https://beian.miit.gov.cn/" target="_blank">18015972</a>号-1 川网文（2018）9245-339号
+<footer class="footer" id="footer" style=" display:none;"><span> © 2020 www.233i.com All rights reserved <a href="https://beian.miit.gov.cn/" target="_blank">蜀ICP备18015972号-1</a> 川网文（2018）9245-339号
 </span></footer>
 
 <script>
