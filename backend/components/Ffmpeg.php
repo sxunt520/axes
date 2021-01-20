@@ -167,17 +167,19 @@ class Ffmpeg{
             $ffmpeg_config_arr
         );
         $video = $ffmpeg->open($video_url);
-        $video
-            ->filters()
-            ->resize(new \FFMpeg\Coordinate\Dimension(720, 1280))
-            ->synchronize();
+        //$video
+        //    ->filters()
+        //    ->resize(new \FFMpeg\Coordinate\Dimension(720, 1280))
+        //    ->synchronize();
         //生成视频截图
         //$r=$video
         //    ->frame(\FFMpeg\Coordinate\TimeCode::fromSeconds($fromSeconds))
         //    ->save($path.'/'.$fileName);
+
         //生成gif图
+            //$video->filters()->framerate(new \FFMpeg\Coordinate\FrameRate(1), 5);//改变帧频，好像没用
         $r=$video
-            ->gif(\FFMpeg\Coordinate\TimeCode::fromSeconds($fromSeconds), new \FFMpeg\Coordinate\Dimension(720, 720), $endSeconds)
+            ->gif(\FFMpeg\Coordinate\TimeCode::fromSeconds($fromSeconds), new \FFMpeg\Coordinate\Dimension(420, 420), $endSeconds)
             ->save($path.'/'.$fileName);
 
         if($r){//返回生成的视频封面图
