@@ -71,7 +71,7 @@ use kartik\file\FileInput;
             'domain_url' => Yii::getAlias('@static'),////图片域名
             'serverUrl' => yii\helpers\Url::to(['upload_one','action'=>'uploadimage','is_thumb'=>false,'adv_width'=>720,'adv_height'=>720]),  //上传服务器地址 is_thumb就否返回生成缩略图
         ]
-    ])->label('主题封面(上传尺寸>720*720px,大小<1M ,可上传gif、jpg、png、webp <span style="color:#FF0000;">建议上传gif动图</span>)') ?>
+    ])->label('主题封面(上传尺寸420*420px,大小<1M ,可上传gif、jpg、png、webp <span style="color:#FF0000;">建议上传gif动图</span>)') ?>
 
     <?php // $form->field($model, 'is_show')->textInput() ?>
     <?= $form->field($model, 'is_show')->dropDownList([0=>'否',1=>'是'], ['prompt'=>'未选择','style'=>'width:120px']) ?>
