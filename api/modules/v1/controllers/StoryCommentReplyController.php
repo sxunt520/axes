@@ -243,9 +243,9 @@ class StoryCommentReplyController extends BaseController
         }
 
         //敏感关键词过滤
-        $SensitiveWords_r=SensitiveWords::matching_sensitive_one($reply_content);//匹配结果
-        if($SensitiveWords_r){
-            return parent::__response('回复失败!包含敏感词.',(int)-2);
+        $SensitiveWords_r=SensitiveWords::matching_sensitive_one2($reply_content);//匹配结果
+        if($SensitiveWords_r['is_sensitive']==true){
+            return parent::__response('回复失败!含敏感词{'.$SensitiveWords_r['sensitive_str'].'}',(int)-2);
         }
 
         if($reply_type==1){//对评论发布回复

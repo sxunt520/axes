@@ -122,5 +122,28 @@ class SensitiveWords extends \common\models\SensitiveWords
 
     }
 
+    //单条循环匹配敏感词
+    public static function matching_sensitive_one2($sensitive_str)
+    {
+        $sensitive_wordes_rows=SELF::find()->asArray()->all();//库里找到敏感词类
+        $sensitive_wordes_list = array_column($sensitive_wordes_rows, 'word');//转换为一维数组
+
+        //批量转义特殊字符 preg_quote
+        $arr=array();
+        $arr['is_sensitive']=false;
+        $arr['sensitive_str']='';
+        foreach ($sensitive_wordes_list as $k=>$v){
+            $wordes_quote=preg_quote($v);//转义
+            $pattern = "/" . $wordes_quote . "/i"; //定义正则表达式
+            if (@preg_match($pattern, $sensitive_str)) { //匹配到了结果
+                $arr['is_sensitive']=true;
+                $arr['sensitive_str']=$wordes_quote;
+                return $arr;//找到了直接退出返回
+            }
+
+        }
+
+    }
+
 
 }
