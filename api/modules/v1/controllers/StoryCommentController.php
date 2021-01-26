@@ -337,8 +337,9 @@ class StoryCommentController extends BaseController
         }
         $story_id = (int)Yii::$app->request->post('story_id');//故事id
         $comment_img_id = (int)Yii::$app->request->post('comment_img_id');//评论图id
-        $title=Yii::$app->request->post('title');//标题
-        $content=Yii::$app->request->post('content');//内容
+        $title=SensitiveWords::filterEmoji(Yii::$app->request->post('title'));//标题
+        $content=SensitiveWords::filterEmoji(Yii::$app->request->post('content')) ;//内容
+        //$content=SensitiveWords::filterEmoji($content);//去除emoji表情
 
         //敏感关键词过滤
         $sensitive_str=$title.$content;//过滤内容字符串
@@ -656,7 +657,7 @@ class StoryCommentController extends BaseController
             return parent::__response('参数错误!',(int)-2);
         }
         $story_id = (int)Yii::$app->request->post('story_id');//故事游戏id
-        $text = Yii::$app->request->post('text');//弹幕文字
+        $text = SensitiveWords::filterEmoji(Yii::$app->request->post('text'));//弹幕文字
 
         //敏感关键词过滤
         $SensitiveWords_r=SensitiveWords::matching_sensitive_one2($text);//匹配结果

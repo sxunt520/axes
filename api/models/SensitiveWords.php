@@ -145,5 +145,18 @@ class SensitiveWords extends \common\models\SensitiveWords
 
     }
 
+    // 过滤掉emoji表情
+    public static function filterEmoji($str)
+    {
+        $str = preg_replace_callback(
+            '/./u',
+            function (array $match) {
+                return strlen($match[0]) >= 4 ? '' : $match[0];
+            },
+            $str);
+
+        return $str;
+    }
+
 
 }

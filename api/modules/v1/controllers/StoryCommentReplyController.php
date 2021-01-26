@@ -234,7 +234,7 @@ class StoryCommentReplyController extends BaseController
         $reply_type = (int)Yii::$app->request->post('reply_type');//1对评论发布回复 2对回复发布回复 3@人+对回复发布回复
         $reply_from_uid = (int)Yii::$app->user->getId();//回复用户id
         $reply_to_uid = (int)Yii::$app->request->post('reply_to_uid');//回复目标用户id @人就是@人的id，否则就是要回复的目标用户id
-        $reply_content = Yii::$app->request->post('reply_content');//回复内容
+        $reply_content = SensitiveWords::filterEmoji(Yii::$app->request->post('reply_content'));//回复内容
         $reply_id = (int)Yii::$app->request->post('reply_id');//父回复id
         if($reply_id>0){//如果传入回复id 父回复id就是reply_id， 否刚是comment_id
             $parent_reply_id=$reply_id;
