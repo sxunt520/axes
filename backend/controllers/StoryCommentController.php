@@ -42,8 +42,8 @@ class StoryCommentController extends Controller
                 'class' => 'common\widgets\avatar_square\CropAction',
                 'config'=>[
                     //main.js 中改 aspectRatio: 9 / 16,//纵横比
-                    'bigImageWidth' => '720',     //大图默认宽度
-                    'bigImageHeight' => '720',    //大图默认高度
+                    'bigImageWidth' => '420',     //大图默认宽度
+                    'bigImageHeight' => '420',    //大图默认高度
                     'middleImageWidth'=> '360',   //中图默认宽度
                     'middleImageHeight'=> '360',  //中图图默认高度
                     'smallImageWidth' => '180',    //小图默认宽度
