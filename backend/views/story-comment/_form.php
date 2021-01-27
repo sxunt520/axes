@@ -46,7 +46,7 @@ use yii\widgets\ActiveForm;
         <?= $form->field($model, 'choice_content')->label('精选内容文案<span style="color:#DD4B39;"> (可以根据上面用户评论的内容，复制编辑添加!)</span>')->textInput(['maxlength' => 70]) ?>
 
         <div class="form-group field-storycomment-choice_img_url">
-            <label class="control-label" for="storycomment-choice_img_url">精选推荐图<span style="color:#DD4B39;"> (上传的图片尺寸>720*720px,大小<1M)</span></label>
+            <label class="control-label" for="storycomment-choice_img_url">精选推荐图<span style="color:#DD4B39;"> (上传的图片尺寸>420*420px,大小<1M)</span></label>
 
             <div class="avatar-view" style=" margin-bottom:10px; background: #fff;">
                 <img id="video_cover_img" src="<?php echo !empty($model->choice_img_url)?$model->choice_img_url:'';?>" alt="上传精选图">
