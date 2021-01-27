@@ -61,7 +61,8 @@ class UploadForm extends Model
             
             //图片移动到本地对应目录
             //if (!imagepng($bigImage, $bigImageUrl)||!imagepng($middleImage, $middleImageUrl) ||!imagepng($smallImage, $smallImageUrl)) {
-            if (!imagepng($bigImage, $bigImageUrl,9)) {
+            //if (!imagepng($bigImage, $bigImageUrl,9)) {
+            if (!imagejpeg($bigImage, $bigImageUrl,80)) {
                 throw new \Exception('上传失败！');
             }
             
