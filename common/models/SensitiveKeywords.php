@@ -37,7 +37,8 @@ class SensitiveKeywords extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'word' => 'Word',
+            'word' => '敏感词组',
+            'desc' => '描述',
         ];
     }
 }
