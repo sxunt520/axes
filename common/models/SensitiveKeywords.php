@@ -26,7 +26,8 @@ class SensitiveKeywords extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['word'], 'string']
+            [['word'], 'string'],
+            [['desc'], 'string', 'max' => 30],
         ];
     }
 

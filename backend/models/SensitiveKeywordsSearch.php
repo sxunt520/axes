@@ -20,6 +20,7 @@ class SensitiveKeywordsSearch extends SensitiveKeywords
         return [
             [['id'], 'integer'],
             [['word', 'desc'], 'safe'],
+            [['desc'], 'string', 'max' => 30],
         ];
     }
 
