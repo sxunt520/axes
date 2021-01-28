@@ -13,6 +13,7 @@ use api\models\StoryCommentLikeLog;
 use api\models\member;
 use api\models\StoryScreenComment;
 use api\models\SensitiveWords;
+use api\models\SensitiveKeywords;
 
 class StoryCommentController extends BaseController
 {
@@ -343,9 +344,13 @@ class StoryCommentController extends BaseController
 
         //敏感关键词过滤
         $sensitive_str=$title.$content;//过滤内容字符串
-        $SensitiveWords_r=SensitiveWords::matching_sensitive_one2($sensitive_str);//匹配结果
-        if($SensitiveWords_r['is_sensitive']==true){
-            return parent::__response('评论失败!含敏感词{'.$SensitiveWords_r['sensitive_str'].'}',(int)-2);
+//        $SensitiveWords_r=SensitiveWords::matching_sensitive_one2($sensitive_str);//匹配结果
+//        if($SensitiveWords_r['is_sensitive']==true){
+//            return parent::__response('评论失败!含敏感词{'.$SensitiveWords_r['sensitive_str'].'}',(int)-2);
+//        }
+        $SensitiveKeywords_r=SensitiveKeywords::matching_sensitive_text($sensitive_str);//匹配结果
+        if($SensitiveKeywords_r['is_sensitive']==true){
+            return parent::__response('评论失败!含敏感词{'.$SensitiveKeywords_r['sensitive_str'].'}',(int)-2);
         }
 
 
@@ -660,9 +665,13 @@ class StoryCommentController extends BaseController
         $text = SensitiveWords::filterEmoji(Yii::$app->request->post('text'));//弹幕文字
 
         //敏感关键词过滤
-        $SensitiveWords_r=SensitiveWords::matching_sensitive_one2($text);//匹配结果
-        if($SensitiveWords_r['is_sensitive']==true){
-            return parent::__response('发送弹幕失败!含敏感词{'.$SensitiveWords_r['sensitive_str'].'}',(int)-2);
+//        $SensitiveWords_r=SensitiveWords::matching_sensitive_one2($text);//匹配结果
+//        if($SensitiveWords_r['is_sensitive']==true){
+//            return parent::__response('发送弹幕失败!含敏感词{'.$SensitiveWords_r['sensitive_str'].'}',(int)-2);
+//        }
+        $SensitiveKeywords_r=SensitiveKeywords::matching_sensitive_text($text);//匹配结果
+        if($SensitiveKeywords_r['is_sensitive']==true){
+            return parent::__response('评论失败!含敏感词{'.$SensitiveKeywords_r['sensitive_str'].'}',(int)-2);
         }
 
         //先看故事是否存在

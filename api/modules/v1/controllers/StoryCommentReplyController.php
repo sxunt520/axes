@@ -3,6 +3,7 @@
 namespace api\modules\v1\controllers;
 
 use api\models\Member;
+use api\models\SensitiveKeywords;
 use api\models\SensitiveWords;
 use Yii;
 use api\components\BaseController;
@@ -243,9 +244,13 @@ class StoryCommentReplyController extends BaseController
         }
 
         //敏感关键词过滤
-        $SensitiveWords_r=SensitiveWords::matching_sensitive_one2($reply_content);//匹配结果
-        if($SensitiveWords_r['is_sensitive']==true){
-            return parent::__response('回复失败!含敏感词{'.$SensitiveWords_r['sensitive_str'].'}',(int)-2);
+//        $SensitiveWords_r=SensitiveWords::matching_sensitive_one2($reply_content);//匹配结果
+//        if($SensitiveWords_r['is_sensitive']==true){
+//            return parent::__response('回复失败!含敏感词{'.$SensitiveWords_r['sensitive_str'].'}',(int)-2);
+//        }
+        $SensitiveKeywords_r=SensitiveKeywords::matching_sensitive_text($reply_content);//匹配结果
+        if($SensitiveKeywords_r['is_sensitive']==true){
+            return parent::__response('评论失败!含敏感词{'.$SensitiveKeywords_r['sensitive_str'].'}',(int)-2);
         }
 
         if($reply_type==1){//对评论发布回复
