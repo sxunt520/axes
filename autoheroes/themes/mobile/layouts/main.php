@@ -1,0 +1,34 @@
+<?php
+
+/* @var $this \yii\web\View */
+/* @var $content string */
+
+use yii\helpers\Html;
+use frontend\assets\AppAsset;
+AppAsset::register($this);
+?>
+
+<?php $this->beginPage() ?>
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title><?= Html::encode($this->title) ?></title>
+    <link rel="shortcut icon" href="/images/favicon.ico" />
+    <meta name="keywords" content="旅人计划 旅人计划官网 旅人计划官方网站 旅人计划论坛 旅人计划所有手机游戏 旅人计划app 互动故事 阅读平台、免费阅读平台、故事阅读平台 、手机阅读平台">
+    <meta name="description" content="旅人计划（233i.com)是国内超S级阅读平台，拥有独家内容：泡沫冬景、孟德大小姐与自爆少年、云端之约、长安夜明等；我们秉持每个故事都是一段旅程的理念为用户提供高质量私享阅读体验，营造良好社区氛围，期待每位用户都能在此遇见万里挑一的灵魂。">
+    <link rel="stylesheet" href="/m_static/css/webbase.css">
+    <link rel="stylesheet" href="/m_static/css/index.css">
+</head>
+<body>
+<?php $this->beginBody() ?>
+
+<?= $content ?>
+
+<?php $this->endBody() ?>
+</body>
+</html>
+<?php $this->endPage() ?>

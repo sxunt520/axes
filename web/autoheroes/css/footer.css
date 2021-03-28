@@ -1,0 +1,46 @@
+.footer {
+  position: relative;
+  width: 100%;
+  background: #06020B;
+  z-index: 9;
+  overflow:hidden;
+  padding:60px 0;
+}
+.footer .footer-content {
+  max-width: 1300px;
+  background: #06020B;
+  margin: 0 auto;
+  overflow:hidden;
+  color: #fff;
+  font-size: 12px;
+  line-height: 30px;
+}
+.footer .footer-content .l-logo {
+  width: 116px;
+  height: 50px;
+  padding-left: 30px;
+  margin-top: 24px;
+  float:left;
+}
+.footer .footer-content .c-link ul {
+  display: block;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-content: space-between;
+}
+.footer .footer-content .c-link ul li a {
+  padding: 0 9px;
+  color: #fff;
+}
+.footer .footer-content .c-link ul .li-01 a {
+  padding-left: 0;
+}
+.footer .footer-content .line {
+  display: block;
+  width: 1px;
+  height: 80px;
+  margin-top: 5px;
+  background: #c9cbcd;
+}
